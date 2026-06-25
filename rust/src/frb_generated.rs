@@ -92,7 +92,7 @@ fn wire__crate__engine__XueHuaAudioEngine_create_recorder_impl(
                     }
                     let api_that_guard = api_that_guard.unwrap();
                     let output_ok = Result::<_, ()>::Ok(
-                        crate::engine::XueHuaAudioEngine::create_recorder(&*api_that_guard),
+                        XueHuaAudioEngine::create_recorder(&*api_that_guard),
                     )?;
                     Ok(output_ok)
                 })())
@@ -143,7 +143,7 @@ fn wire__crate__engine__XueHuaAudioEngine_list_input_devices_impl(
                     }
                     let api_that_guard = api_that_guard.unwrap();
                     let output_ok =
-                        crate::engine::XueHuaAudioEngine::list_input_devices(&*api_that_guard)?;
+                        XueHuaAudioEngine::list_input_devices(&*api_that_guard)?;
                     Ok(output_ok)
                 })())
             }
@@ -193,7 +193,7 @@ fn wire__crate__engine__XueHuaAudioEngine_load_from_bytes_impl(
                         }
                     }
                     let api_that_guard = api_that_guard.unwrap();
-                    let output_ok = crate::engine::XueHuaAudioEngine::load_from_bytes(
+                    let output_ok = XueHuaAudioEngine::load_from_bytes(
                         &*api_that_guard,
                         api_data,
                     )?;
@@ -246,7 +246,7 @@ fn wire__crate__engine__XueHuaAudioEngine_load_from_path_impl(
                         }
                     }
                     let api_that_guard = api_that_guard.unwrap();
-                    let output_ok = crate::engine::XueHuaAudioEngine::load_from_path(
+                    let output_ok = XueHuaAudioEngine::load_from_path(
                         &*api_that_guard,
                         api_path,
                     )?;
