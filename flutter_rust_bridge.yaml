@@ -1,0 +1,3 @@
+rust_input: crate::engine,crate::track,crate::init,crate::playback,crate::recording
+rust_root: rust/
+dart_output: lib/src/rust
