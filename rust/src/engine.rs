@@ -1,11 +1,11 @@
 use crate::error::XueHuaAudioError;
-use crate::recording::{list_input_devices, stop_shared_recorder, XueHuaAudioRecorder};
+use crate::recording::{XueHuaAudioRecorder, list_input_devices, stop_shared_recorder};
 use crate::track::{
-    open_decoder_from_bytes, open_decoder_from_path, TrackSharedState, XueHuaAudioTrack,
+    TrackSharedState, XueHuaAudioTrack, open_decoder_from_bytes, open_decoder_from_path,
 };
-use rodio::stream::DeviceSinkBuilder;
 use rodio::Player;
 use rodio::Source;
+use rodio::stream::DeviceSinkBuilder;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 

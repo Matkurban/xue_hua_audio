@@ -1,7 +1,7 @@
-use crate::engine::{next_track_id, unregister_track, Registry, RegistryEntry};
+use crate::engine::{Registry, RegistryEntry, next_track_id, unregister_track};
 use crate::error::XueHuaAudioError;
 use crate::frb_generated::StreamSink;
-use crate::playback::{compute_progress_ratio, XueHuaPlaybackProgress};
+use crate::playback::{XueHuaPlaybackProgress, compute_progress_ratio};
 use rodio::{Decoder, Player, Source};
 use std::fs::File;
 use std::io::{BufReader, Cursor};

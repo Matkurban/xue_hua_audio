@@ -1,9 +1,9 @@
-use crate::engine::{next_recorder_id, unregister_recorder, RecorderRegistry};
+use crate::engine::{RecorderRegistry, next_recorder_id, unregister_recorder};
 use crate::error::XueHuaAudioError;
 use crate::frb_generated::StreamSink;
 use hound::{SampleFormat, WavSpec, WavWriter};
-use rodio::microphone::{self, Microphone, MicrophoneBuilder};
 use rodio::Source;
+use rodio::microphone::{self, Microphone, MicrophoneBuilder};
 use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};

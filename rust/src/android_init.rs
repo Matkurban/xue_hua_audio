@@ -1,7 +1,7 @@
 #[cfg(target_os = "android")]
 mod imp {
-    use jni::objects::{GlobalRef, JClass, JObject};
     use jni::JNIEnv;
+    use jni::objects::{GlobalRef, JClass, JObject};
     use std::ffi::c_void;
     use std::sync::{Once, OnceLock};
 
