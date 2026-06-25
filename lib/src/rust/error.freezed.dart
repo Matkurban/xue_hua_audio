@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,1265 +9,556 @@ part of 'error.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$XueHuaAudioError {
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String field0) device,
-    required TResult Function(String field0) localFile,
-    required TResult Function(String field0) decode,
-    required TResult Function() alreadyStopped,
-    required TResult Function(String field0) recording,
-    required TResult Function() alreadyRecording,
-    required TResult Function() notRecording,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String field0)? device,
-    TResult? Function(String field0)? localFile,
-    TResult? Function(String field0)? decode,
-    TResult? Function()? alreadyStopped,
-    TResult? Function(String field0)? recording,
-    TResult? Function()? alreadyRecording,
-    TResult? Function()? notRecording,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String field0)? device,
-    TResult Function(String field0)? localFile,
-    TResult Function(String field0)? decode,
-    TResult Function()? alreadyStopped,
-    TResult Function(String field0)? recording,
-    TResult Function()? alreadyRecording,
-    TResult Function()? notRecording,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(XueHuaAudioError_Device value) device,
-    required TResult Function(XueHuaAudioError_LocalFile value) localFile,
-    required TResult Function(XueHuaAudioError_Decode value) decode,
-    required TResult Function(XueHuaAudioError_AlreadyStopped value)
-    alreadyStopped,
-    required TResult Function(XueHuaAudioError_Recording value) recording,
-    required TResult Function(XueHuaAudioError_AlreadyRecording value)
-    alreadyRecording,
-    required TResult Function(XueHuaAudioError_NotRecording value) notRecording,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaAudioError_Device value)? device,
-    TResult? Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult? Function(XueHuaAudioError_Decode value)? decode,
-    TResult? Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult? Function(XueHuaAudioError_Recording value)? recording,
-    TResult? Function(XueHuaAudioError_AlreadyRecording value)?
-    alreadyRecording,
-    TResult? Function(XueHuaAudioError_NotRecording value)? notRecording,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(XueHuaAudioError_Device value)? device,
-    TResult Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult Function(XueHuaAudioError_Decode value)? decode,
-    TResult Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult Function(XueHuaAudioError_Recording value)? recording,
-    TResult Function(XueHuaAudioError_AlreadyRecording value)? alreadyRecording,
-    TResult Function(XueHuaAudioError_NotRecording value)? notRecording,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XueHuaAudioError);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'XueHuaAudioError()';
+}
+
+
 }
 
 /// @nodoc
-abstract class $XueHuaAudioErrorCopyWith<$Res> {
-  factory $XueHuaAudioErrorCopyWith(
-    XueHuaAudioError value,
-    $Res Function(XueHuaAudioError) then,
-  ) = _$XueHuaAudioErrorCopyWithImpl<$Res, XueHuaAudioError>;
+class $XueHuaAudioErrorCopyWith<$Res>  {
+$XueHuaAudioErrorCopyWith(XueHuaAudioError _, $Res Function(XueHuaAudioError) __);
 }
 
-/// @nodoc
-class _$XueHuaAudioErrorCopyWithImpl<$Res, $Val extends XueHuaAudioError>
-    implements $XueHuaAudioErrorCopyWith<$Res> {
-  _$XueHuaAudioErrorCopyWithImpl(this._value, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+/// Adds pattern-matching-related methods to [XueHuaAudioError].
+extension XueHuaAudioErrorPatterns on XueHuaAudioError {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( XueHuaAudioError_Device value)?  device,TResult Function( XueHuaAudioError_LocalFile value)?  localFile,TResult Function( XueHuaAudioError_Decode value)?  decode,TResult Function( XueHuaAudioError_AlreadyStopped value)?  alreadyStopped,TResult Function( XueHuaAudioError_Recording value)?  recording,TResult Function( XueHuaAudioError_AlreadyRecording value)?  alreadyRecording,TResult Function( XueHuaAudioError_NotRecording value)?  notRecording,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case XueHuaAudioError_Device() when device != null:
+return device(_that);case XueHuaAudioError_LocalFile() when localFile != null:
+return localFile(_that);case XueHuaAudioError_Decode() when decode != null:
+return decode(_that);case XueHuaAudioError_AlreadyStopped() when alreadyStopped != null:
+return alreadyStopped(_that);case XueHuaAudioError_Recording() when recording != null:
+return recording(_that);case XueHuaAudioError_AlreadyRecording() when alreadyRecording != null:
+return alreadyRecording(_that);case XueHuaAudioError_NotRecording() when notRecording != null:
+return notRecording(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( XueHuaAudioError_Device value)  device,required TResult Function( XueHuaAudioError_LocalFile value)  localFile,required TResult Function( XueHuaAudioError_Decode value)  decode,required TResult Function( XueHuaAudioError_AlreadyStopped value)  alreadyStopped,required TResult Function( XueHuaAudioError_Recording value)  recording,required TResult Function( XueHuaAudioError_AlreadyRecording value)  alreadyRecording,required TResult Function( XueHuaAudioError_NotRecording value)  notRecording,}){
+final _that = this;
+switch (_that) {
+case XueHuaAudioError_Device():
+return device(_that);case XueHuaAudioError_LocalFile():
+return localFile(_that);case XueHuaAudioError_Decode():
+return decode(_that);case XueHuaAudioError_AlreadyStopped():
+return alreadyStopped(_that);case XueHuaAudioError_Recording():
+return recording(_that);case XueHuaAudioError_AlreadyRecording():
+return alreadyRecording(_that);case XueHuaAudioError_NotRecording():
+return notRecording(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( XueHuaAudioError_Device value)?  device,TResult? Function( XueHuaAudioError_LocalFile value)?  localFile,TResult? Function( XueHuaAudioError_Decode value)?  decode,TResult? Function( XueHuaAudioError_AlreadyStopped value)?  alreadyStopped,TResult? Function( XueHuaAudioError_Recording value)?  recording,TResult? Function( XueHuaAudioError_AlreadyRecording value)?  alreadyRecording,TResult? Function( XueHuaAudioError_NotRecording value)?  notRecording,}){
+final _that = this;
+switch (_that) {
+case XueHuaAudioError_Device() when device != null:
+return device(_that);case XueHuaAudioError_LocalFile() when localFile != null:
+return localFile(_that);case XueHuaAudioError_Decode() when decode != null:
+return decode(_that);case XueHuaAudioError_AlreadyStopped() when alreadyStopped != null:
+return alreadyStopped(_that);case XueHuaAudioError_Recording() when recording != null:
+return recording(_that);case XueHuaAudioError_AlreadyRecording() when alreadyRecording != null:
+return alreadyRecording(_that);case XueHuaAudioError_NotRecording() when notRecording != null:
+return notRecording(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String field0)?  device,TResult Function( String field0)?  localFile,TResult Function( String field0)?  decode,TResult Function()?  alreadyStopped,TResult Function( String field0)?  recording,TResult Function()?  alreadyRecording,TResult Function()?  notRecording,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case XueHuaAudioError_Device() when device != null:
+return device(_that.field0);case XueHuaAudioError_LocalFile() when localFile != null:
+return localFile(_that.field0);case XueHuaAudioError_Decode() when decode != null:
+return decode(_that.field0);case XueHuaAudioError_AlreadyStopped() when alreadyStopped != null:
+return alreadyStopped();case XueHuaAudioError_Recording() when recording != null:
+return recording(_that.field0);case XueHuaAudioError_AlreadyRecording() when alreadyRecording != null:
+return alreadyRecording();case XueHuaAudioError_NotRecording() when notRecording != null:
+return notRecording();case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String field0)  device,required TResult Function( String field0)  localFile,required TResult Function( String field0)  decode,required TResult Function()  alreadyStopped,required TResult Function( String field0)  recording,required TResult Function()  alreadyRecording,required TResult Function()  notRecording,}) {final _that = this;
+switch (_that) {
+case XueHuaAudioError_Device():
+return device(_that.field0);case XueHuaAudioError_LocalFile():
+return localFile(_that.field0);case XueHuaAudioError_Decode():
+return decode(_that.field0);case XueHuaAudioError_AlreadyStopped():
+return alreadyStopped();case XueHuaAudioError_Recording():
+return recording(_that.field0);case XueHuaAudioError_AlreadyRecording():
+return alreadyRecording();case XueHuaAudioError_NotRecording():
+return notRecording();}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String field0)?  device,TResult? Function( String field0)?  localFile,TResult? Function( String field0)?  decode,TResult? Function()?  alreadyStopped,TResult? Function( String field0)?  recording,TResult? Function()?  alreadyRecording,TResult? Function()?  notRecording,}) {final _that = this;
+switch (_that) {
+case XueHuaAudioError_Device() when device != null:
+return device(_that.field0);case XueHuaAudioError_LocalFile() when localFile != null:
+return localFile(_that.field0);case XueHuaAudioError_Decode() when decode != null:
+return decode(_that.field0);case XueHuaAudioError_AlreadyStopped() when alreadyStopped != null:
+return alreadyStopped();case XueHuaAudioError_Recording() when recording != null:
+return recording(_that.field0);case XueHuaAudioError_AlreadyRecording() when alreadyRecording != null:
+return alreadyRecording();case XueHuaAudioError_NotRecording() when notRecording != null:
+return notRecording();case _:
+  return null;
+
+}
 }
 
-/// @nodoc
-abstract class _$$XueHuaAudioError_DeviceImplCopyWith<$Res> {
-  factory _$$XueHuaAudioError_DeviceImplCopyWith(
-    _$XueHuaAudioError_DeviceImpl value,
-    $Res Function(_$XueHuaAudioError_DeviceImpl) then,
-  ) = __$$XueHuaAudioError_DeviceImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String field0});
-}
-
-/// @nodoc
-class __$$XueHuaAudioError_DeviceImplCopyWithImpl<$Res>
-    extends _$XueHuaAudioErrorCopyWithImpl<$Res, _$XueHuaAudioError_DeviceImpl>
-    implements _$$XueHuaAudioError_DeviceImplCopyWith<$Res> {
-  __$$XueHuaAudioError_DeviceImplCopyWithImpl(
-    _$XueHuaAudioError_DeviceImpl _value,
-    $Res Function(_$XueHuaAudioError_DeviceImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? field0 = null}) {
-    return _then(
-      _$XueHuaAudioError_DeviceImpl(
-        null == field0
-            ? _value.field0
-            : field0 // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$XueHuaAudioError_DeviceImpl extends XueHuaAudioError_Device {
-  const _$XueHuaAudioError_DeviceImpl(this.field0) : super._();
-
-  @override
-  final String field0;
-
-  @override
-  String toString() {
-    return 'XueHuaAudioError.device(field0: $field0)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$XueHuaAudioError_DeviceImpl &&
-            (identical(other.field0, field0) || other.field0 == field0));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, field0);
-
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$XueHuaAudioError_DeviceImplCopyWith<_$XueHuaAudioError_DeviceImpl>
-  get copyWith =>
-      __$$XueHuaAudioError_DeviceImplCopyWithImpl<
-        _$XueHuaAudioError_DeviceImpl
-      >(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String field0) device,
-    required TResult Function(String field0) localFile,
-    required TResult Function(String field0) decode,
-    required TResult Function() alreadyStopped,
-    required TResult Function(String field0) recording,
-    required TResult Function() alreadyRecording,
-    required TResult Function() notRecording,
-  }) {
-    return device(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String field0)? device,
-    TResult? Function(String field0)? localFile,
-    TResult? Function(String field0)? decode,
-    TResult? Function()? alreadyStopped,
-    TResult? Function(String field0)? recording,
-    TResult? Function()? alreadyRecording,
-    TResult? Function()? notRecording,
-  }) {
-    return device?.call(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String field0)? device,
-    TResult Function(String field0)? localFile,
-    TResult Function(String field0)? decode,
-    TResult Function()? alreadyStopped,
-    TResult Function(String field0)? recording,
-    TResult Function()? alreadyRecording,
-    TResult Function()? notRecording,
-    required TResult orElse(),
-  }) {
-    if (device != null) {
-      return device(field0);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(XueHuaAudioError_Device value) device,
-    required TResult Function(XueHuaAudioError_LocalFile value) localFile,
-    required TResult Function(XueHuaAudioError_Decode value) decode,
-    required TResult Function(XueHuaAudioError_AlreadyStopped value)
-    alreadyStopped,
-    required TResult Function(XueHuaAudioError_Recording value) recording,
-    required TResult Function(XueHuaAudioError_AlreadyRecording value)
-    alreadyRecording,
-    required TResult Function(XueHuaAudioError_NotRecording value) notRecording,
-  }) {
-    return device(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaAudioError_Device value)? device,
-    TResult? Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult? Function(XueHuaAudioError_Decode value)? decode,
-    TResult? Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult? Function(XueHuaAudioError_Recording value)? recording,
-    TResult? Function(XueHuaAudioError_AlreadyRecording value)?
-    alreadyRecording,
-    TResult? Function(XueHuaAudioError_NotRecording value)? notRecording,
-  }) {
-    return device?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(XueHuaAudioError_Device value)? device,
-    TResult Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult Function(XueHuaAudioError_Decode value)? decode,
-    TResult Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult Function(XueHuaAudioError_Recording value)? recording,
-    TResult Function(XueHuaAudioError_AlreadyRecording value)? alreadyRecording,
-    TResult Function(XueHuaAudioError_NotRecording value)? notRecording,
-    required TResult orElse(),
-  }) {
-    if (device != null) {
-      return device(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class XueHuaAudioError_Device extends XueHuaAudioError {
-  const factory XueHuaAudioError_Device(final String field0) =
-      _$XueHuaAudioError_DeviceImpl;
-  const XueHuaAudioError_Device._() : super._();
-
-  String get field0;
-
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$XueHuaAudioError_DeviceImplCopyWith<_$XueHuaAudioError_DeviceImpl>
-  get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$XueHuaAudioError_LocalFileImplCopyWith<$Res> {
-  factory _$$XueHuaAudioError_LocalFileImplCopyWith(
-    _$XueHuaAudioError_LocalFileImpl value,
-    $Res Function(_$XueHuaAudioError_LocalFileImpl) then,
-  ) = __$$XueHuaAudioError_LocalFileImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String field0});
-}
-
-/// @nodoc
-class __$$XueHuaAudioError_LocalFileImplCopyWithImpl<$Res>
-    extends
-        _$XueHuaAudioErrorCopyWithImpl<$Res, _$XueHuaAudioError_LocalFileImpl>
-    implements _$$XueHuaAudioError_LocalFileImplCopyWith<$Res> {
-  __$$XueHuaAudioError_LocalFileImplCopyWithImpl(
-    _$XueHuaAudioError_LocalFileImpl _value,
-    $Res Function(_$XueHuaAudioError_LocalFileImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? field0 = null}) {
-    return _then(
-      _$XueHuaAudioError_LocalFileImpl(
-        null == field0
-            ? _value.field0
-            : field0 // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$XueHuaAudioError_LocalFileImpl extends XueHuaAudioError_LocalFile {
-  const _$XueHuaAudioError_LocalFileImpl(this.field0) : super._();
 
-  @override
-  final String field0;
+class XueHuaAudioError_Device extends XueHuaAudioError {
+  const XueHuaAudioError_Device(this.field0): super._();
+  
 
-  @override
-  String toString() {
-    return 'XueHuaAudioError.localFile(field0: $field0)';
-  }
+ final  String field0;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$XueHuaAudioError_LocalFileImpl &&
-            (identical(other.field0, field0) || other.field0 == field0));
-  }
+/// Create a copy of XueHuaAudioError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$XueHuaAudioError_DeviceCopyWith<XueHuaAudioError_Device> get copyWith => _$XueHuaAudioError_DeviceCopyWithImpl<XueHuaAudioError_Device>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(runtimeType, field0);
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$XueHuaAudioError_LocalFileImplCopyWith<_$XueHuaAudioError_LocalFileImpl>
-  get copyWith =>
-      __$$XueHuaAudioError_LocalFileImplCopyWithImpl<
-        _$XueHuaAudioError_LocalFileImpl
-      >(this, _$identity);
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String field0) device,
-    required TResult Function(String field0) localFile,
-    required TResult Function(String field0) decode,
-    required TResult Function() alreadyStopped,
-    required TResult Function(String field0) recording,
-    required TResult Function() alreadyRecording,
-    required TResult Function() notRecording,
-  }) {
-    return localFile(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String field0)? device,
-    TResult? Function(String field0)? localFile,
-    TResult? Function(String field0)? decode,
-    TResult? Function()? alreadyStopped,
-    TResult? Function(String field0)? recording,
-    TResult? Function()? alreadyRecording,
-    TResult? Function()? notRecording,
-  }) {
-    return localFile?.call(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String field0)? device,
-    TResult Function(String field0)? localFile,
-    TResult Function(String field0)? decode,
-    TResult Function()? alreadyStopped,
-    TResult Function(String field0)? recording,
-    TResult Function()? alreadyRecording,
-    TResult Function()? notRecording,
-    required TResult orElse(),
-  }) {
-    if (localFile != null) {
-      return localFile(field0);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(XueHuaAudioError_Device value) device,
-    required TResult Function(XueHuaAudioError_LocalFile value) localFile,
-    required TResult Function(XueHuaAudioError_Decode value) decode,
-    required TResult Function(XueHuaAudioError_AlreadyStopped value)
-    alreadyStopped,
-    required TResult Function(XueHuaAudioError_Recording value) recording,
-    required TResult Function(XueHuaAudioError_AlreadyRecording value)
-    alreadyRecording,
-    required TResult Function(XueHuaAudioError_NotRecording value) notRecording,
-  }) {
-    return localFile(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaAudioError_Device value)? device,
-    TResult? Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult? Function(XueHuaAudioError_Decode value)? decode,
-    TResult? Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult? Function(XueHuaAudioError_Recording value)? recording,
-    TResult? Function(XueHuaAudioError_AlreadyRecording value)?
-    alreadyRecording,
-    TResult? Function(XueHuaAudioError_NotRecording value)? notRecording,
-  }) {
-    return localFile?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(XueHuaAudioError_Device value)? device,
-    TResult Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult Function(XueHuaAudioError_Decode value)? decode,
-    TResult Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult Function(XueHuaAudioError_Recording value)? recording,
-    TResult Function(XueHuaAudioError_AlreadyRecording value)? alreadyRecording,
-    TResult Function(XueHuaAudioError_NotRecording value)? notRecording,
-    required TResult orElse(),
-  }) {
-    if (localFile != null) {
-      return localFile(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XueHuaAudioError_Device&&(identical(other.field0, field0) || other.field0 == field0));
 }
 
-abstract class XueHuaAudioError_LocalFile extends XueHuaAudioError {
-  const factory XueHuaAudioError_LocalFile(final String field0) =
-      _$XueHuaAudioError_LocalFileImpl;
-  const XueHuaAudioError_LocalFile._() : super._();
 
-  String get field0;
+@override
+int get hashCode => Object.hash(runtimeType,field0);
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$XueHuaAudioError_LocalFileImplCopyWith<_$XueHuaAudioError_LocalFileImpl>
-  get copyWith => throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'XueHuaAudioError.device(field0: $field0)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$XueHuaAudioError_DecodeImplCopyWith<$Res> {
-  factory _$$XueHuaAudioError_DecodeImplCopyWith(
-    _$XueHuaAudioError_DecodeImpl value,
-    $Res Function(_$XueHuaAudioError_DecodeImpl) then,
-  ) = __$$XueHuaAudioError_DecodeImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String field0});
+abstract mixin class $XueHuaAudioError_DeviceCopyWith<$Res> implements $XueHuaAudioErrorCopyWith<$Res> {
+  factory $XueHuaAudioError_DeviceCopyWith(XueHuaAudioError_Device value, $Res Function(XueHuaAudioError_Device) _then) = _$XueHuaAudioError_DeviceCopyWithImpl;
+@useResult
+$Res call({
+ String field0
+});
+
+
+
+
+}
+/// @nodoc
+class _$XueHuaAudioError_DeviceCopyWithImpl<$Res>
+    implements $XueHuaAudioError_DeviceCopyWith<$Res> {
+  _$XueHuaAudioError_DeviceCopyWithImpl(this._self, this._then);
+
+  final XueHuaAudioError_Device _self;
+  final $Res Function(XueHuaAudioError_Device) _then;
+
+/// Create a copy of XueHuaAudioError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? field0 = null,}) {
+  return _then(XueHuaAudioError_Device(
+null == field0 ? _self.field0 : field0 // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$XueHuaAudioError_DecodeImplCopyWithImpl<$Res>
-    extends _$XueHuaAudioErrorCopyWithImpl<$Res, _$XueHuaAudioError_DecodeImpl>
-    implements _$$XueHuaAudioError_DecodeImplCopyWith<$Res> {
-  __$$XueHuaAudioError_DecodeImplCopyWithImpl(
-    _$XueHuaAudioError_DecodeImpl _value,
-    $Res Function(_$XueHuaAudioError_DecodeImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? field0 = null}) {
-    return _then(
-      _$XueHuaAudioError_DecodeImpl(
-        null == field0
-            ? _value.field0
-            : field0 // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$XueHuaAudioError_DecodeImpl extends XueHuaAudioError_Decode {
-  const _$XueHuaAudioError_DecodeImpl(this.field0) : super._();
 
-  @override
-  final String field0;
+class XueHuaAudioError_LocalFile extends XueHuaAudioError {
+  const XueHuaAudioError_LocalFile(this.field0): super._();
+  
 
-  @override
-  String toString() {
-    return 'XueHuaAudioError.decode(field0: $field0)';
-  }
+ final  String field0;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$XueHuaAudioError_DecodeImpl &&
-            (identical(other.field0, field0) || other.field0 == field0));
-  }
+/// Create a copy of XueHuaAudioError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$XueHuaAudioError_LocalFileCopyWith<XueHuaAudioError_LocalFile> get copyWith => _$XueHuaAudioError_LocalFileCopyWithImpl<XueHuaAudioError_LocalFile>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(runtimeType, field0);
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$XueHuaAudioError_DecodeImplCopyWith<_$XueHuaAudioError_DecodeImpl>
-  get copyWith =>
-      __$$XueHuaAudioError_DecodeImplCopyWithImpl<
-        _$XueHuaAudioError_DecodeImpl
-      >(this, _$identity);
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String field0) device,
-    required TResult Function(String field0) localFile,
-    required TResult Function(String field0) decode,
-    required TResult Function() alreadyStopped,
-    required TResult Function(String field0) recording,
-    required TResult Function() alreadyRecording,
-    required TResult Function() notRecording,
-  }) {
-    return decode(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String field0)? device,
-    TResult? Function(String field0)? localFile,
-    TResult? Function(String field0)? decode,
-    TResult? Function()? alreadyStopped,
-    TResult? Function(String field0)? recording,
-    TResult? Function()? alreadyRecording,
-    TResult? Function()? notRecording,
-  }) {
-    return decode?.call(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String field0)? device,
-    TResult Function(String field0)? localFile,
-    TResult Function(String field0)? decode,
-    TResult Function()? alreadyStopped,
-    TResult Function(String field0)? recording,
-    TResult Function()? alreadyRecording,
-    TResult Function()? notRecording,
-    required TResult orElse(),
-  }) {
-    if (decode != null) {
-      return decode(field0);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(XueHuaAudioError_Device value) device,
-    required TResult Function(XueHuaAudioError_LocalFile value) localFile,
-    required TResult Function(XueHuaAudioError_Decode value) decode,
-    required TResult Function(XueHuaAudioError_AlreadyStopped value)
-    alreadyStopped,
-    required TResult Function(XueHuaAudioError_Recording value) recording,
-    required TResult Function(XueHuaAudioError_AlreadyRecording value)
-    alreadyRecording,
-    required TResult Function(XueHuaAudioError_NotRecording value) notRecording,
-  }) {
-    return decode(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaAudioError_Device value)? device,
-    TResult? Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult? Function(XueHuaAudioError_Decode value)? decode,
-    TResult? Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult? Function(XueHuaAudioError_Recording value)? recording,
-    TResult? Function(XueHuaAudioError_AlreadyRecording value)?
-    alreadyRecording,
-    TResult? Function(XueHuaAudioError_NotRecording value)? notRecording,
-  }) {
-    return decode?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(XueHuaAudioError_Device value)? device,
-    TResult Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult Function(XueHuaAudioError_Decode value)? decode,
-    TResult Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult Function(XueHuaAudioError_Recording value)? recording,
-    TResult Function(XueHuaAudioError_AlreadyRecording value)? alreadyRecording,
-    TResult Function(XueHuaAudioError_NotRecording value)? notRecording,
-    required TResult orElse(),
-  }) {
-    if (decode != null) {
-      return decode(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XueHuaAudioError_LocalFile&&(identical(other.field0, field0) || other.field0 == field0));
 }
 
-abstract class XueHuaAudioError_Decode extends XueHuaAudioError {
-  const factory XueHuaAudioError_Decode(final String field0) =
-      _$XueHuaAudioError_DecodeImpl;
-  const XueHuaAudioError_Decode._() : super._();
 
-  String get field0;
+@override
+int get hashCode => Object.hash(runtimeType,field0);
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$XueHuaAudioError_DecodeImplCopyWith<_$XueHuaAudioError_DecodeImpl>
-  get copyWith => throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'XueHuaAudioError.localFile(field0: $field0)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$XueHuaAudioError_AlreadyStoppedImplCopyWith<$Res> {
-  factory _$$XueHuaAudioError_AlreadyStoppedImplCopyWith(
-    _$XueHuaAudioError_AlreadyStoppedImpl value,
-    $Res Function(_$XueHuaAudioError_AlreadyStoppedImpl) then,
-  ) = __$$XueHuaAudioError_AlreadyStoppedImplCopyWithImpl<$Res>;
+abstract mixin class $XueHuaAudioError_LocalFileCopyWith<$Res> implements $XueHuaAudioErrorCopyWith<$Res> {
+  factory $XueHuaAudioError_LocalFileCopyWith(XueHuaAudioError_LocalFile value, $Res Function(XueHuaAudioError_LocalFile) _then) = _$XueHuaAudioError_LocalFileCopyWithImpl;
+@useResult
+$Res call({
+ String field0
+});
+
+
+
+
+}
+/// @nodoc
+class _$XueHuaAudioError_LocalFileCopyWithImpl<$Res>
+    implements $XueHuaAudioError_LocalFileCopyWith<$Res> {
+  _$XueHuaAudioError_LocalFileCopyWithImpl(this._self, this._then);
+
+  final XueHuaAudioError_LocalFile _self;
+  final $Res Function(XueHuaAudioError_LocalFile) _then;
+
+/// Create a copy of XueHuaAudioError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? field0 = null,}) {
+  return _then(XueHuaAudioError_LocalFile(
+null == field0 ? _self.field0 : field0 // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$XueHuaAudioError_AlreadyStoppedImplCopyWithImpl<$Res>
-    extends
-        _$XueHuaAudioErrorCopyWithImpl<
-          $Res,
-          _$XueHuaAudioError_AlreadyStoppedImpl
-        >
-    implements _$$XueHuaAudioError_AlreadyStoppedImplCopyWith<$Res> {
-  __$$XueHuaAudioError_AlreadyStoppedImplCopyWithImpl(
-    _$XueHuaAudioError_AlreadyStoppedImpl _value,
-    $Res Function(_$XueHuaAudioError_AlreadyStoppedImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 
-class _$XueHuaAudioError_AlreadyStoppedImpl
-    extends XueHuaAudioError_AlreadyStopped {
-  const _$XueHuaAudioError_AlreadyStoppedImpl() : super._();
 
-  @override
-  String toString() {
-    return 'XueHuaAudioError.alreadyStopped()';
-  }
+class XueHuaAudioError_Decode extends XueHuaAudioError {
+  const XueHuaAudioError_Decode(this.field0): super._();
+  
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$XueHuaAudioError_AlreadyStoppedImpl);
-  }
+ final  String field0;
 
-  @override
-  int get hashCode => runtimeType.hashCode;
+/// Create a copy of XueHuaAudioError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$XueHuaAudioError_DecodeCopyWith<XueHuaAudioError_Decode> get copyWith => _$XueHuaAudioError_DecodeCopyWithImpl<XueHuaAudioError_Decode>(this, _$identity);
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String field0) device,
-    required TResult Function(String field0) localFile,
-    required TResult Function(String field0) decode,
-    required TResult Function() alreadyStopped,
-    required TResult Function(String field0) recording,
-    required TResult Function() alreadyRecording,
-    required TResult Function() notRecording,
-  }) {
-    return alreadyStopped();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String field0)? device,
-    TResult? Function(String field0)? localFile,
-    TResult? Function(String field0)? decode,
-    TResult? Function()? alreadyStopped,
-    TResult? Function(String field0)? recording,
-    TResult? Function()? alreadyRecording,
-    TResult? Function()? notRecording,
-  }) {
-    return alreadyStopped?.call();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String field0)? device,
-    TResult Function(String field0)? localFile,
-    TResult Function(String field0)? decode,
-    TResult Function()? alreadyStopped,
-    TResult Function(String field0)? recording,
-    TResult Function()? alreadyRecording,
-    TResult Function()? notRecording,
-    required TResult orElse(),
-  }) {
-    if (alreadyStopped != null) {
-      return alreadyStopped();
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(XueHuaAudioError_Device value) device,
-    required TResult Function(XueHuaAudioError_LocalFile value) localFile,
-    required TResult Function(XueHuaAudioError_Decode value) decode,
-    required TResult Function(XueHuaAudioError_AlreadyStopped value)
-    alreadyStopped,
-    required TResult Function(XueHuaAudioError_Recording value) recording,
-    required TResult Function(XueHuaAudioError_AlreadyRecording value)
-    alreadyRecording,
-    required TResult Function(XueHuaAudioError_NotRecording value) notRecording,
-  }) {
-    return alreadyStopped(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaAudioError_Device value)? device,
-    TResult? Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult? Function(XueHuaAudioError_Decode value)? decode,
-    TResult? Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult? Function(XueHuaAudioError_Recording value)? recording,
-    TResult? Function(XueHuaAudioError_AlreadyRecording value)?
-    alreadyRecording,
-    TResult? Function(XueHuaAudioError_NotRecording value)? notRecording,
-  }) {
-    return alreadyStopped?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(XueHuaAudioError_Device value)? device,
-    TResult Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult Function(XueHuaAudioError_Decode value)? decode,
-    TResult Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult Function(XueHuaAudioError_Recording value)? recording,
-    TResult Function(XueHuaAudioError_AlreadyRecording value)? alreadyRecording,
-    TResult Function(XueHuaAudioError_NotRecording value)? notRecording,
-    required TResult orElse(),
-  }) {
-    if (alreadyStopped != null) {
-      return alreadyStopped(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XueHuaAudioError_Decode&&(identical(other.field0, field0) || other.field0 == field0));
 }
 
-abstract class XueHuaAudioError_AlreadyStopped extends XueHuaAudioError {
-  const factory XueHuaAudioError_AlreadyStopped() =
-      _$XueHuaAudioError_AlreadyStoppedImpl;
-  const XueHuaAudioError_AlreadyStopped._() : super._();
+
+@override
+int get hashCode => Object.hash(runtimeType,field0);
+
+@override
+String toString() {
+  return 'XueHuaAudioError.decode(field0: $field0)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$XueHuaAudioError_RecordingImplCopyWith<$Res> {
-  factory _$$XueHuaAudioError_RecordingImplCopyWith(
-    _$XueHuaAudioError_RecordingImpl value,
-    $Res Function(_$XueHuaAudioError_RecordingImpl) then,
-  ) = __$$XueHuaAudioError_RecordingImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String field0});
+abstract mixin class $XueHuaAudioError_DecodeCopyWith<$Res> implements $XueHuaAudioErrorCopyWith<$Res> {
+  factory $XueHuaAudioError_DecodeCopyWith(XueHuaAudioError_Decode value, $Res Function(XueHuaAudioError_Decode) _then) = _$XueHuaAudioError_DecodeCopyWithImpl;
+@useResult
+$Res call({
+ String field0
+});
+
+
+
+
+}
+/// @nodoc
+class _$XueHuaAudioError_DecodeCopyWithImpl<$Res>
+    implements $XueHuaAudioError_DecodeCopyWith<$Res> {
+  _$XueHuaAudioError_DecodeCopyWithImpl(this._self, this._then);
+
+  final XueHuaAudioError_Decode _self;
+  final $Res Function(XueHuaAudioError_Decode) _then;
+
+/// Create a copy of XueHuaAudioError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? field0 = null,}) {
+  return _then(XueHuaAudioError_Decode(
+null == field0 ? _self.field0 : field0 // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$XueHuaAudioError_RecordingImplCopyWithImpl<$Res>
-    extends
-        _$XueHuaAudioErrorCopyWithImpl<$Res, _$XueHuaAudioError_RecordingImpl>
-    implements _$$XueHuaAudioError_RecordingImplCopyWith<$Res> {
-  __$$XueHuaAudioError_RecordingImplCopyWithImpl(
-    _$XueHuaAudioError_RecordingImpl _value,
-    $Res Function(_$XueHuaAudioError_RecordingImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? field0 = null}) {
-    return _then(
-      _$XueHuaAudioError_RecordingImpl(
-        null == field0
-            ? _value.field0
-            : field0 // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$XueHuaAudioError_RecordingImpl extends XueHuaAudioError_Recording {
-  const _$XueHuaAudioError_RecordingImpl(this.field0) : super._();
 
-  @override
-  final String field0;
+class XueHuaAudioError_AlreadyStopped extends XueHuaAudioError {
+  const XueHuaAudioError_AlreadyStopped(): super._();
+  
 
-  @override
-  String toString() {
-    return 'XueHuaAudioError.recording(field0: $field0)';
-  }
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$XueHuaAudioError_RecordingImpl &&
-            (identical(other.field0, field0) || other.field0 == field0));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, field0);
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$XueHuaAudioError_RecordingImplCopyWith<_$XueHuaAudioError_RecordingImpl>
-  get copyWith =>
-      __$$XueHuaAudioError_RecordingImplCopyWithImpl<
-        _$XueHuaAudioError_RecordingImpl
-      >(this, _$identity);
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String field0) device,
-    required TResult Function(String field0) localFile,
-    required TResult Function(String field0) decode,
-    required TResult Function() alreadyStopped,
-    required TResult Function(String field0) recording,
-    required TResult Function() alreadyRecording,
-    required TResult Function() notRecording,
-  }) {
-    return recording(field0);
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String field0)? device,
-    TResult? Function(String field0)? localFile,
-    TResult? Function(String field0)? decode,
-    TResult? Function()? alreadyStopped,
-    TResult? Function(String field0)? recording,
-    TResult? Function()? alreadyRecording,
-    TResult? Function()? notRecording,
-  }) {
-    return recording?.call(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String field0)? device,
-    TResult Function(String field0)? localFile,
-    TResult Function(String field0)? decode,
-    TResult Function()? alreadyStopped,
-    TResult Function(String field0)? recording,
-    TResult Function()? alreadyRecording,
-    TResult Function()? notRecording,
-    required TResult orElse(),
-  }) {
-    if (recording != null) {
-      return recording(field0);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(XueHuaAudioError_Device value) device,
-    required TResult Function(XueHuaAudioError_LocalFile value) localFile,
-    required TResult Function(XueHuaAudioError_Decode value) decode,
-    required TResult Function(XueHuaAudioError_AlreadyStopped value)
-    alreadyStopped,
-    required TResult Function(XueHuaAudioError_Recording value) recording,
-    required TResult Function(XueHuaAudioError_AlreadyRecording value)
-    alreadyRecording,
-    required TResult Function(XueHuaAudioError_NotRecording value) notRecording,
-  }) {
-    return recording(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaAudioError_Device value)? device,
-    TResult? Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult? Function(XueHuaAudioError_Decode value)? decode,
-    TResult? Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult? Function(XueHuaAudioError_Recording value)? recording,
-    TResult? Function(XueHuaAudioError_AlreadyRecording value)?
-    alreadyRecording,
-    TResult? Function(XueHuaAudioError_NotRecording value)? notRecording,
-  }) {
-    return recording?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(XueHuaAudioError_Device value)? device,
-    TResult Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult Function(XueHuaAudioError_Decode value)? decode,
-    TResult Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult Function(XueHuaAudioError_Recording value)? recording,
-    TResult Function(XueHuaAudioError_AlreadyRecording value)? alreadyRecording,
-    TResult Function(XueHuaAudioError_NotRecording value)? notRecording,
-    required TResult orElse(),
-  }) {
-    if (recording != null) {
-      return recording(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XueHuaAudioError_AlreadyStopped);
 }
 
-abstract class XueHuaAudioError_Recording extends XueHuaAudioError {
-  const factory XueHuaAudioError_Recording(final String field0) =
-      _$XueHuaAudioError_RecordingImpl;
-  const XueHuaAudioError_Recording._() : super._();
 
-  String get field0;
+@override
+int get hashCode => runtimeType.hashCode;
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$XueHuaAudioError_RecordingImplCopyWith<_$XueHuaAudioError_RecordingImpl>
-  get copyWith => throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'XueHuaAudioError.alreadyStopped()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class XueHuaAudioError_Recording extends XueHuaAudioError {
+  const XueHuaAudioError_Recording(this.field0): super._();
+  
+
+ final  String field0;
+
+/// Create a copy of XueHuaAudioError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$XueHuaAudioError_RecordingCopyWith<XueHuaAudioError_Recording> get copyWith => _$XueHuaAudioError_RecordingCopyWithImpl<XueHuaAudioError_Recording>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XueHuaAudioError_Recording&&(identical(other.field0, field0) || other.field0 == field0));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,field0);
+
+@override
+String toString() {
+  return 'XueHuaAudioError.recording(field0: $field0)';
+}
+
+
 }
 
 /// @nodoc
-abstract class _$$XueHuaAudioError_AlreadyRecordingImplCopyWith<$Res> {
-  factory _$$XueHuaAudioError_AlreadyRecordingImplCopyWith(
-    _$XueHuaAudioError_AlreadyRecordingImpl value,
-    $Res Function(_$XueHuaAudioError_AlreadyRecordingImpl) then,
-  ) = __$$XueHuaAudioError_AlreadyRecordingImplCopyWithImpl<$Res>;
+abstract mixin class $XueHuaAudioError_RecordingCopyWith<$Res> implements $XueHuaAudioErrorCopyWith<$Res> {
+  factory $XueHuaAudioError_RecordingCopyWith(XueHuaAudioError_Recording value, $Res Function(XueHuaAudioError_Recording) _then) = _$XueHuaAudioError_RecordingCopyWithImpl;
+@useResult
+$Res call({
+ String field0
+});
+
+
+
+
+}
+/// @nodoc
+class _$XueHuaAudioError_RecordingCopyWithImpl<$Res>
+    implements $XueHuaAudioError_RecordingCopyWith<$Res> {
+  _$XueHuaAudioError_RecordingCopyWithImpl(this._self, this._then);
+
+  final XueHuaAudioError_Recording _self;
+  final $Res Function(XueHuaAudioError_Recording) _then;
+
+/// Create a copy of XueHuaAudioError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? field0 = null,}) {
+  return _then(XueHuaAudioError_Recording(
+null == field0 ? _self.field0 : field0 // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-class __$$XueHuaAudioError_AlreadyRecordingImplCopyWithImpl<$Res>
-    extends
-        _$XueHuaAudioErrorCopyWithImpl<
-          $Res,
-          _$XueHuaAudioError_AlreadyRecordingImpl
-        >
-    implements _$$XueHuaAudioError_AlreadyRecordingImplCopyWith<$Res> {
-  __$$XueHuaAudioError_AlreadyRecordingImplCopyWithImpl(
-    _$XueHuaAudioError_AlreadyRecordingImpl _value,
-    $Res Function(_$XueHuaAudioError_AlreadyRecordingImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 
-class _$XueHuaAudioError_AlreadyRecordingImpl
-    extends XueHuaAudioError_AlreadyRecording {
-  const _$XueHuaAudioError_AlreadyRecordingImpl() : super._();
 
-  @override
-  String toString() {
-    return 'XueHuaAudioError.alreadyRecording()';
-  }
+class XueHuaAudioError_AlreadyRecording extends XueHuaAudioError {
+  const XueHuaAudioError_AlreadyRecording(): super._();
+  
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$XueHuaAudioError_AlreadyRecordingImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String field0) device,
-    required TResult Function(String field0) localFile,
-    required TResult Function(String field0) decode,
-    required TResult Function() alreadyStopped,
-    required TResult Function(String field0) recording,
-    required TResult Function() alreadyRecording,
-    required TResult Function() notRecording,
-  }) {
-    return alreadyRecording();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String field0)? device,
-    TResult? Function(String field0)? localFile,
-    TResult? Function(String field0)? decode,
-    TResult? Function()? alreadyStopped,
-    TResult? Function(String field0)? recording,
-    TResult? Function()? alreadyRecording,
-    TResult? Function()? notRecording,
-  }) {
-    return alreadyRecording?.call();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String field0)? device,
-    TResult Function(String field0)? localFile,
-    TResult Function(String field0)? decode,
-    TResult Function()? alreadyStopped,
-    TResult Function(String field0)? recording,
-    TResult Function()? alreadyRecording,
-    TResult Function()? notRecording,
-    required TResult orElse(),
-  }) {
-    if (alreadyRecording != null) {
-      return alreadyRecording();
-    }
-    return orElse();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(XueHuaAudioError_Device value) device,
-    required TResult Function(XueHuaAudioError_LocalFile value) localFile,
-    required TResult Function(XueHuaAudioError_Decode value) decode,
-    required TResult Function(XueHuaAudioError_AlreadyStopped value)
-    alreadyStopped,
-    required TResult Function(XueHuaAudioError_Recording value) recording,
-    required TResult Function(XueHuaAudioError_AlreadyRecording value)
-    alreadyRecording,
-    required TResult Function(XueHuaAudioError_NotRecording value) notRecording,
-  }) {
-    return alreadyRecording(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaAudioError_Device value)? device,
-    TResult? Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult? Function(XueHuaAudioError_Decode value)? decode,
-    TResult? Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult? Function(XueHuaAudioError_Recording value)? recording,
-    TResult? Function(XueHuaAudioError_AlreadyRecording value)?
-    alreadyRecording,
-    TResult? Function(XueHuaAudioError_NotRecording value)? notRecording,
-  }) {
-    return alreadyRecording?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(XueHuaAudioError_Device value)? device,
-    TResult Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult Function(XueHuaAudioError_Decode value)? decode,
-    TResult Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult Function(XueHuaAudioError_Recording value)? recording,
-    TResult Function(XueHuaAudioError_AlreadyRecording value)? alreadyRecording,
-    TResult Function(XueHuaAudioError_NotRecording value)? notRecording,
-    required TResult orElse(),
-  }) {
-    if (alreadyRecording != null) {
-      return alreadyRecording(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XueHuaAudioError_AlreadyRecording);
 }
 
-abstract class XueHuaAudioError_AlreadyRecording extends XueHuaAudioError {
-  const factory XueHuaAudioError_AlreadyRecording() =
-      _$XueHuaAudioError_AlreadyRecordingImpl;
-  const XueHuaAudioError_AlreadyRecording._() : super._();
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'XueHuaAudioError.alreadyRecording()';
 }
 
-/// @nodoc
-abstract class _$$XueHuaAudioError_NotRecordingImplCopyWith<$Res> {
-  factory _$$XueHuaAudioError_NotRecordingImplCopyWith(
-    _$XueHuaAudioError_NotRecordingImpl value,
-    $Res Function(_$XueHuaAudioError_NotRecordingImpl) then,
-  ) = __$$XueHuaAudioError_NotRecordingImplCopyWithImpl<$Res>;
+
 }
 
-/// @nodoc
-class __$$XueHuaAudioError_NotRecordingImplCopyWithImpl<$Res>
-    extends
-        _$XueHuaAudioErrorCopyWithImpl<
-          $Res,
-          _$XueHuaAudioError_NotRecordingImpl
-        >
-    implements _$$XueHuaAudioError_NotRecordingImplCopyWith<$Res> {
-  __$$XueHuaAudioError_NotRecordingImplCopyWithImpl(
-    _$XueHuaAudioError_NotRecordingImpl _value,
-    $Res Function(_$XueHuaAudioError_NotRecordingImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of XueHuaAudioError
-  /// with the given fields replaced by the non-null parameter values.
-}
+
 
 /// @nodoc
 
-class _$XueHuaAudioError_NotRecordingImpl
-    extends XueHuaAudioError_NotRecording {
-  const _$XueHuaAudioError_NotRecordingImpl() : super._();
 
-  @override
-  String toString() {
-    return 'XueHuaAudioError.notRecording()';
-  }
+class XueHuaAudioError_NotRecording extends XueHuaAudioError {
+  const XueHuaAudioError_NotRecording(): super._();
+  
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$XueHuaAudioError_NotRecordingImpl);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String field0) device,
-    required TResult Function(String field0) localFile,
-    required TResult Function(String field0) decode,
-    required TResult Function() alreadyStopped,
-    required TResult Function(String field0) recording,
-    required TResult Function() alreadyRecording,
-    required TResult Function() notRecording,
-  }) {
-    return notRecording();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String field0)? device,
-    TResult? Function(String field0)? localFile,
-    TResult? Function(String field0)? decode,
-    TResult? Function()? alreadyStopped,
-    TResult? Function(String field0)? recording,
-    TResult? Function()? alreadyRecording,
-    TResult? Function()? notRecording,
-  }) {
-    return notRecording?.call();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String field0)? device,
-    TResult Function(String field0)? localFile,
-    TResult Function(String field0)? decode,
-    TResult Function()? alreadyStopped,
-    TResult Function(String field0)? recording,
-    TResult Function()? alreadyRecording,
-    TResult Function()? notRecording,
-    required TResult orElse(),
-  }) {
-    if (notRecording != null) {
-      return notRecording();
-    }
-    return orElse();
-  }
 
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(XueHuaAudioError_Device value) device,
-    required TResult Function(XueHuaAudioError_LocalFile value) localFile,
-    required TResult Function(XueHuaAudioError_Decode value) decode,
-    required TResult Function(XueHuaAudioError_AlreadyStopped value)
-    alreadyStopped,
-    required TResult Function(XueHuaAudioError_Recording value) recording,
-    required TResult Function(XueHuaAudioError_AlreadyRecording value)
-    alreadyRecording,
-    required TResult Function(XueHuaAudioError_NotRecording value) notRecording,
-  }) {
-    return notRecording(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaAudioError_Device value)? device,
-    TResult? Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult? Function(XueHuaAudioError_Decode value)? decode,
-    TResult? Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult? Function(XueHuaAudioError_Recording value)? recording,
-    TResult? Function(XueHuaAudioError_AlreadyRecording value)?
-    alreadyRecording,
-    TResult? Function(XueHuaAudioError_NotRecording value)? notRecording,
-  }) {
-    return notRecording?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(XueHuaAudioError_Device value)? device,
-    TResult Function(XueHuaAudioError_LocalFile value)? localFile,
-    TResult Function(XueHuaAudioError_Decode value)? decode,
-    TResult Function(XueHuaAudioError_AlreadyStopped value)? alreadyStopped,
-    TResult Function(XueHuaAudioError_Recording value)? recording,
-    TResult Function(XueHuaAudioError_AlreadyRecording value)? alreadyRecording,
-    TResult Function(XueHuaAudioError_NotRecording value)? notRecording,
-    required TResult orElse(),
-  }) {
-    if (notRecording != null) {
-      return notRecording(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XueHuaAudioError_NotRecording);
 }
 
-abstract class XueHuaAudioError_NotRecording extends XueHuaAudioError {
-  const factory XueHuaAudioError_NotRecording() =
-      _$XueHuaAudioError_NotRecordingImpl;
-  const XueHuaAudioError_NotRecording._() : super._();
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'XueHuaAudioError.notRecording()';
 }
+
+
+}
+
+
+
+
+// dart format on

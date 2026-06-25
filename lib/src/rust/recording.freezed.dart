@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,386 +9,298 @@ part of 'recording.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$XueHuaRecordingEvent {
-  Object get field0 => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(XueHuaRecordingProgress field0) progress,
-    required TResult Function(XueHuaRecordingCompleted field0) completed,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaRecordingProgress field0)? progress,
-    TResult? Function(XueHuaRecordingCompleted field0)? completed,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(XueHuaRecordingProgress field0)? progress,
-    TResult Function(XueHuaRecordingCompleted field0)? completed,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(XueHuaRecordingEvent_Progress value) progress,
-    required TResult Function(XueHuaRecordingEvent_Completed value) completed,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaRecordingEvent_Progress value)? progress,
-    TResult? Function(XueHuaRecordingEvent_Completed value)? completed,
-  }) => throw _privateConstructorUsedError;
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(XueHuaRecordingEvent_Progress value)? progress,
-    TResult Function(XueHuaRecordingEvent_Completed value)? completed,
-    required TResult orElse(),
-  }) => throw _privateConstructorUsedError;
+
+ Object get field0;
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XueHuaRecordingEvent&&const DeepCollectionEquality().equals(other.field0, field0));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(field0));
+
+@override
+String toString() {
+  return 'XueHuaRecordingEvent(field0: $field0)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $XueHuaRecordingEventCopyWith<$Res> {
-  factory $XueHuaRecordingEventCopyWith(
-    XueHuaRecordingEvent value,
-    $Res Function(XueHuaRecordingEvent) then,
-  ) = _$XueHuaRecordingEventCopyWithImpl<$Res, XueHuaRecordingEvent>;
+class $XueHuaRecordingEventCopyWith<$Res>  {
+$XueHuaRecordingEventCopyWith(XueHuaRecordingEvent _, $Res Function(XueHuaRecordingEvent) __);
 }
 
-/// @nodoc
-class _$XueHuaRecordingEventCopyWithImpl<
-  $Res,
-  $Val extends XueHuaRecordingEvent
->
-    implements $XueHuaRecordingEventCopyWith<$Res> {
-  _$XueHuaRecordingEventCopyWithImpl(this._value, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+/// Adds pattern-matching-related methods to [XueHuaRecordingEvent].
+extension XueHuaRecordingEventPatterns on XueHuaRecordingEvent {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  /// Create a copy of XueHuaRecordingEvent
-  /// with the given fields replaced by the non-null parameter values.
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( XueHuaRecordingEvent_Progress value)?  progress,TResult Function( XueHuaRecordingEvent_Completed value)?  completed,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case XueHuaRecordingEvent_Progress() when progress != null:
+return progress(_that);case XueHuaRecordingEvent_Completed() when completed != null:
+return completed(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( XueHuaRecordingEvent_Progress value)  progress,required TResult Function( XueHuaRecordingEvent_Completed value)  completed,}){
+final _that = this;
+switch (_that) {
+case XueHuaRecordingEvent_Progress():
+return progress(_that);case XueHuaRecordingEvent_Completed():
+return completed(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( XueHuaRecordingEvent_Progress value)?  progress,TResult? Function( XueHuaRecordingEvent_Completed value)?  completed,}){
+final _that = this;
+switch (_that) {
+case XueHuaRecordingEvent_Progress() when progress != null:
+return progress(_that);case XueHuaRecordingEvent_Completed() when completed != null:
+return completed(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( XueHuaRecordingProgress field0)?  progress,TResult Function( XueHuaRecordingCompleted field0)?  completed,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case XueHuaRecordingEvent_Progress() when progress != null:
+return progress(_that.field0);case XueHuaRecordingEvent_Completed() when completed != null:
+return completed(_that.field0);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( XueHuaRecordingProgress field0)  progress,required TResult Function( XueHuaRecordingCompleted field0)  completed,}) {final _that = this;
+switch (_that) {
+case XueHuaRecordingEvent_Progress():
+return progress(_that.field0);case XueHuaRecordingEvent_Completed():
+return completed(_that.field0);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( XueHuaRecordingProgress field0)?  progress,TResult? Function( XueHuaRecordingCompleted field0)?  completed,}) {final _that = this;
+switch (_that) {
+case XueHuaRecordingEvent_Progress() when progress != null:
+return progress(_that.field0);case XueHuaRecordingEvent_Completed() when completed != null:
+return completed(_that.field0);case _:
+  return null;
+
+}
 }
 
-/// @nodoc
-abstract class _$$XueHuaRecordingEvent_ProgressImplCopyWith<$Res> {
-  factory _$$XueHuaRecordingEvent_ProgressImplCopyWith(
-    _$XueHuaRecordingEvent_ProgressImpl value,
-    $Res Function(_$XueHuaRecordingEvent_ProgressImpl) then,
-  ) = __$$XueHuaRecordingEvent_ProgressImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({XueHuaRecordingProgress field0});
-}
-
-/// @nodoc
-class __$$XueHuaRecordingEvent_ProgressImplCopyWithImpl<$Res>
-    extends
-        _$XueHuaRecordingEventCopyWithImpl<
-          $Res,
-          _$XueHuaRecordingEvent_ProgressImpl
-        >
-    implements _$$XueHuaRecordingEvent_ProgressImplCopyWith<$Res> {
-  __$$XueHuaRecordingEvent_ProgressImplCopyWithImpl(
-    _$XueHuaRecordingEvent_ProgressImpl _value,
-    $Res Function(_$XueHuaRecordingEvent_ProgressImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of XueHuaRecordingEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? field0 = null}) {
-    return _then(
-      _$XueHuaRecordingEvent_ProgressImpl(
-        null == field0
-            ? _value.field0
-            : field0 // ignore: cast_nullable_to_non_nullable
-                  as XueHuaRecordingProgress,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$XueHuaRecordingEvent_ProgressImpl
-    extends XueHuaRecordingEvent_Progress {
-  const _$XueHuaRecordingEvent_ProgressImpl(this.field0) : super._();
-
-  @override
-  final XueHuaRecordingProgress field0;
-
-  @override
-  String toString() {
-    return 'XueHuaRecordingEvent.progress(field0: $field0)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$XueHuaRecordingEvent_ProgressImpl &&
-            (identical(other.field0, field0) || other.field0 == field0));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, field0);
-
-  /// Create a copy of XueHuaRecordingEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$XueHuaRecordingEvent_ProgressImplCopyWith<
-    _$XueHuaRecordingEvent_ProgressImpl
-  >
-  get copyWith =>
-      __$$XueHuaRecordingEvent_ProgressImplCopyWithImpl<
-        _$XueHuaRecordingEvent_ProgressImpl
-      >(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(XueHuaRecordingProgress field0) progress,
-    required TResult Function(XueHuaRecordingCompleted field0) completed,
-  }) {
-    return progress(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaRecordingProgress field0)? progress,
-    TResult? Function(XueHuaRecordingCompleted field0)? completed,
-  }) {
-    return progress?.call(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(XueHuaRecordingProgress field0)? progress,
-    TResult Function(XueHuaRecordingCompleted field0)? completed,
-    required TResult orElse(),
-  }) {
-    if (progress != null) {
-      return progress(field0);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(XueHuaRecordingEvent_Progress value) progress,
-    required TResult Function(XueHuaRecordingEvent_Completed value) completed,
-  }) {
-    return progress(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaRecordingEvent_Progress value)? progress,
-    TResult? Function(XueHuaRecordingEvent_Completed value)? completed,
-  }) {
-    return progress?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(XueHuaRecordingEvent_Progress value)? progress,
-    TResult Function(XueHuaRecordingEvent_Completed value)? completed,
-    required TResult orElse(),
-  }) {
-    if (progress != null) {
-      return progress(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class XueHuaRecordingEvent_Progress extends XueHuaRecordingEvent {
-  const factory XueHuaRecordingEvent_Progress(
-    final XueHuaRecordingProgress field0,
-  ) = _$XueHuaRecordingEvent_ProgressImpl;
-  const XueHuaRecordingEvent_Progress._() : super._();
-
-  @override
-  XueHuaRecordingProgress get field0;
-
-  /// Create a copy of XueHuaRecordingEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$XueHuaRecordingEvent_ProgressImplCopyWith<
-    _$XueHuaRecordingEvent_ProgressImpl
-  >
-  get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$XueHuaRecordingEvent_CompletedImplCopyWith<$Res> {
-  factory _$$XueHuaRecordingEvent_CompletedImplCopyWith(
-    _$XueHuaRecordingEvent_CompletedImpl value,
-    $Res Function(_$XueHuaRecordingEvent_CompletedImpl) then,
-  ) = __$$XueHuaRecordingEvent_CompletedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({XueHuaRecordingCompleted field0});
-}
-
-/// @nodoc
-class __$$XueHuaRecordingEvent_CompletedImplCopyWithImpl<$Res>
-    extends
-        _$XueHuaRecordingEventCopyWithImpl<
-          $Res,
-          _$XueHuaRecordingEvent_CompletedImpl
-        >
-    implements _$$XueHuaRecordingEvent_CompletedImplCopyWith<$Res> {
-  __$$XueHuaRecordingEvent_CompletedImplCopyWithImpl(
-    _$XueHuaRecordingEvent_CompletedImpl _value,
-    $Res Function(_$XueHuaRecordingEvent_CompletedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of XueHuaRecordingEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? field0 = null}) {
-    return _then(
-      _$XueHuaRecordingEvent_CompletedImpl(
-        null == field0
-            ? _value.field0
-            : field0 // ignore: cast_nullable_to_non_nullable
-                  as XueHuaRecordingCompleted,
-      ),
-    );
-  }
 }
 
 /// @nodoc
 
-class _$XueHuaRecordingEvent_CompletedImpl
-    extends XueHuaRecordingEvent_Completed {
-  const _$XueHuaRecordingEvent_CompletedImpl(this.field0) : super._();
 
-  @override
-  final XueHuaRecordingCompleted field0;
+class XueHuaRecordingEvent_Progress extends XueHuaRecordingEvent {
+  const XueHuaRecordingEvent_Progress(this.field0): super._();
+  
 
-  @override
-  String toString() {
-    return 'XueHuaRecordingEvent.completed(field0: $field0)';
-  }
+@override final  XueHuaRecordingProgress field0;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$XueHuaRecordingEvent_CompletedImpl &&
-            (identical(other.field0, field0) || other.field0 == field0));
-  }
+/// Create a copy of XueHuaRecordingEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$XueHuaRecordingEvent_ProgressCopyWith<XueHuaRecordingEvent_Progress> get copyWith => _$XueHuaRecordingEvent_ProgressCopyWithImpl<XueHuaRecordingEvent_Progress>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(runtimeType, field0);
 
-  /// Create a copy of XueHuaRecordingEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$XueHuaRecordingEvent_CompletedImplCopyWith<
-    _$XueHuaRecordingEvent_CompletedImpl
-  >
-  get copyWith =>
-      __$$XueHuaRecordingEvent_CompletedImplCopyWithImpl<
-        _$XueHuaRecordingEvent_CompletedImpl
-      >(this, _$identity);
 
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(XueHuaRecordingProgress field0) progress,
-    required TResult Function(XueHuaRecordingCompleted field0) completed,
-  }) {
-    return completed(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaRecordingProgress field0)? progress,
-    TResult? Function(XueHuaRecordingCompleted field0)? completed,
-  }) {
-    return completed?.call(field0);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(XueHuaRecordingProgress field0)? progress,
-    TResult Function(XueHuaRecordingCompleted field0)? completed,
-    required TResult orElse(),
-  }) {
-    if (completed != null) {
-      return completed(field0);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(XueHuaRecordingEvent_Progress value) progress,
-    required TResult Function(XueHuaRecordingEvent_Completed value) completed,
-  }) {
-    return completed(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(XueHuaRecordingEvent_Progress value)? progress,
-    TResult? Function(XueHuaRecordingEvent_Completed value)? completed,
-  }) {
-    return completed?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(XueHuaRecordingEvent_Progress value)? progress,
-    TResult Function(XueHuaRecordingEvent_Completed value)? completed,
-    required TResult orElse(),
-  }) {
-    if (completed != null) {
-      return completed(this);
-    }
-    return orElse();
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XueHuaRecordingEvent_Progress&&(identical(other.field0, field0) || other.field0 == field0));
 }
 
-abstract class XueHuaRecordingEvent_Completed extends XueHuaRecordingEvent {
-  const factory XueHuaRecordingEvent_Completed(
-    final XueHuaRecordingCompleted field0,
-  ) = _$XueHuaRecordingEvent_CompletedImpl;
-  const XueHuaRecordingEvent_Completed._() : super._();
 
-  @override
-  XueHuaRecordingCompleted get field0;
+@override
+int get hashCode => Object.hash(runtimeType,field0);
 
-  /// Create a copy of XueHuaRecordingEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$XueHuaRecordingEvent_CompletedImplCopyWith<
-    _$XueHuaRecordingEvent_CompletedImpl
-  >
-  get copyWith => throw _privateConstructorUsedError;
+@override
+String toString() {
+  return 'XueHuaRecordingEvent.progress(field0: $field0)';
 }
+
+
+}
+
+/// @nodoc
+abstract mixin class $XueHuaRecordingEvent_ProgressCopyWith<$Res> implements $XueHuaRecordingEventCopyWith<$Res> {
+  factory $XueHuaRecordingEvent_ProgressCopyWith(XueHuaRecordingEvent_Progress value, $Res Function(XueHuaRecordingEvent_Progress) _then) = _$XueHuaRecordingEvent_ProgressCopyWithImpl;
+@useResult
+$Res call({
+ XueHuaRecordingProgress field0
+});
+
+
+
+
+}
+/// @nodoc
+class _$XueHuaRecordingEvent_ProgressCopyWithImpl<$Res>
+    implements $XueHuaRecordingEvent_ProgressCopyWith<$Res> {
+  _$XueHuaRecordingEvent_ProgressCopyWithImpl(this._self, this._then);
+
+  final XueHuaRecordingEvent_Progress _self;
+  final $Res Function(XueHuaRecordingEvent_Progress) _then;
+
+/// Create a copy of XueHuaRecordingEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? field0 = null,}) {
+  return _then(XueHuaRecordingEvent_Progress(
+null == field0 ? _self.field0 : field0 // ignore: cast_nullable_to_non_nullable
+as XueHuaRecordingProgress,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class XueHuaRecordingEvent_Completed extends XueHuaRecordingEvent {
+  const XueHuaRecordingEvent_Completed(this.field0): super._();
+  
+
+@override final  XueHuaRecordingCompleted field0;
+
+/// Create a copy of XueHuaRecordingEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$XueHuaRecordingEvent_CompletedCopyWith<XueHuaRecordingEvent_Completed> get copyWith => _$XueHuaRecordingEvent_CompletedCopyWithImpl<XueHuaRecordingEvent_Completed>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is XueHuaRecordingEvent_Completed&&(identical(other.field0, field0) || other.field0 == field0));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,field0);
+
+@override
+String toString() {
+  return 'XueHuaRecordingEvent.completed(field0: $field0)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $XueHuaRecordingEvent_CompletedCopyWith<$Res> implements $XueHuaRecordingEventCopyWith<$Res> {
+  factory $XueHuaRecordingEvent_CompletedCopyWith(XueHuaRecordingEvent_Completed value, $Res Function(XueHuaRecordingEvent_Completed) _then) = _$XueHuaRecordingEvent_CompletedCopyWithImpl;
+@useResult
+$Res call({
+ XueHuaRecordingCompleted field0
+});
+
+
+
+
+}
+/// @nodoc
+class _$XueHuaRecordingEvent_CompletedCopyWithImpl<$Res>
+    implements $XueHuaRecordingEvent_CompletedCopyWith<$Res> {
+  _$XueHuaRecordingEvent_CompletedCopyWithImpl(this._self, this._then);
+
+  final XueHuaRecordingEvent_Completed _self;
+  final $Res Function(XueHuaRecordingEvent_Completed) _then;
+
+/// Create a copy of XueHuaRecordingEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? field0 = null,}) {
+  return _then(XueHuaRecordingEvent_Completed(
+null == field0 ? _self.field0 : field0 // ignore: cast_nullable_to_non_nullable
+as XueHuaRecordingCompleted,
+  ));
+}
+
+
+}
+
+// dart format on
