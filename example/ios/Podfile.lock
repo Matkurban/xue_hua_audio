@@ -1,22 +1,22 @@
 PODS:
   - Flutter (1.0.0)
-  - xue_hua_audio_player (0.0.1):
+  - xue_hua_audio (1.0.0):
     - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - xue_hua_audio_player (from `.symlinks/plugins/xue_hua_audio_player/ios`)
+  - xue_hua_audio (from `.symlinks/plugins/xue_hua_audio/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  xue_hua_audio_player:
-    :path: ".symlinks/plugins/xue_hua_audio_player/ios"
+  xue_hua_audio:
+    :path: ".symlinks/plugins/xue_hua_audio/ios"
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  xue_hua_audio_player: 6d0786feb314edd887d49e3b7ffe37ce9a4e1912
+  xue_hua_audio: 57664e8f24d75c358d11dfad0ace52cfa39c5582
 
-PODFILE CHECKSUM: 3c63482e143d1b91d2d2560aee9fb04ecc74ac7e
+PODFILE CHECKSUM: f8c2dcdfb50bb67645580d28a6bf814fca30bdec
 
 COCOAPODS: 1.16.2

@@ -34,7 +34,8 @@ flutter:
   plugin:
     platforms:
       android:
-        ffiPlugin: true
+        package: com.flutter_rust_bridge.xue_hua_audio
+        pluginClass: XueHuaAudioPlugin
       ios:
         ffiPlugin: true
       linux:

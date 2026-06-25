@@ -1,21 +1,21 @@
 PODS:
   - FlutterMacOS (1.0.0)
-  - xue_hua_audio_player (0.0.1):
+  - xue_hua_audio (1.0.0):
     - FlutterMacOS
 
 DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
-  - xue_hua_audio_player (from `Flutter/ephemeral/.symlinks/plugins/xue_hua_audio_player/macos`)
+  - xue_hua_audio (from `Flutter/ephemeral/.symlinks/plugins/xue_hua_audio/macos`)
 
 EXTERNAL SOURCES:
   FlutterMacOS:
     :path: Flutter/ephemeral
-  xue_hua_audio_player:
-    :path: Flutter/ephemeral/.symlinks/plugins/xue_hua_audio_player/macos
+  xue_hua_audio:
+    :path: Flutter/ephemeral/.symlinks/plugins/xue_hua_audio/macos
 
 SPEC CHECKSUMS:
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
-  xue_hua_audio_player: f3ed03328773930b5af43bdfab5c63b630772059
+  xue_hua_audio: e608e48beaa92cbb11f31deba65caa4aac722e12
 
 PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009
 

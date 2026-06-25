@@ -1,6 +1,6 @@
-# xue_hua_audio_player_example
+# xue_hua_audio_example
 
-Demo app for the [xue_hua_audio_player](../README.md) plugin (^1.0.0).
+Demo app for the [xue_hua_audio](../README.md) plugin (^1.0.0).
 
 **English** | [插件中文文档](../README.zh-CN.md)
 

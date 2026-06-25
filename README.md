@@ -1,4 +1,4 @@
-# xue_hua_audio_player
+# xue_hua_audio
 
 **English** | [简体中文](README.zh-CN.md)
 
@@ -307,6 +307,14 @@ Quick checklist — full details in [Platform permissions reference](#platform-p
 
 The plugin merges `RECORD_AUDIO` from its own Android manifest. **Your app** must still request microphone permission at runtime before `session.start()`.
 
+### Android NDK initialization
+
+On Android, rodio/cpal needs the JVM `Context` via [`ndk_context`](https://docs.rs/ndk-context). When the Rust library is loaded only through Dart FFI (`dlopen`), that context is never set and `XuehuaAudio.initialize()` can panic with `android context was not initialized`.
+
+**Normal Flutter apps:** add `xue_hua_audio` as a dependency — the plugin registers `XueHuaAudioPlugin`, which loads `libxue_hua_audio.so` through the JVM and initializes `ndk_context` before Dart `main()` runs. No `MainActivity` changes are required.
+
+**Custom Android embedders** (non-standard Flutter embedding): load the native library from Java/Kotlin before any audio API, e.g. `System.loadLibrary("xue_hua_audio")`. See the [flutter_rust_bridge Android NDK init guide](https://cjycode.com/flutter_rust_bridge/guides/how-to/ndk-init).
+
 ---
 
 ## Development
@@ -363,6 +371,7 @@ Per-platform permissions and declarations required **in your host app** (in addi
 | Runtime mic permission | Recording | No | Yes — e.g. `permission_handler` |
 | `android.permission.INTERNET` | `loadUrl()` | No | Yes, in app `AndroidManifest.xml` |
 | `minSdkVersion` ≥ 26 | All features | Plugin default | App must use ≥ 26 |
+| NDK / JVM context init | Playback & recording | Yes (`XueHuaAudioPlugin`) | No — automatic when using standard Flutter embedding |
 
 **App manifest (recording + URL):**
 

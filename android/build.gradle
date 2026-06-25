@@ -1,6 +1,6 @@
 // The Android Gradle Plugin builds the native code with the Android NDK.
 
-group 'com.flutter_rust_bridge.xue_hua_audio_player'
+group 'com.flutter_rust_bridge.xue_hua_audio'
 version '1.0'
 
 buildscript {
@@ -12,6 +12,7 @@ buildscript {
     dependencies {
         // The Android Gradle Plugin knows how to build native code with the NDK.
         classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10'
     }
 }
 
@@ -23,10 +24,11 @@ rootProject.allprojects {
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 android {
     if (project.android.hasProperty("namespace")) {
-        namespace 'com.flutter_rust_bridge.xue_hua_audio_player'
+        namespace 'com.flutter_rust_bridge.xue_hua_audio'
     }
 
     // Bumping the plugin compileSdkVersion requires all clients of this plugin
@@ -44,13 +46,21 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
     defaultConfig {
         minSdkVersion 26
     }
 }
 
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.10"
+}
+
 apply from: "../cargokit/gradle/plugin.gradle"
 cargokit {
     manifestDir = "../rust"
-    libname = "xue_hua_audio_player"
+    libname = "xue_hua_audio"
 }

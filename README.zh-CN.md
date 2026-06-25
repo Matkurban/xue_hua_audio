@@ -1,4 +1,4 @@
-# xue_hua_audio_player
+# xue_hua_audio
 
 [English](README.md) | **简体中文**
 
@@ -307,6 +307,14 @@ await player.dispose();
 
 插件自身 Android Manifest 已合并 `RECORD_AUDIO`。**你的 App** 仍须在 `session.start()` 前运行时申请麦克风权限。
 
+### Android NDK 初始化
+
+Android 上 rodio/cpal 需要通过 [`ndk_context`](https://docs.rs/ndk-context) 获取 JVM `Context`。若 Rust 库仅由 Dart FFI（`dlopen`）加载，该上下文不会被设置，`XuehuaAudio.initialize()` 可能 panic：`android context was not initialized`。
+
+**常规 Flutter 应用：** 将 `xue_hua_audio` 加入依赖即可 — 插件会注册 `XueHuaAudioPlugin`，在 JVM 中加载 `libxue_hua_audio.so` 并在 Dart `main()` 之前初始化 `ndk_context`，**无需修改 `MainActivity`**。
+
+**自定义 Android 嵌入**（非标准 Flutter 集成）：须在调用任何音频 API 前从 Java/Kotlin 加载原生库，例如 `System.loadLibrary("xue_hua_audio")`。详见 [flutter_rust_bridge Android NDK 初始化指南](https://cjycode.com/flutter_rust_bridge/guides/how-to/ndk-init)。
+
 ---
 
 ## 开发指南
@@ -363,6 +371,7 @@ Demo 包含：
 | 运行时麦克风授权 | 录制 | 否 | 是 — 如 `permission_handler` |
 | `android.permission.INTERNET` | `loadUrl()` | 否 | 是 — App `AndroidManifest.xml` |
 | `minSdkVersion` ≥ 26 | 全部功能 | 插件默认 | App 须 ≥ 26 |
+| NDK / JVM 上下文初始化 | 播放与录制 | 是（`XueHuaAudioPlugin`） | 否 — 标准 Flutter 嵌入下自动完成 |
 
 **App Manifest（录制 + URL）：**
 

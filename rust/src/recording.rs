@@ -230,6 +230,7 @@ fn run_writer_thread(
 ) -> Result<(), String> {
     let mut mic = open_microphone(device_index).map_err(|e| e.to_string())?;
     let channels = mic.channels().get();
+    let channels_u32 = channels as u32;
     let sample_rate = mic.sample_rate().get();
     shared.channels.store(channels.into(), Ordering::Relaxed);
     shared.sample_rate.store(sample_rate, Ordering::Relaxed);
@@ -246,10 +247,20 @@ fn run_writer_thread(
     let push_interval = Duration::from_millis(100);
     let mut last_push = Instant::now();
     let mut chunk_peak = 0.0f32;
+    let mut frame_pos = 0u32;
 
-    while !shared.stop_flag.load(Ordering::Relaxed) {
+    while !shared.stop_flag.load(Ordering::Relaxed) || frame_pos != 0 {
         match mic.next() {
             Some(sample) => {
+                if shared.stop_flag.load(Ordering::Relaxed) {
+                    if frame_pos == 0 {
+                        break;
+                    }
+                    // Drain remaining channels of the incomplete frame without writing.
+                    frame_pos = (frame_pos + 1) % channels_u32;
+                    continue;
+                }
+
                 let abs = sample.abs();
                 if abs > chunk_peak {
                     chunk_peak = abs;
@@ -259,9 +270,19 @@ fn run_writer_thread(
                         .write_sample(sample)
                         .map_err(|e| format!("Write WAV sample: {e}"))?;
                     shared.samples_written.fetch_add(1, Ordering::Relaxed);
+                    frame_pos = (frame_pos + 1) % channels_u32;
                 }
             }
-            None => break,
+            None => {
+                while frame_pos != 0 {
+                    writer
+                        .write_sample(0.0f32)
+                        .map_err(|e| format!("Write WAV sample: {e}"))?;
+                    shared.samples_written.fetch_add(1, Ordering::Relaxed);
+                    frame_pos = (frame_pos + 1) % channels_u32;
+                }
+                break;
+            }
         }
 
         if last_push.elapsed() >= push_interval {

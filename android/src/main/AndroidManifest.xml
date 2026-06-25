@@ -1,4 +1,4 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.flutter_rust_bridge.xue_hua_audio_player">
+        package="com.flutter_rust_bridge.xue_hua_audio">
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 </manifest>
