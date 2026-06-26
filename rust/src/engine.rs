@@ -2,6 +2,8 @@ use crate::error::XueHuaAudioError;
 use crate::recording::{XueHuaAudioRecorder, list_input_devices, stop_shared_recorder};
 use crate::track::{
     TrackSharedState, XueHuaAudioTrack, open_decoder_from_bytes, open_decoder_from_path,
+    open_looped_decoder_from_bytes, open_looped_decoder_from_path, probe_duration_from_bytes,
+    probe_duration_from_path,
 };
 use rodio::Player;
 use rodio::Source;
@@ -84,28 +86,54 @@ impl XueHuaAudioEngine {
     }
 
     /// 从本地文件系统绝对路径加载并播放（流式解码）。
-    pub fn load_from_path(&self, path: String) -> Result<XueHuaAudioTrack, XueHuaAudioError> {
-        let source = open_decoder_from_path(&path)?;
-        let duration = source.total_duration();
+    pub fn load_from_path(
+        &self,
+        path: String,
+        r#loop: bool,
+    ) -> Result<XueHuaAudioTrack, XueHuaAudioError> {
         let player = Player::connect_new(self._device_sink.mixer());
-        player.append(source);
+        let (duration, looping) = if r#loop {
+            let duration = probe_duration_from_path(&path)?;
+            let source = open_looped_decoder_from_path(&path)?;
+            player.append(source);
+            (duration, true)
+        } else {
+            let source = open_decoder_from_path(&path)?;
+            let duration = source.total_duration();
+            player.append(source);
+            (duration, false)
+        };
         Ok(XueHuaAudioTrack::new(
             player,
             Arc::clone(&self.registry),
             duration,
+            looping,
         ))
     }
 
     /// 从内存字节加载并播放（小文件 / 测试用；生产 Asset/URL 请走临时文件 + load_from_path）。
-    pub fn load_from_bytes(&self, data: Vec<u8>) -> Result<XueHuaAudioTrack, XueHuaAudioError> {
-        let source = open_decoder_from_bytes(data)?;
-        let duration = source.total_duration();
+    pub fn load_from_bytes(
+        &self,
+        data: Vec<u8>,
+        r#loop: bool,
+    ) -> Result<XueHuaAudioTrack, XueHuaAudioError> {
         let player = Player::connect_new(self._device_sink.mixer());
-        player.append(source);
+        let (duration, looping) = if r#loop {
+            let duration = probe_duration_from_bytes(&data)?;
+            let source = open_looped_decoder_from_bytes(data)?;
+            player.append(source);
+            (duration, true)
+        } else {
+            let source = open_decoder_from_bytes(data)?;
+            let duration = source.total_duration();
+            player.append(source);
+            (duration, false)
+        };
         Ok(XueHuaAudioTrack::new(
             player,
             Arc::clone(&self.registry),
             duration,
+            looping,
         ))
     }
 

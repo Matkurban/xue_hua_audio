@@ -93,11 +93,13 @@ abstract class RustLibApi extends BaseApi {
   Future<XueHuaAudioTrack> crateEngineXueHuaAudioEngineLoadFromBytes({
     required XueHuaAudioEngine that,
     required List<int> data,
+    required bool loop,
   });
 
   Future<XueHuaAudioTrack> crateEngineXueHuaAudioEngineLoadFromPath({
     required XueHuaAudioEngine that,
     required String path,
+    required bool loop,
   });
 
   Future<XueHuaAudioEngine> crateEngineXueHuaAudioEngineNew();
@@ -163,11 +165,13 @@ abstract class RustLibApi extends BaseApi {
   Future<void> crateTrackXueHuaAudioTrackReplaceFromBytes({
     required XueHuaAudioTrack that,
     required List<int> data,
+    required bool loop,
   });
 
   Future<void> crateTrackXueHuaAudioTrackReplaceFromPath({
     required XueHuaAudioTrack that,
     required String path,
+    required bool loop,
   });
 
   Future<void> crateTrackXueHuaAudioTrackResume({
@@ -312,6 +316,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   Future<XueHuaAudioTrack> crateEngineXueHuaAudioEngineLoadFromBytes({
     required XueHuaAudioEngine that,
     required List<int> data,
+    required bool loop,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -322,6 +327,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             serializer,
           );
           sse_encode_list_prim_u_8_loose(data, serializer);
+          sse_encode_bool(loop, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -335,7 +341,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_xue_hua_audio_error,
         ),
         constMeta: kCrateEngineXueHuaAudioEngineLoadFromBytesConstMeta,
-        argValues: [that, data],
+        argValues: [that, data, loop],
         apiImpl: this,
       ),
     );
@@ -344,13 +350,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateEngineXueHuaAudioEngineLoadFromBytesConstMeta =>
       const TaskConstMeta(
         debugName: "XueHuaAudioEngine_load_from_bytes",
-        argNames: ["that", "data"],
+        argNames: ["that", "data", "loop"],
       );
 
   @override
   Future<XueHuaAudioTrack> crateEngineXueHuaAudioEngineLoadFromPath({
     required XueHuaAudioEngine that,
     required String path,
+    required bool loop,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -361,6 +368,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             serializer,
           );
           sse_encode_String(path, serializer);
+          sse_encode_bool(loop, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -374,7 +382,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_xue_hua_audio_error,
         ),
         constMeta: kCrateEngineXueHuaAudioEngineLoadFromPathConstMeta,
-        argValues: [that, path],
+        argValues: [that, path, loop],
         apiImpl: this,
       ),
     );
@@ -383,7 +391,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateEngineXueHuaAudioEngineLoadFromPathConstMeta =>
       const TaskConstMeta(
         debugName: "XueHuaAudioEngine_load_from_path",
-        argNames: ["that", "path"],
+        argNames: ["that", "path", "loop"],
       );
 
   @override
@@ -931,6 +939,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   Future<void> crateTrackXueHuaAudioTrackReplaceFromBytes({
     required XueHuaAudioTrack that,
     required List<int> data,
+    required bool loop,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -941,6 +950,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             serializer,
           );
           sse_encode_list_prim_u_8_loose(data, serializer);
+          sse_encode_bool(loop, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -953,7 +963,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_xue_hua_audio_error,
         ),
         constMeta: kCrateTrackXueHuaAudioTrackReplaceFromBytesConstMeta,
-        argValues: [that, data],
+        argValues: [that, data, loop],
         apiImpl: this,
       ),
     );
@@ -962,13 +972,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateTrackXueHuaAudioTrackReplaceFromBytesConstMeta =>
       const TaskConstMeta(
         debugName: "XueHuaAudioTrack_replace_from_bytes",
-        argNames: ["that", "data"],
+        argNames: ["that", "data", "loop"],
       );
 
   @override
   Future<void> crateTrackXueHuaAudioTrackReplaceFromPath({
     required XueHuaAudioTrack that,
     required String path,
+    required bool loop,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -979,6 +990,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             serializer,
           );
           sse_encode_String(path, serializer);
+          sse_encode_bool(loop, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -991,7 +1003,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_xue_hua_audio_error,
         ),
         constMeta: kCrateTrackXueHuaAudioTrackReplaceFromPathConstMeta,
-        argValues: [that, path],
+        argValues: [that, path, loop],
         apiImpl: this,
       ),
     );
@@ -1000,7 +1012,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateTrackXueHuaAudioTrackReplaceFromPathConstMeta =>
       const TaskConstMeta(
         debugName: "XueHuaAudioTrack_replace_from_path",
-        argNames: ["that", "path"],
+        argNames: ["that", "path", "loop"],
       );
 
   @override
@@ -2442,16 +2454,24 @@ class XueHuaAudioEngineImpl extends RustOpaque implements XueHuaAudioEngine {
       .crateEngineXueHuaAudioEngineListInputDevices(that: this);
 
   /// 从内存字节加载并播放（小文件 / 测试用；生产 Asset/URL 请走临时文件 + load_from_path）。
-  Future<XueHuaAudioTrack> loadFromBytes({required List<int> data}) => RustLib
-      .instance
-      .api
-      .crateEngineXueHuaAudioEngineLoadFromBytes(that: this, data: data);
+  Future<XueHuaAudioTrack> loadFromBytes({
+    required List<int> data,
+    required bool loop,
+  }) => RustLib.instance.api.crateEngineXueHuaAudioEngineLoadFromBytes(
+    that: this,
+    data: data,
+    loop: loop,
+  );
 
   /// 从本地文件系统绝对路径加载并播放（流式解码）。
-  Future<XueHuaAudioTrack> loadFromPath({required String path}) => RustLib
-      .instance
-      .api
-      .crateEngineXueHuaAudioEngineLoadFromPath(that: this, path: path);
+  Future<XueHuaAudioTrack> loadFromPath({
+    required String path,
+    required bool loop,
+  }) => RustLib.instance.api.crateEngineXueHuaAudioEngineLoadFromPath(
+    that: this,
+    path: path,
+    loop: loop,
+  );
 
   /// 停止并注销所有仍活跃的音轨。
   Future<void> stopAll() =>
@@ -2562,14 +2582,22 @@ class XueHuaAudioTrackImpl extends RustOpaque implements XueHuaAudioTrack {
       RustLib.instance.api.crateTrackXueHuaAudioTrackPositionSecs(that: this);
 
   /// 用内存字节替换当前音源（小文件 / 测试用）。
-  Future<void> replaceFromBytes({required List<int> data}) => RustLib
-      .instance
-      .api
-      .crateTrackXueHuaAudioTrackReplaceFromBytes(that: this, data: data);
+  Future<void> replaceFromBytes({
+    required List<int> data,
+    required bool loop,
+  }) => RustLib.instance.api.crateTrackXueHuaAudioTrackReplaceFromBytes(
+    that: this,
+    data: data,
+    loop: loop,
+  );
 
   /// 用本地文件替换当前音源（先清空队列再 append 新 Decoder）。
-  Future<void> replaceFromPath({required String path}) => RustLib.instance.api
-      .crateTrackXueHuaAudioTrackReplaceFromPath(that: this, path: path);
+  Future<void> replaceFromPath({required String path, required bool loop}) =>
+      RustLib.instance.api.crateTrackXueHuaAudioTrackReplaceFromPath(
+        that: this,
+        path: path,
+        loop: loop,
+      );
 
   Future<void> resume() =>
       RustLib.instance.api.crateTrackXueHuaAudioTrackResume(that: this);

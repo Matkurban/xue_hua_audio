@@ -8,7 +8,7 @@ import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'playback.dart';
 
-// These functions are ignored because they are not marked as `pub`: `deactivate`, `duration`, `is_active`, `new`, `new`, `new`, `open_decoder_from_bytes`, `open_decoder_from_path`, `run_progress_watcher`, `set_duration`, `snapshot_progress`, `stop_watching`, `unregister`
+// These functions are ignored because they are not marked as `pub`: `deactivate`, `duration`, `is_active`, `is_looping`, `new`, `new`, `new`, `normalize_position_secs`, `open_decoder_from_bytes`, `open_decoder_from_path`, `open_looped_decoder_from_bytes`, `open_looped_decoder_from_path`, `probe_duration_from_bytes`, `probe_duration_from_path`, `run_progress_watcher`, `set_duration`, `set_looping`, `snapshot_progress`, `stop_watching`, `unregister`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `ProgressWatcher`, `TrackSharedState`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `drop`
 
@@ -29,10 +29,10 @@ abstract class XueHuaAudioTrack implements RustOpaqueInterface {
   double positionSecs();
 
   /// 用内存字节替换当前音源（小文件 / 测试用）。
-  Future<void> replaceFromBytes({required List<int> data});
+  Future<void> replaceFromBytes({required List<int> data, required bool loop});
 
   /// 用本地文件替换当前音源（先清空队列再 append 新 Decoder）。
-  Future<void> replaceFromPath({required String path});
+  Future<void> replaceFromPath({required String path, required bool loop});
 
   Future<void> resume();
 

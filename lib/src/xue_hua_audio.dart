@@ -77,17 +77,23 @@ class XuehuaAudio {
 /// 三种音源加载方式。
 extension XueHuaAudioEngineLoading on XueHuaAudioEngine {
   /// 本地文件系统绝对路径（Rust 侧流式解码）。
-  Future<XueHuaAudioTrack> loadLocal({required String path}) =>
-      loadFromPath(path: path);
+  Future<XueHuaAudioTrack> loadLocal({
+    required String path,
+    bool loop = false,
+  }) =>
+      loadFromPath(path: path, loop: loop);
 
   /// Flutter Asset（pubspec 声明路径）→ 临时文件 → 流式播放。
-  Future<XueHuaAudioTrack> loadAsset({required String assetKey}) async {
+  Future<XueHuaAudioTrack> loadAsset({
+    required String assetKey,
+    bool loop = false,
+  }) async {
     final data = await rootBundle.load(assetKey);
     final tempPath = await _writeTempAudioFile(
       bytes: data.buffer.asUint8List(),
       suffix: _suffixFromAssetKey(assetKey),
     );
-    final track = await loadFromPath(path: tempPath);
+    final track = await loadFromPath(path: tempPath, loop: loop);
     TempFileRegistry.instance.register(track, tempPath);
     return track;
   }
@@ -95,6 +101,7 @@ extension XueHuaAudioEngineLoading on XueHuaAudioEngine {
   /// 网络 URL → 超时/重试下载 → 临时文件 → 流式播放。
   Future<XueHuaAudioTrack> loadUrl({
     required String url,
+    bool loop = false,
     Duration? timeout,
     int? maxRetries,
   }) async {
@@ -105,7 +112,7 @@ extension XueHuaAudioEngineLoading on XueHuaAudioEngine {
       maxRetries: maxRetries ?? player.options.urlMaxRetries,
       retryDelay: player.options.urlRetryDelay,
     );
-    final track = await loadFromPath(path: tempPath);
+    final track = await loadFromPath(path: tempPath, loop: loop);
     TempFileRegistry.instance.register(track, tempPath);
     return track;
   }

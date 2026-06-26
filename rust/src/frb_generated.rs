@@ -176,6 +176,7 @@ fn wire__crate__engine__XueHuaAudioEngine_load_from_bytes_impl(
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<XueHuaAudioEngine>,
             >>::sse_decode(&mut deserializer);
             let api_data = <Vec<u8>>::sse_decode(&mut deserializer);
+            let api_loop = <bool>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, crate::error::XueHuaAudioError>((move || {
@@ -196,6 +197,7 @@ fn wire__crate__engine__XueHuaAudioEngine_load_from_bytes_impl(
                     let output_ok = crate::engine::XueHuaAudioEngine::load_from_bytes(
                         &*api_that_guard,
                         api_data,
+                        api_loop,
                     )?;
                     Ok(output_ok)
                 })())
@@ -229,6 +231,7 @@ fn wire__crate__engine__XueHuaAudioEngine_load_from_path_impl(
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<XueHuaAudioEngine>,
             >>::sse_decode(&mut deserializer);
             let api_path = <String>::sse_decode(&mut deserializer);
+            let api_loop = <bool>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, crate::error::XueHuaAudioError>((move || {
@@ -249,6 +252,7 @@ fn wire__crate__engine__XueHuaAudioEngine_load_from_path_impl(
                     let output_ok = crate::engine::XueHuaAudioEngine::load_from_path(
                         &*api_that_guard,
                         api_path,
+                        api_loop,
                     )?;
                     Ok(output_ok)
                 })())
@@ -1063,6 +1067,7 @@ fn wire__crate__track__XueHuaAudioTrack_replace_from_bytes_impl(
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<XueHuaAudioTrack>,
             >>::sse_decode(&mut deserializer);
             let api_data = <Vec<u8>>::sse_decode(&mut deserializer);
+            let api_loop = <bool>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, crate::error::XueHuaAudioError>((move || {
@@ -1083,6 +1088,7 @@ fn wire__crate__track__XueHuaAudioTrack_replace_from_bytes_impl(
                     let output_ok = crate::track::XueHuaAudioTrack::replace_from_bytes(
                         &mut *api_that_guard,
                         api_data,
+                        api_loop,
                     )?;
                     Ok(output_ok)
                 })())
@@ -1116,6 +1122,7 @@ fn wire__crate__track__XueHuaAudioTrack_replace_from_path_impl(
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<XueHuaAudioTrack>,
             >>::sse_decode(&mut deserializer);
             let api_path = <String>::sse_decode(&mut deserializer);
+            let api_loop = <bool>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, crate::error::XueHuaAudioError>((move || {
@@ -1136,6 +1143,7 @@ fn wire__crate__track__XueHuaAudioTrack_replace_from_path_impl(
                     let output_ok = crate::track::XueHuaAudioTrack::replace_from_path(
                         &mut *api_that_guard,
                         api_path,
+                        api_loop,
                     )?;
                     Ok(output_ok)
                 })())

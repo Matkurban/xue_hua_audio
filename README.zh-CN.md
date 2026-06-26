@@ -37,7 +37,7 @@
 
 ```yaml
 dependencies:
-  xue_hua_audio: ^1.0.0
+  xue_hua_audio: ^1.0.1
 ```
 
 在使用任何音频 API 之前调用一次 `XuehuaAudioPlayer.initialize()`（通常在 `main()` 中、`WidgetsFlutterBinding.ensureInitialized()` 之后）。
@@ -100,9 +100,13 @@ Future<void> main() async {
 
 | 方法 | 说明 |
 |------|------|
-| `engine.loadLocal(path:)` | 本地绝对路径，Rust 侧流式解码 |
-| `engine.loadAsset(assetKey:)` | 读取 Flutter Asset → 临时文件 → 播放 |
-| `engine.loadUrl(url:)` | HTTP 下载（超时/重试）→ 临时文件 → 播放 |
+| `engine.loadLocal(path:, loop:)` | 本地绝对路径，Rust 侧流式解码；`loop: true` 循环播放直至 `stop()` |
+| `engine.loadAsset(assetKey:, loop:)` | 读取 Flutter Asset → 临时文件 → 播放 |
+| `engine.loadUrl(url:, loop:)` | HTTP 下载（超时/重试）→ 临时文件 → 播放 |
+
+`loop` 默认为 `false`。开启后使用 rodio `LoopedDecoder`（流式 seek 回绕循环）。进度 `positionSecs` / `progress` 按单圈回绕；需调用 `track.stop()` 结束。
+
+`XueHuaAudioTrack.replaceFromPath` / `replaceFromBytes` 同样支持 `loop` 参数。
 
 URL 相关参数可在初始化时通过 `XuehuaAudioPlayerOptions` 配置：
 

@@ -80,5 +80,35 @@ void main() {
       expect(track.playbackProgress().isFinished, isTrue);
       await track.stop();
     });
+
+    test('loop keeps playing after one lap', () async {
+      final engine = XuehuaAudio.instance.engine;
+      final track = await engine.loadAsset(
+        assetKey: 'assets/audio/message_ring.wav',
+        loop: true,
+      );
+
+      final durationCompleter = Completer<double>();
+      final sub = track.progressStream.listen((progress) {
+        if (!durationCompleter.isCompleted && progress.durationSecs != null) {
+          durationCompleter.complete(progress.durationSecs!);
+        }
+      });
+
+      final durationSecs = await durationCompleter.future.timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => throw TimeoutException('No duration received'),
+      );
+
+      await Future<void>.delayed(
+        Duration(milliseconds: (durationSecs * 1000).round() + 500),
+      );
+
+      expect(track.isFinished(), isFalse);
+      expect(track.isPlaying(), isTrue);
+
+      await sub.cancel();
+      await track.stop();
+    });
   });
 }

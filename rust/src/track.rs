@@ -2,6 +2,7 @@ use crate::engine::{Registry, RegistryEntry, next_track_id, unregister_track};
 use crate::error::XueHuaAudioError;
 use crate::frb_generated::StreamSink;
 use crate::playback::{XueHuaPlaybackProgress, compute_progress_ratio};
+use rodio::decoder::LoopedDecoder;
 use rodio::{Decoder, Player, Source};
 use std::fs::File;
 use std::io::{BufReader, Cursor};
@@ -40,14 +41,16 @@ impl ProgressWatcher {
 /// Track 与 Engine registry 共享的状态。
 pub(crate) struct TrackSharedState {
     active: AtomicBool,
+    looping: AtomicBool,
     duration: Mutex<Option<Duration>>,
     progress_watcher: ProgressWatcher,
 }
 
 impl TrackSharedState {
-    fn new(duration: Option<Duration>) -> Self {
+    fn new(duration: Option<Duration>, looping: bool) -> Self {
         Self {
             active: AtomicBool::new(true),
+            looping: AtomicBool::new(looping),
             duration: Mutex::new(duration),
             progress_watcher: ProgressWatcher::new(),
         }
@@ -69,6 +72,14 @@ impl TrackSharedState {
     fn set_duration(&self, duration: Option<Duration>) {
         *self.duration.lock().expect("track duration lock poisoned") = duration;
     }
+
+    fn is_looping(&self) -> bool {
+        self.looping.load(Ordering::Relaxed)
+    }
+
+    fn set_looping(&self, looping: bool) {
+        self.looping.store(looping, Ordering::Relaxed);
+    }
 }
 
 /// 单轨播放器，封装 rodio `Player`。
@@ -81,9 +92,14 @@ pub struct XueHuaAudioTrack {
 }
 
 impl XueHuaAudioTrack {
-    pub(crate) fn new(player: Player, registry: Registry, duration: Option<Duration>) -> Self {
+    pub(crate) fn new(
+        player: Player,
+        registry: Registry,
+        duration: Option<Duration>,
+        looping: bool,
+    ) -> Self {
         let player = Arc::new(player);
-        let shared = Arc::new(TrackSharedState::new(duration));
+        let shared = Arc::new(TrackSharedState::new(duration, looping));
         let id = next_track_id();
         registry
             .lock()
@@ -119,7 +135,9 @@ impl XueHuaAudioTrack {
 
     #[flutter_rust_bridge::frb(sync)]
     pub fn is_finished(&self) -> bool {
-        self.registration.is_some() && (!self.shared.is_active() || self.player.empty())
+        self.registration.is_some()
+            && (!self.shared.is_active()
+                || (!self.shared.is_looping() && self.player.empty()))
     }
 
     pub fn set_volume(&self, volume: f32) {
@@ -132,7 +150,9 @@ impl XueHuaAudioTrack {
 
     #[flutter_rust_bridge::frb(sync)]
     pub fn position_secs(&self) -> f64 {
-        self.player.get_pos().as_secs_f64()
+        let raw = self.player.get_pos().as_secs_f64();
+        let duration_secs = self.shared.duration().map(|d| d.as_secs_f64());
+        normalize_position_secs(raw, self.shared.is_looping(), duration_secs)
     }
 
     #[flutter_rust_bridge::frb(sync)]
@@ -145,6 +165,7 @@ impl XueHuaAudioTrack {
         Self::snapshot_progress(
             &self.player,
             self.shared.is_active(),
+            self.shared.is_looping(),
             self.shared.duration(),
         )
     }
@@ -204,20 +225,38 @@ impl XueHuaAudioTrack {
     }
 
     /// 用本地文件替换当前音源（先清空队列再 append 新 Decoder）。
-    pub fn replace_from_path(&mut self, path: String) -> Result<(), XueHuaAudioError> {
-        let source = open_decoder_from_path(&path)?;
-        self.shared.set_duration(source.total_duration());
-        self.player.stop();
-        self.player.append(source);
+    pub fn replace_from_path(&mut self, path: String, r#loop: bool) -> Result<(), XueHuaAudioError> {
+        self.shared.set_looping(r#loop);
+        if r#loop {
+            let duration = probe_duration_from_path(&path)?;
+            let source = open_looped_decoder_from_path(&path)?;
+            self.shared.set_duration(duration);
+            self.player.stop();
+            self.player.append(source);
+        } else {
+            let source = open_decoder_from_path(&path)?;
+            self.shared.set_duration(source.total_duration());
+            self.player.stop();
+            self.player.append(source);
+        }
         Ok(())
     }
 
     /// 用内存字节替换当前音源（小文件 / 测试用）。
-    pub fn replace_from_bytes(&mut self, data: Vec<u8>) -> Result<(), XueHuaAudioError> {
-        let source = open_decoder_from_bytes(data)?;
-        self.shared.set_duration(source.total_duration());
-        self.player.stop();
-        self.player.append(source);
+    pub fn replace_from_bytes(&mut self, data: Vec<u8>, r#loop: bool) -> Result<(), XueHuaAudioError> {
+        self.shared.set_looping(r#loop);
+        if r#loop {
+            let duration = probe_duration_from_bytes(&data)?;
+            let source = open_looped_decoder_from_bytes(data)?;
+            self.shared.set_duration(duration);
+            self.player.stop();
+            self.player.append(source);
+        } else {
+            let source = open_decoder_from_bytes(data)?;
+            self.shared.set_duration(source.total_duration());
+            self.player.stop();
+            self.player.append(source);
+        }
         Ok(())
     }
 
@@ -250,8 +289,12 @@ fn run_progress_watcher(
 
     while !stop.load(Ordering::Relaxed) && shared.is_active() {
         if last_push.elapsed() >= interval {
-            let progress =
-                XueHuaAudioTrack::snapshot_progress(&player, shared.is_active(), shared.duration());
+            let progress = XueHuaAudioTrack::snapshot_progress(
+                &player,
+                shared.is_active(),
+                shared.is_looping(),
+                shared.duration(),
+            );
             let finished = progress.is_finished;
             let _ = progress_sink.add(progress);
             if finished {
@@ -267,13 +310,15 @@ impl XueHuaAudioTrack {
     fn snapshot_progress(
         player: &Player,
         active: bool,
+        looping: bool,
         duration: Option<Duration>,
     ) -> XueHuaPlaybackProgress {
         let is_paused = player.is_paused();
-        let is_finished = !active || player.empty();
+        let is_finished = !active || (!looping && player.empty());
         let is_playing = active && !is_paused && !is_finished;
-        let position_secs = player.get_pos().as_secs_f64();
+        let raw_position_secs = player.get_pos().as_secs_f64();
         let duration_secs = duration.map(|d| d.as_secs_f64());
+        let position_secs = normalize_position_secs(raw_position_secs, looping, duration_secs);
         let progress = compute_progress_ratio(position_secs, duration_secs);
 
         XueHuaPlaybackProgress {
@@ -287,6 +332,28 @@ impl XueHuaAudioTrack {
     }
 }
 
+fn normalize_position_secs(raw: f64, looping: bool, duration_secs: Option<f64>) -> f64 {
+    if looping {
+        if let Some(total) = duration_secs.filter(|duration| *duration > 0.0) {
+            return raw % total;
+        }
+    }
+    raw
+}
+
+pub(crate) fn probe_duration_from_path(path: &str) -> Result<Option<Duration>, XueHuaAudioError> {
+    let file = File::open(path).map_err(|e| XueHuaAudioError::LocalFile(e.to_string()))?;
+    let decoder = Decoder::new(BufReader::new(file))
+        .map_err(|e| XueHuaAudioError::Decode(e.to_string()))?;
+    Ok(decoder.total_duration())
+}
+
+pub(crate) fn probe_duration_from_bytes(data: &[u8]) -> Result<Option<Duration>, XueHuaAudioError> {
+    let decoder = Decoder::new(BufReader::new(Cursor::new(data.to_vec())))
+        .map_err(|e| XueHuaAudioError::Decode(e.to_string()))?;
+    Ok(decoder.total_duration())
+}
+
 pub(crate) fn open_decoder_from_path(
     path: &str,
 ) -> Result<Decoder<BufReader<File>>, XueHuaAudioError> {
@@ -294,9 +361,23 @@ pub(crate) fn open_decoder_from_path(
     Decoder::new(BufReader::new(file)).map_err(|e| XueHuaAudioError::Decode(e.to_string()))
 }
 
+pub(crate) fn open_looped_decoder_from_path(
+    path: &str,
+) -> Result<LoopedDecoder<BufReader<File>>, XueHuaAudioError> {
+    let file = File::open(path).map_err(|e| XueHuaAudioError::LocalFile(e.to_string()))?;
+    Decoder::new_looped(BufReader::new(file)).map_err(|e| XueHuaAudioError::Decode(e.to_string()))
+}
+
 pub(crate) fn open_decoder_from_bytes(
     data: Vec<u8>,
 ) -> Result<Decoder<BufReader<Cursor<Vec<u8>>>>, XueHuaAudioError> {
     Decoder::new(BufReader::new(Cursor::new(data)))
+        .map_err(|e| XueHuaAudioError::Decode(e.to_string()))
+}
+
+pub(crate) fn open_looped_decoder_from_bytes(
+    data: Vec<u8>,
+) -> Result<LoopedDecoder<BufReader<Cursor<Vec<u8>>>>, XueHuaAudioError> {
+    Decoder::new_looped(BufReader::new(Cursor::new(data)))
         .map_err(|e| XueHuaAudioError::Decode(e.to_string()))
 }

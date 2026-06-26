@@ -37,7 +37,7 @@ Add to `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  xue_hua_audio: ^1.0.0
+  xue_hua_audio: ^1.0.1
 ```
 
 Call `XuehuaAudio.initialize()` once before any audio API (typically in `main()` after `WidgetsFlutterBinding.ensureInitialized()`).
@@ -100,9 +100,13 @@ Future<void> main() async {
 
 | Method | Description |
 |--------|-------------|
-| `engine.loadLocal(path:)` | Absolute filesystem path; streamed decode on Rust side |
-| `engine.loadAsset(assetKey:)` | Reads Flutter asset → temp file → play |
-| `engine.loadUrl(url:)` | HTTP GET with timeout/retry → temp file → play |
+| `engine.loadLocal(path:, loop:)` | Absolute filesystem path; streamed decode on Rust side; `loop: true` repeats until `stop()` |
+| `engine.loadAsset(assetKey:, loop:)` | Reads Flutter asset → temp file → play |
+| `engine.loadUrl(url:, loop:)` | HTTP GET with timeout/retry → temp file → play |
+
+`loop` defaults to `false`. When enabled, playback uses rodio `LoopedDecoder` (streamed seek-back loop). Progress `positionSecs` / `progress` wrap each lap; call `track.stop()` to end.
+
+`XueHuaAudioTrack.replaceFromPath` / `replaceFromBytes` also accept `loop`.
 
 URL options are configured via `XuehuaAudioOptions` at initialize time:
 

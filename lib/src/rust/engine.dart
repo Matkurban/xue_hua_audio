@@ -21,10 +21,16 @@ abstract class XueHuaAudioEngine implements RustOpaqueInterface {
   Future<List<String>> listInputDevices();
 
   /// 从内存字节加载并播放（小文件 / 测试用；生产 Asset/URL 请走临时文件 + load_from_path）。
-  Future<XueHuaAudioTrack> loadFromBytes({required List<int> data});
+  Future<XueHuaAudioTrack> loadFromBytes({
+    required List<int> data,
+    required bool loop,
+  });
 
   /// 从本地文件系统绝对路径加载并播放（流式解码）。
-  Future<XueHuaAudioTrack> loadFromPath({required String path});
+  Future<XueHuaAudioTrack> loadFromPath({
+    required String path,
+    required bool loop,
+  });
 
   // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
   /// 打开系统默认音频输出设备。
