@@ -37,7 +37,7 @@
 
 ```yaml
 dependencies:
-  xue_hua_audio: ^1.0.1
+  xue_hua_audio: ^1.0.2
 ```
 
 在使用任何音频 API 之前调用一次 `XuehuaAudioPlayer.initialize()`（通常在 `main()` 中、`WidgetsFlutterBinding.ensureInitialized()` 之后）。

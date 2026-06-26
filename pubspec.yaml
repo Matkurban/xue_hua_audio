@@ -1,6 +1,6 @@
 name: xue_hua_audio
 description: "Cross-platform Flutter FFI audio plugin — multi-track playback, progress streams, and microphone recording via Rust/rodio."
-version: 1.0.1
+version: 1.0.2
 homepage: https://github.com/Matkurban/xue_hua_audio
 repository: https://github.com/Matkurban/xue_hua_audio
 issue_tracker: https://github.com/Matkurban/xue_hua_audio/issues
@@ -36,6 +36,7 @@ flutter:
       android:
         package: com.flutter_rust_bridge.xue_hua_audio
         pluginClass: XueHuaAudioPlugin
+        ffiPlugin: true
       ios:
         ffiPlugin: true
       linux:

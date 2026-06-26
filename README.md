@@ -37,7 +37,7 @@ Add to `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  xue_hua_audio: ^1.0.1
+  xue_hua_audio: ^1.0.2
 ```
 
 Call `XuehuaAudio.initialize()` once before any audio API (typically in `main()` after `WidgetsFlutterBinding.ensureInitialized()`).

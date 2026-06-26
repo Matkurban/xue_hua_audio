@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-06-27
+
+### Fixed
+
+- **Android NDK context** — align `XueHuaAudioPlugin` with the `ndk-context` pattern used in sibling plugins: `@JvmStatic initAndroid`, static JNI export, and `ffiPlugin: true` in `pubspec.yaml`. Fixes `android context was not initialized` panic when `XueHuaAudioEngine` opens the audio device on Android.
+
+### Changed
+
+- **Android JNI** — migrate `android_init.rs` to jni 0.22 (`EnvUnowned`, `Global<JObject>`, `JavaVM::get_raw`).
+- **Android `minSdkVersion`** — plugin default remains **26** (required by rodio/cpal 0.17 AAudio backend).
+
 ## [1.0.1] - 2026-06-26
 
 ### Added

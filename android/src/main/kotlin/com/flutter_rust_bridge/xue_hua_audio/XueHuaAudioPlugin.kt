@@ -8,12 +8,13 @@ class XueHuaAudioPlugin : FlutterPlugin {
         init {
             System.loadLibrary("xue_hua_audio")
         }
+
+        @JvmStatic
+        external fun initAndroid(context: Context)
     }
 
-    private external fun init_android(ctx: Context)
-
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        init_android(binding.applicationContext)
+        initAndroid(binding.applicationContext)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {}
