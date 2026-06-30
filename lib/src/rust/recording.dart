@@ -9,7 +9,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'recording.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `duration_secs`, `join_writer_thread`, `new`, `new`, `open_microphone`, `progress_snapshot`, `request_stop`, `run_writer_thread`, `stop_shared_recorder`, `unregister`
+// These functions are ignored because they are not marked as `pub`: `advance_frame_pos`, `duration_secs`, `ensure_registered`, `join_writer_thread`, `new`, `new`, `open_microphone`, `progress_snapshot`, `request_stop`, `reset_for_start`, `run_writer_thread`, `stop_shared_recorder`, `unregister`, `wait_for_startup`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `RecorderShared`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `drop`
 

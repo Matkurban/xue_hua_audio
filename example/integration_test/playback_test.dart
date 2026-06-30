@@ -66,7 +66,21 @@ void main() {
       );
 
       expect(asyncError, isA<XueHuaAudioError>());
-      await expectLater(track.stop(), throwsA(isA<XueHuaAudioError>()));
+      await track.stop();
+    });
+
+    test('stop prevents seek after deactivation', () async {
+      final engine = XuehuaAudio.instance.engine;
+      final track = await engine.loadAsset(
+        assetKey: 'assets/audio/message_ring.wav',
+      );
+
+      await track.stop();
+
+      await expectLater(
+        track.seekTo(positionSecs: 0),
+        throwsA(isA<XueHuaAudioError>()),
+      );
     });
 
     test('stopAll deactivates track handles idempotently', () async {
@@ -81,7 +95,73 @@ void main() {
       await track.stop();
     });
 
-    test('loop keeps playing after one lap', () async {
+    test('pause and resume keep playback active', () async {
+      final engine = XuehuaAudio.instance.engine;
+      final track = await engine.loadAsset(
+        assetKey: 'assets/audio/message_ring.wav',
+      );
+
+      await track.pause();
+      expect(track.playbackProgress().isPaused, isTrue);
+      expect(track.playbackProgress().isPlaying, isFalse);
+
+      await track.resume();
+      expect(track.playbackProgress().isPaused, isFalse);
+      expect(track.isPlaying(), isTrue);
+
+      await track.stop();
+    });
+
+    test('multiple tracks play concurrently', () async {
+      final engine = XuehuaAudio.instance.engine;
+      final first = await engine.loadAsset(
+        assetKey: 'assets/audio/message_ring.wav',
+      );
+      final second = await engine.loadAsset(
+        assetKey: 'assets/audio/message_ring.wav',
+      );
+
+      expect(first.isPlaying(), isTrue);
+      expect(second.isPlaying(), isTrue);
+
+      await first.stop();
+      expect(first.playbackProgress().isFinished, isTrue);
+      expect(second.isPlaying(), isTrue);
+
+      await second.stop();
+    });
+
+    test(
+      'natural finish unregisters without watcher self-join panic',
+      () async {
+        final engine = XuehuaAudio.instance.engine;
+        final track = await engine.loadAsset(
+          assetKey: 'assets/audio/message_ring.wav',
+        );
+
+        final finishedCompleter = Completer<void>();
+        final sub = track.progressStream.listen((progress) {
+          if (!finishedCompleter.isCompleted && progress.isFinished) {
+            finishedCompleter.complete();
+          }
+        });
+
+        await finishedCompleter.future.timeout(
+          const Duration(seconds: 30),
+          onTimeout: () =>
+              throw TimeoutException('Track did not finish naturally'),
+        );
+
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+        await sub.cancel();
+
+        expect(track.playbackProgress().isFinished, isTrue);
+        await track.stop();
+        await track.stopAndCleanup();
+      },
+    );
+
+    test('loop position wraps within duration', () async {
       final engine = XuehuaAudio.instance.engine;
       final track = await engine.loadAsset(
         assetKey: 'assets/audio/message_ring.wav',
@@ -89,9 +169,17 @@ void main() {
       );
 
       final durationCompleter = Completer<double>();
+      var sawLateLap = false;
       final sub = track.progressStream.listen((progress) {
         if (!durationCompleter.isCompleted && progress.durationSecs != null) {
           durationCompleter.complete(progress.durationSecs!);
+        }
+        final duration = progress.durationSecs;
+        if (duration != null &&
+            duration > 0 &&
+            progress.positionSecs < duration * 0.25 &&
+            progress.positionSecs > 0) {
+          sawLateLap = true;
         }
       });
 
@@ -101,11 +189,12 @@ void main() {
       );
 
       await Future<void>.delayed(
-        Duration(milliseconds: (durationSecs * 1000).round() + 500),
+        Duration(milliseconds: (durationSecs * 1500).round().clamp(800, 10000)),
       );
 
       expect(track.isFinished(), isFalse);
       expect(track.isPlaying(), isTrue);
+      expect(sawLateLap, isTrue, reason: 'Expected loop position to wrap');
 
       await sub.cancel();
       await track.stop();

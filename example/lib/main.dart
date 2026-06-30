@@ -447,6 +447,10 @@ class _PlaybackDemoTabState extends State<PlaybackDemoTab> {
               .firstWhere((sample) => sample.$2 == assetKey)
               .$1;
           unawaited(widget.onStatus('$label 播放完成'));
+          final finishedTrack = _tracks.remove(assetKey);
+          if (finishedTrack != null) {
+            unawaited(finishedTrack.stopAndCleanup());
+          }
         }
         setState(() {
           _progress[assetKey] = progress;

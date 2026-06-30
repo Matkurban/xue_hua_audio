@@ -30,7 +30,7 @@ use crate::engine::*;
 use crate::recording::*;
 use crate::track::*;
 use flutter_rust_bridge::for_generated::byteorder::{NativeEndian, ReadBytesExt, WriteBytesExt};
-use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
 use flutter_rust_bridge::{Handler, IntoIntoDart};
 
 // Section: boilerplate
@@ -921,7 +921,7 @@ fn wire__crate__track__XueHuaAudioTrack_pause_impl(
             >>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
-                transform_result_sse::<_, ()>((move || {
+                transform_result_sse::<_, crate::error::XueHuaAudioError>((move || {
                     let mut api_that_guard = None;
                     let decode_indices_ =
                         flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
@@ -936,9 +936,7 @@ fn wire__crate__track__XueHuaAudioTrack_pause_impl(
                         }
                     }
                     let api_that_guard = api_that_guard.unwrap();
-                    let output_ok = Result::<_, ()>::Ok({
-                        crate::track::XueHuaAudioTrack::pause(&*api_that_guard);
-                    })?;
+                    let output_ok = crate::track::XueHuaAudioTrack::pause(&*api_that_guard)?;
                     Ok(output_ok)
                 })())
             }
@@ -1178,7 +1176,7 @@ fn wire__crate__track__XueHuaAudioTrack_resume_impl(
             >>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
-                transform_result_sse::<_, ()>((move || {
+                transform_result_sse::<_, crate::error::XueHuaAudioError>((move || {
                     let mut api_that_guard = None;
                     let decode_indices_ =
                         flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
@@ -1193,9 +1191,7 @@ fn wire__crate__track__XueHuaAudioTrack_resume_impl(
                         }
                     }
                     let api_that_guard = api_that_guard.unwrap();
-                    let output_ok = Result::<_, ()>::Ok({
-                        crate::track::XueHuaAudioTrack::resume(&*api_that_guard);
-                    })?;
+                    let output_ok = crate::track::XueHuaAudioTrack::resume(&*api_that_guard)?;
                     Ok(output_ok)
                 })())
             }
@@ -1283,7 +1279,7 @@ fn wire__crate__track__XueHuaAudioTrack_set_volume_impl(
             let api_volume = <f32>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
-                transform_result_sse::<_, ()>((move || {
+                transform_result_sse::<_, crate::error::XueHuaAudioError>((move || {
                     let mut api_that_guard = None;
                     let decode_indices_ =
                         flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
@@ -1298,9 +1294,8 @@ fn wire__crate__track__XueHuaAudioTrack_set_volume_impl(
                         }
                     }
                     let api_that_guard = api_that_guard.unwrap();
-                    let output_ok = Result::<_, ()>::Ok({
-                        crate::track::XueHuaAudioTrack::set_volume(&*api_that_guard, api_volume);
-                    })?;
+                    let output_ok =
+                        crate::track::XueHuaAudioTrack::set_volume(&*api_that_guard, api_volume)?;
                     Ok(output_ok)
                 })())
             }
@@ -2450,7 +2445,7 @@ mod io {
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
     };
-    use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+    use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
     use flutter_rust_bridge::{Handler, IntoIntoDart};
 
     // Section: boilerplate
@@ -2519,7 +2514,7 @@ mod web {
     };
     use flutter_rust_bridge::for_generated::wasm_bindgen;
     use flutter_rust_bridge::for_generated::wasm_bindgen::prelude::*;
-    use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+    use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
     use flutter_rust_bridge::{Handler, IntoIntoDart};
 
     // Section: boilerplate

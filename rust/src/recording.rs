@@ -1,4 +1,4 @@
-use crate::engine::{RecorderRegistry, next_recorder_id, unregister_recorder};
+use crate::engine::{RecorderRegistry, lock_mutex, next_recorder_id, unregister_recorder};
 use crate::error::XueHuaAudioError;
 use crate::frb_generated::StreamSink;
 use hound::{SampleFormat, WavSpec, WavWriter};
@@ -34,10 +34,12 @@ pub(crate) struct RecorderShared {
     stop_flag: AtomicBool,
     paused: AtomicBool,
     is_recording: AtomicBool,
+    startup_ready: AtomicBool,
     samples_written: AtomicU64,
     sample_rate: AtomicU32,
     channels: AtomicU32,
     output_path: Mutex<String>,
+    startup_failed: Mutex<Option<String>>,
     writer_thread: Mutex<Option<JoinHandle<Result<(), String>>>>,
 }
 
@@ -47,10 +49,12 @@ impl RecorderShared {
             stop_flag: AtomicBool::new(false),
             paused: AtomicBool::new(false),
             is_recording: AtomicBool::new(false),
+            startup_ready: AtomicBool::new(false),
             samples_written: AtomicU64::new(0),
             sample_rate: AtomicU32::new(0),
             channels: AtomicU32::new(0),
             output_path: Mutex::new(String::new()),
+            startup_failed: Mutex::new(None),
             writer_thread: Mutex::new(None),
         }
     }
@@ -75,11 +79,7 @@ impl RecorderShared {
     }
 
     fn join_writer_thread(&self) -> Result<(), XueHuaAudioError> {
-        let handle = self
-            .writer_thread
-            .lock()
-            .expect("recorder thread lock poisoned")
-            .take();
+        let handle = lock_mutex(&self.writer_thread)?.take();
         if let Some(handle) = handle {
             match handle.join() {
                 Ok(Ok(())) => Ok(()),
@@ -101,34 +101,83 @@ impl RecorderShared {
         self.join_writer_thread()?;
         self.is_recording.store(false, Ordering::Relaxed);
         self.paused.store(false, Ordering::Relaxed);
-        Ok(self
-            .output_path
-            .lock()
-            .expect("recorder path lock poisoned")
-            .clone())
+        Ok(lock_mutex(&self.output_path)?.clone())
+    }
+
+    fn reset_for_start(&self, output_path: String) {
+        self.stop_flag.store(false, Ordering::Relaxed);
+        self.paused.store(false, Ordering::Relaxed);
+        self.startup_ready.store(false, Ordering::Relaxed);
+        self.samples_written.store(0, Ordering::Relaxed);
+        if let Ok(mut guard) = lock_mutex(&self.startup_failed) {
+            *guard = None;
+        }
+        if let Ok(mut guard) = lock_mutex(&self.output_path) {
+            *guard = output_path;
+        }
+    }
+
+    fn wait_for_startup(&self) -> Result<(), XueHuaAudioError> {
+        let deadline = Instant::now() + Duration::from_millis(100);
+        loop {
+            if self.startup_ready.load(Ordering::Acquire) {
+                return Ok(());
+            }
+            if let Ok(guard) = lock_mutex(&self.startup_failed) {
+                if let Some(message) = guard.clone() {
+                    self.is_recording.store(false, Ordering::Relaxed);
+                    self.join_writer_thread()?;
+                    return Err(XueHuaAudioError::Recording(message));
+                }
+            }
+            let finished = lock_mutex(&self.writer_thread)?
+                .as_ref()
+                .is_some_and(|handle| handle.is_finished());
+            if finished {
+                self.join_writer_thread()?;
+                self.is_recording.store(false, Ordering::Relaxed);
+                return Err(XueHuaAudioError::Recording(
+                    "Recording failed to start".into(),
+                ));
+            }
+            if Instant::now() >= deadline {
+                return Ok(());
+            }
+            thread::sleep(Duration::from_millis(5));
+        }
     }
 }
 
 /// 麦克风录制器，后台线程写入 WAV 并通过 StreamSink 推送事件。
 pub struct XueHuaAudioRecorder {
     shared: Arc<RecorderShared>,
-    registration: Option<(RecorderRegistry, u64)>,
+    registry: RecorderRegistry,
+    registration_id: Option<u64>,
 }
 
 impl XueHuaAudioRecorder {
     pub(crate) fn new(registry: RecorderRegistry) -> Self {
         let shared = Arc::new(RecorderShared::new());
-        let id = next_recorder_id();
-        registry
-            .lock()
-            .expect("recorder registry lock poisoned")
-            .push(crate::engine::RecorderRegistryEntry {
-                id,
-                shared: Arc::clone(&shared),
-            });
-        Self {
+        let mut recorder = Self {
             shared,
-            registration: Some((registry, id)),
+            registry: Arc::clone(&registry),
+            registration_id: None,
+        };
+        recorder.ensure_registered();
+        recorder
+    }
+
+    fn ensure_registered(&mut self) {
+        if self.registration_id.is_some() {
+            return;
+        }
+        let id = next_recorder_id();
+        if let Ok(mut guard) = lock_mutex(&self.registry) {
+            guard.push(crate::engine::RecorderRegistryEntry {
+                id,
+                shared: Arc::clone(&self.shared),
+            });
+            self.registration_id = Some(id);
         }
     }
 
@@ -143,27 +192,17 @@ impl XueHuaAudioRecorder {
             return Err(XueHuaAudioError::AlreadyRecording);
         }
 
-        self.shared.stop_flag.store(false, Ordering::Relaxed);
-        self.shared.paused.store(false, Ordering::Relaxed);
-        self.shared.samples_written.store(0, Ordering::Relaxed);
-        *self
-            .shared
-            .output_path
-            .lock()
-            .expect("recorder path lock poisoned") = output_path.clone();
+        self.ensure_registered();
+        self.shared.reset_for_start(output_path.clone());
+        self.shared.is_recording.store(true, Ordering::Relaxed);
 
         let shared = Arc::clone(&self.shared);
         let handle = thread::spawn(move || {
             run_writer_thread(shared, output_path, progress_sink, device_index)
         });
 
-        *self
-            .shared
-            .writer_thread
-            .lock()
-            .expect("recorder thread lock poisoned") = Some(handle);
-        self.shared.is_recording.store(true, Ordering::Relaxed);
-        Ok(())
+        *lock_mutex(&self.shared.writer_thread)? = Some(handle);
+        self.shared.wait_for_startup()
     }
 
     pub fn pause(&self) -> Result<(), XueHuaAudioError> {
@@ -200,8 +239,8 @@ impl XueHuaAudioRecorder {
     }
 
     fn unregister(&mut self) {
-        if let Some((registry, id)) = self.registration.take() {
-            unregister_recorder(&registry, id);
+        if let Some(id) = self.registration_id.take() {
+            unregister_recorder(&self.registry, id);
         }
     }
 }
@@ -216,7 +255,9 @@ impl Drop for XueHuaAudioRecorder {
 pub(crate) fn stop_shared_recorder(shared: &Arc<RecorderShared>) {
     if shared.is_recording.load(Ordering::Relaxed) {
         shared.stop_flag.store(true, Ordering::Relaxed);
-        let _ = shared.join_writer_thread();
+        if let Err(error) = shared.join_writer_thread() {
+            eprintln!("xue_hua_audio: recorder stop error: {error}");
+        }
         shared.is_recording.store(false, Ordering::Relaxed);
         shared.paused.store(false, Ordering::Relaxed);
     }
@@ -244,6 +285,8 @@ fn run_writer_thread(
     let mut writer =
         WavWriter::create(&output_path, spec).map_err(|e| format!("Create WAV file: {e}"))?;
 
+    shared.startup_ready.store(true, Ordering::Release);
+
     let push_interval = Duration::from_millis(100);
     let mut last_push = Instant::now();
     let mut chunk_peak = 0.0f32;
@@ -256,8 +299,7 @@ fn run_writer_thread(
                     if frame_pos == 0 {
                         break;
                     }
-                    // Drain remaining channels of the incomplete frame without writing.
-                    frame_pos = (frame_pos + 1) % channels_u32;
+                    frame_pos = advance_frame_pos(frame_pos, channels_u32);
                     continue;
                 }
 
@@ -270,8 +312,8 @@ fn run_writer_thread(
                         .write_sample(sample)
                         .map_err(|e| format!("Write WAV sample: {e}"))?;
                     shared.samples_written.fetch_add(1, Ordering::Relaxed);
-                    frame_pos = (frame_pos + 1) % channels_u32;
                 }
+                frame_pos = advance_frame_pos(frame_pos, channels_u32);
             }
             None => {
                 while frame_pos != 0 {
@@ -279,7 +321,7 @@ fn run_writer_thread(
                         .write_sample(0.0f32)
                         .map_err(|e| format!("Write WAV sample: {e}"))?;
                     shared.samples_written.fetch_add(1, Ordering::Relaxed);
-                    frame_pos = (frame_pos + 1) % channels_u32;
+                    frame_pos = advance_frame_pos(frame_pos, channels_u32);
                 }
                 break;
             }
@@ -306,6 +348,10 @@ fn run_writer_thread(
     }));
 
     Ok(())
+}
+
+fn advance_frame_pos(frame_pos: u32, channels_u32: u32) -> u32 {
+    (frame_pos + 1) % channels_u32
 }
 
 fn open_microphone(device_index: Option<u32>) -> Result<Microphone, XueHuaAudioError> {
@@ -342,4 +388,28 @@ pub fn list_input_devices() -> Result<Vec<String>, XueHuaAudioError> {
         .iter()
         .map(|input| input.to_string())
         .collect())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::advance_frame_pos;
+
+    #[test]
+    fn paused_samples_advance_frame_pos_without_writing() {
+        let channels = 2u32;
+        let mut frame_pos = 0u32;
+        let mut written = Vec::new();
+        let samples = [1.0_f32, 2.0, 3.0, 4.0];
+
+        for (i, &sample) in samples.iter().enumerate() {
+            let paused = i >= 2;
+            if !paused {
+                written.push((frame_pos, sample));
+            }
+            frame_pos = advance_frame_pos(frame_pos, channels);
+        }
+
+        assert_eq!(written, [(0, 1.0), (1, 2.0)]);
+        assert_eq!(frame_pos, 0);
+    }
 }

@@ -50,7 +50,7 @@ class XuehuaAudio {
   static XuehuaAudio get instance {
     final current = _instance;
     if (current == null) {
-      throw StateError('Call XuehuaAudioPlayer.initialize() first');
+      throw StateError('Call XuehuaAudio.initialize() first');
     }
     return current;
   }
@@ -80,8 +80,7 @@ extension XueHuaAudioEngineLoading on XueHuaAudioEngine {
   Future<XueHuaAudioTrack> loadLocal({
     required String path,
     bool loop = false,
-  }) =>
-      loadFromPath(path: path, loop: loop);
+  }) => loadFromPath(path: path, loop: loop);
 
   /// Flutter Asset（pubspec 声明路径）→ 临时文件 → 流式播放。
   Future<XueHuaAudioTrack> loadAsset({

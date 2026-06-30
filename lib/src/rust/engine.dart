@@ -9,7 +9,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'recording.dart';
 import 'track.dart';
 
-// These functions are ignored because they are not marked as `pub`: `next_recorder_id`, `next_track_id`, `unregister_recorder`, `unregister_track`
+// These functions are ignored because they are not marked as `pub`: `lock_mutex`, `next_recorder_id`, `next_track_id`, `unregister_recorder`, `unregister_track`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `RecorderRegistryEntry`, `RegistryEntry`
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<XueHuaAudioEngine>>

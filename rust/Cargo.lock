@@ -1690,11 +1690,12 @@ dependencies = [
 
 [[package]]
 name = "xue_hua_audio"
-version = "1.0.2"
+version = "1.0.3"
 dependencies = [
  "flutter_rust_bridge",
  "hound",
  "jni 0.22.4",
+ "log",
  "ndk-context",
  "rodio",
  "thiserror 2.0.18",

@@ -40,7 +40,7 @@ dependencies:
   xue_hua_audio: ^1.0.2
 ```
 
-在使用任何音频 API 之前调用一次 `XuehuaAudioPlayer.initialize()`（通常在 `main()` 中、`WidgetsFlutterBinding.ensureInitialized()` 之后）。
+在使用任何音频 API 之前调用一次 `XuehuaAudio.initialize()`（通常在 `main()` 中、`WidgetsFlutterBinding.ensureInitialized()` 之后）。
 
 ---
 
@@ -108,7 +108,7 @@ Future<void> main() async {
 
 `XueHuaAudioTrack.replaceFromPath` / `replaceFromBytes` 同样支持 `loop` 参数。
 
-URL 相关参数可在初始化时通过 `XuehuaAudioPlayerOptions` 配置：
+URL 相关参数可在初始化时通过 `XuehuaAudioOptions` 配置：
 
 ```dart
 await XuehuaAudio.initialize(

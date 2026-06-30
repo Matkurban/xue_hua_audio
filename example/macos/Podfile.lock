@@ -1,6 +1,6 @@
 PODS:
   - FlutterMacOS (1.0.0)
-  - xue_hua_audio (1.0.0):
+  - xue_hua_audio (1.0.2):
     - FlutterMacOS
 
 DEPENDENCIES:
@@ -15,7 +15,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
-  xue_hua_audio: e608e48beaa92cbb11f31deba65caa4aac722e12
+  xue_hua_audio: 990c8e36395cf54851272c94090a291e53a677f2
 
 PODFILE CHECKSUM: 54d867c82ac51cbd61b565781b9fada492027009
 

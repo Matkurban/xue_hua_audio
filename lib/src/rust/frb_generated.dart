@@ -858,7 +858,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
-          decodeErrorData: null,
+          decodeErrorData: sse_decode_xue_hua_audio_error,
         ),
         constMeta: kCrateTrackXueHuaAudioTrackPauseConstMeta,
         argValues: [that],
@@ -1036,7 +1036,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
-          decodeErrorData: null,
+          decodeErrorData: sse_decode_xue_hua_audio_error,
         ),
         constMeta: kCrateTrackXueHuaAudioTrackResumeConstMeta,
         argValues: [that],
@@ -1112,7 +1112,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
-          decodeErrorData: null,
+          decodeErrorData: sse_decode_xue_hua_audio_error,
         ),
         constMeta: kCrateTrackXueHuaAudioTrackSetVolumeConstMeta,
         argValues: [that, volume],

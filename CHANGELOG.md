@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-06-30
+
+### Fixed
+
+- **Recording pause/resume** — advance interleaved frame position while paused so stereo WAV channels stay aligned after resume.
+- **Track lifecycle** — gate `pause`, `resume`, `seek`, `volume`, and `replace` behind active registration; prevents zombie playback after `stop()`.
+- **Recorder re-registration** — `start()` after `stop()` re-enters the Engine registry so `stopAllRecorders()` stops restarted sessions.
+- **Recording start race** — set `is_recording` before spawning the writer thread.
+- **Recording startup errors** — surface microphone/WAV open failures within ~100 ms of `start()` instead of only on `stop()`.
+- **Natural playback finish** — progress watcher unregisters finished non-loop tracks from the Engine registry; watcher thread no longer calls `join` on itself (fixes `Resource deadlock avoided` panic on macOS).
+- **Mutex poison** — registry locks return `XueHuaAudioError` instead of panicking on poison.
+- **Android NDK init** — log JNI failures instead of silently discarding them.
+- **Dart facade** — correct `XuehuaAudio.initialize()` message in `StateError`.
+
+### Changed
+
+- **Example app** — auto `stopAndCleanup()` when a track reports `isFinished`.
+- **Integration tests** — seek/pause/multi-track coverage; recording tests gated by `--dart-define=RECORDING_TEST=true`.
+
 ## [1.0.2] - 2026-06-27
 
 ### Fixed

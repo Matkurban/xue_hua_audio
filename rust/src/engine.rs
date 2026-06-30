@@ -36,14 +36,24 @@ pub(crate) fn next_recorder_id() -> u64 {
     NEXT_RECORDER_ID.fetch_add(1, Ordering::Relaxed)
 }
 
+pub(crate) fn lock_mutex<T>(
+    mutex: &Mutex<T>,
+) -> Result<std::sync::MutexGuard<'_, T>, XueHuaAudioError> {
+    mutex
+        .lock()
+        .map_err(|_| XueHuaAudioError::Recording("lock poisoned".into()))
+}
+
 pub(crate) fn unregister_track(registry: &Registry, id: u64) {
-    let mut guard = registry.lock().expect("registry lock poisoned");
-    guard.retain(|entry| entry.id != id);
+    if let Ok(mut guard) = lock_mutex(registry) {
+        guard.retain(|entry| entry.id != id);
+    }
 }
 
 pub(crate) fn unregister_recorder(registry: &RecorderRegistry, id: u64) {
-    let mut guard = registry.lock().expect("recorder registry lock poisoned");
-    guard.retain(|entry| entry.id != id);
+    if let Ok(mut guard) = lock_mutex(registry) {
+        guard.retain(|entry| entry.id != id);
+    }
 }
 
 /// 应用级音频引擎，持有 `MixerDeviceSink` 并管理多轨并发播放。
@@ -139,21 +149,21 @@ impl XueHuaAudioEngine {
 
     /// 停止并注销所有仍活跃的音轨。
     pub fn stop_all(&self) {
-        let mut guard = self.registry.lock().expect("registry lock poisoned");
-        for entry in guard.drain(..) {
-            entry.player.stop();
-            entry.shared.deactivate();
+        if let Ok(mut guard) = lock_mutex(&self.registry) {
+            for entry in guard.drain(..) {
+                entry.player.stop();
+                entry.shared.deactivate();
+                entry.shared.take_registration();
+            }
         }
     }
 
     /// 停止所有仍活跃的录制会话。
     pub fn stop_all_recorders(&self) {
-        let mut guard = self
-            .recorder_registry
-            .lock()
-            .expect("recorder registry lock poisoned");
-        for entry in guard.drain(..) {
-            stop_shared_recorder(&entry.shared);
+        if let Ok(mut guard) = lock_mutex(&self.recorder_registry) {
+            for entry in guard.drain(..) {
+                stop_shared_recorder(&entry.shared);
+            }
         }
     }
 }

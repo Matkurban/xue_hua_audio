@@ -1,10 +1,10 @@
 #[cfg(target_os = "android")]
 mod imp {
     use jni::{
+        EnvUnowned,
         errors::Result as JniResult,
         objects::{Global, JClass, JObject},
         refs::Reference as _,
-        EnvUnowned,
     };
     use std::ffi::c_void;
     use std::sync::OnceLock;
@@ -20,19 +20,23 @@ mod imp {
         _class: JClass<'local>,
         context: JObject<'local>,
     ) {
-        let _ = unowned_env.with_env(|env| -> JniResult<()> {
-            if CONTEXT_HOLDER.get().is_some() {
-                return Ok(());
-            }
-            let global_ref = env.new_global_ref(context)?;
-            let vm = env.get_java_vm()?;
-            let vm_ptr = vm.get_raw() as *mut c_void;
-            let ctx_ptr = global_ref.as_obj().as_raw() as *mut c_void;
-            unsafe {
-                ndk_context::initialize_android_context(vm_ptr, ctx_ptr);
-            }
-            let _ = CONTEXT_HOLDER.set(global_ref);
-            Ok(())
-        });
+        let _ = unowned_env
+            .with_env(|env| -> JniResult<()> {
+                if CONTEXT_HOLDER.get().is_some() {
+                    return Ok(());
+                }
+                let global_ref = env.new_global_ref(context)?;
+                let vm = env.get_java_vm()?;
+                let vm_ptr = vm.get_raw() as *mut c_void;
+                let ctx_ptr = global_ref.as_obj().as_raw() as *mut c_void;
+                unsafe {
+                    ndk_context::initialize_android_context(vm_ptr, ctx_ptr);
+                }
+                let _ = CONTEXT_HOLDER.set(global_ref);
+                Ok(())
+            })
+            .map_err(|error| {
+                log::error!("xue_hua_audio: Android NDK context init failed: {error:?}");
+            });
     }
 }

@@ -8,7 +8,7 @@ import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'playback.dart';
 
-// These functions are ignored because they are not marked as `pub`: `deactivate`, `duration`, `is_active`, `is_looping`, `new`, `new`, `new`, `normalize_position_secs`, `open_decoder_from_bytes`, `open_decoder_from_path`, `open_looped_decoder_from_bytes`, `open_looped_decoder_from_path`, `probe_duration_from_bytes`, `probe_duration_from_path`, `run_progress_watcher`, `set_duration`, `set_looping`, `snapshot_progress`, `stop_watching`, `unregister`
+// These functions are ignored because they are not marked as `pub`: `deactivate`, `duration`, `is_active`, `is_looping`, `new`, `new`, `new`, `normalize_position_secs`, `open_decoder_from_bytes`, `open_decoder_from_path`, `open_looped_decoder_from_bytes`, `open_looped_decoder_from_path`, `probe_duration_from_bytes`, `probe_duration_from_path`, `require_active`, `run_progress_watcher`, `set_duration`, `set_looping`, `snapshot_progress`, `stop_watching`, `take_registration`, `unregister_from_engine`, `unregister`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `ProgressWatcher`, `TrackSharedState`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `drop`
 
