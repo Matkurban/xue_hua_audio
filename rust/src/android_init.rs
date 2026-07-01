@@ -2,9 +2,8 @@
 mod imp {
     use jni::{
         EnvUnowned,
-        errors::Result as JniResult,
+        errors::{LogContextErrorAndDefault, Result as JniResult},
         objects::{Global, JClass, JObject},
-        refs::Reference as _,
     };
     use std::ffi::c_void;
     use std::sync::OnceLock;
@@ -20,7 +19,7 @@ mod imp {
         _class: JClass<'local>,
         context: JObject<'local>,
     ) {
-        let _ = unowned_env
+        unowned_env
             .with_env(|env| -> JniResult<()> {
                 if CONTEXT_HOLDER.get().is_some() {
                     return Ok(());
@@ -35,8 +34,8 @@ mod imp {
                 let _ = CONTEXT_HOLDER.set(global_ref);
                 Ok(())
             })
-            .map_err(|error| {
-                log::error!("xue_hua_audio: Android NDK context init failed: {error:?}");
+            .resolve_with::<LogContextErrorAndDefault, _>(|| {
+                "xue_hua_audio: Android NDK context init failed".to_string()
             });
     }
 }
