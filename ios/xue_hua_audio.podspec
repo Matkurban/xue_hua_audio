@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'xue_hua_audio'
-  s.version          = '1.0.2'
+  s.version          = '1.0.0'
   s.summary          = 'Cross-platform Flutter FFI audio plugin.'
   s.description      = <<-DESC
 Cross-platform Flutter FFI audio plugin powered by Rust/rodio.

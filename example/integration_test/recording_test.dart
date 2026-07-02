@@ -21,11 +21,11 @@ void main() {
 
   group('recording', () {
     setUpAll(() async {
-      await XuehuaAudio.initialize();
+      await XueHuaAudio.initialize();
     });
 
     tearDownAll(() async {
-      await XuehuaAudio.instance.dispose();
+      await XueHuaAudio.instance.dispose();
     });
 
     test('progressStream emits events and writes wav file', () async {
@@ -48,7 +48,7 @@ void main() {
         markTestSkipped('Microphone permission denied');
       }
 
-      final engine = XuehuaAudio.instance.engine;
+      final engine = XueHuaAudio.instance.engine;
       final session = await engine.createRecordingSession();
       final outputPath = p.join(
         (await getTemporaryDirectory()).path,
@@ -92,7 +92,7 @@ void main() {
         markTestSkipped('Microphone permission denied');
       }
 
-      final engine = XuehuaAudio.instance.engine;
+      final engine = XueHuaAudio.instance.engine;
       final session = await engine.createRecordingSession();
       final tempDir = await getTemporaryDirectory();
 

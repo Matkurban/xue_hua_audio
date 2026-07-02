@@ -9,19 +9,19 @@ void main() {
 
   group('playback', () {
     setUpAll(() async {
-      await XuehuaAudio.initialize();
+      await XueHuaAudio.initialize();
     });
 
     tearDown(() async {
-      await XuehuaAudio.instance.engine.stopAllWithCleanup();
+      await XueHuaAudio.instance.engine.stopAllWithCleanup();
     });
 
     tearDownAll(() async {
-      await XuehuaAudio.instance.dispose();
+      await XueHuaAudio.instance.dispose();
     });
 
     test('progressStream emits events with duration', () async {
-      final engine = XuehuaAudio.instance.engine;
+      final engine = XueHuaAudio.instance.engine;
       final track = await engine.loadAsset(
         assetKey: 'assets/audio/message_ring.wav',
       );
@@ -46,7 +46,7 @@ void main() {
     });
 
     test('stop prevents progressStream resubscribe', () async {
-      final engine = XuehuaAudio.instance.engine;
+      final engine = XueHuaAudio.instance.engine;
       final track = await engine.loadAsset(
         assetKey: 'assets/audio/message_ring.wav',
       );
@@ -70,7 +70,7 @@ void main() {
     });
 
     test('stop prevents seek after deactivation', () async {
-      final engine = XuehuaAudio.instance.engine;
+      final engine = XueHuaAudio.instance.engine;
       final track = await engine.loadAsset(
         assetKey: 'assets/audio/message_ring.wav',
       );
@@ -84,7 +84,7 @@ void main() {
     });
 
     test('stopAll deactivates track handles idempotently', () async {
-      final engine = XuehuaAudio.instance.engine;
+      final engine = XueHuaAudio.instance.engine;
       final track = await engine.loadAsset(
         assetKey: 'assets/audio/message_ring.wav',
       );
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('pause and resume keep playback active', () async {
-      final engine = XuehuaAudio.instance.engine;
+      final engine = XueHuaAudio.instance.engine;
       final track = await engine.loadAsset(
         assetKey: 'assets/audio/message_ring.wav',
       );
@@ -113,7 +113,7 @@ void main() {
     });
 
     test('multiple tracks play concurrently', () async {
-      final engine = XuehuaAudio.instance.engine;
+      final engine = XueHuaAudio.instance.engine;
       final first = await engine.loadAsset(
         assetKey: 'assets/audio/message_ring.wav',
       );
@@ -134,7 +134,7 @@ void main() {
     test(
       'natural finish unregisters without watcher self-join panic',
       () async {
-        final engine = XuehuaAudio.instance.engine;
+        final engine = XueHuaAudio.instance.engine;
         final track = await engine.loadAsset(
           assetKey: 'assets/audio/message_ring.wav',
         );
@@ -162,7 +162,7 @@ void main() {
     );
 
     test('loop position wraps within duration', () async {
-      final engine = XuehuaAudio.instance.engine;
+      final engine = XueHuaAudio.instance.engine;
       final track = await engine.loadAsset(
         assetKey: 'assets/audio/message_ring.wav',
         loop: true,

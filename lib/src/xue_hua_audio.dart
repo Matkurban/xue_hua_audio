@@ -13,8 +13,8 @@ import 'rust/recording.dart';
 import 'rust/track.dart';
 
 /// 网络与下载相关配置。
-class XuehuaAudioOptions {
-  const XuehuaAudioOptions({
+class XueHuaAudioOptions {
+  const XueHuaAudioOptions({
     this.urlTimeout = const Duration(seconds: 30),
     this.urlMaxRetries = 2,
     this.urlRetryDelay = const Duration(milliseconds: 500),
@@ -26,28 +26,28 @@ class XuehuaAudioOptions {
 }
 
 /// 雪花音频播放器公开入口。
-class XuehuaAudio {
-  XuehuaAudio._(this._engine, this._options);
+class XueHuaAudio {
+  XueHuaAudio._(this._engine, this._options);
 
-  static XuehuaAudio? _instance;
+  static XueHuaAudio? _instance;
 
   final XueHuaAudioEngine _engine;
-  final XuehuaAudioOptions _options;
+  final XueHuaAudioOptions _options;
 
   /// 插件唯一初始化入口：加载 Rust 库并创建 [XueHuaAudioEngine]。
   ///
   /// 幂等：已初始化时直接返回已有实例。
-  static Future<XuehuaAudio> initialize({
-    XuehuaAudioOptions options = const XuehuaAudioOptions(),
+  static Future<XueHuaAudio> initialize({
+    XueHuaAudioOptions options = const XueHuaAudioOptions(),
   }) async {
     if (_instance != null) return _instance!;
     await RustLib.init();
     final engine = await XueHuaAudioEngine.newInstance();
-    _instance = XuehuaAudio._(engine, options);
+    _instance = XueHuaAudio._(engine, options);
     return _instance!;
   }
 
-  static XuehuaAudio get instance {
+  static XueHuaAudio get instance {
     final current = _instance;
     if (current == null) {
       throw StateError('Call XuehuaAudio.initialize() first');
@@ -57,7 +57,7 @@ class XuehuaAudio {
 
   XueHuaAudioEngine get engine => _engine;
 
-  XuehuaAudioOptions get options => _options;
+  XueHuaAudioOptions get options => _options;
 
   /// 停止所有音轨、录制会话、清理临时文件并释放引擎。
   ///
@@ -104,7 +104,7 @@ extension XueHuaAudioEngineLoading on XueHuaAudioEngine {
     Duration? timeout,
     int? maxRetries,
   }) async {
-    final player = XuehuaAudio.instance;
+    final player = XueHuaAudio.instance;
     final tempPath = await _downloadToTempFile(
       url: url,
       timeout: timeout ?? player.options.urlTimeout,

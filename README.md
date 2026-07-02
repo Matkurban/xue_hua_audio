@@ -40,7 +40,7 @@ dependencies:
   xue_hua_audio: ^1.0.2
 ```
 
-Call `XuehuaAudio.initialize()` once before any audio API (typically in `main()` after `WidgetsFlutterBinding.ensureInitialized()`).
+Call `XueHuaAudio.initialize()` once before any audio API (typically in `main()` after `WidgetsFlutterBinding.ensureInitialized()`).
 
 ---
 
@@ -52,7 +52,7 @@ import 'package:xue_hua_audio/xue_hua_audio.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final player = await XuehuaAudio.initialize();
+  final player = await XueHuaAudio.initialize();
   final engine = player.engine;
 
   // Play a bundled asset
@@ -77,7 +77,7 @@ Future<void> main() async {
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Dart (xue_hua_audio.dart)                        │
-│  XuehuaAudio · extensions · TempFileRegistry      │
+│  XueHuaAudio · extensions · TempFileRegistry      │
 └──────────────────────────┬──────────────────────────────┘
                            │ flutter_rust_bridge
 ┌──────────────────────────▼──────────────────────────────┐
@@ -108,11 +108,11 @@ Future<void> main() async {
 
 `XueHuaAudioTrack.replaceFromPath` / `replaceFromBytes` also accept `loop`.
 
-URL options are configured via `XuehuaAudioOptions` at initialize time:
+URL options are configured via `XueHuaAudioOptions` at initialize time:
 
 ```dart
-await XuehuaAudio.initialize(
-  options: XuehuaAudioOptions(
+await XueHuaAudio.initialize(
+  options: XueHuaAudioOptions(
     urlTimeout: Duration(seconds: 30),
     urlMaxRetries: 2,
     urlRetryDelay: Duration(milliseconds: 500),
@@ -313,7 +313,7 @@ The plugin merges `RECORD_AUDIO` from its own Android manifest. **Your app** mus
 
 ### Android NDK initialization
 
-On Android, rodio/cpal needs the JVM `Context` via [`ndk_context`](https://docs.rs/ndk-context). When the Rust library is loaded only through Dart FFI (`dlopen`), that context is never set and `XuehuaAudio.initialize()` can panic with `android context was not initialized`.
+On Android, rodio/cpal needs the JVM `Context` via [`ndk_context`](https://docs.rs/ndk-context). When the Rust library is loaded only through Dart FFI (`dlopen`), that context is never set and `XueHuaAudio.initialize()` can panic with `android context was not initialized`.
 
 **Normal Flutter apps:** add `xue_hua_audio` as a dependency — the plugin registers `XueHuaAudioPlugin`, which loads `libxue_hua_audio.so` through the JVM and initializes `ndk_context` before Dart `main()` runs. No `MainActivity` changes are required.
 

@@ -40,7 +40,7 @@ dependencies:
   xue_hua_audio: ^1.0.2
 ```
 
-在使用任何音频 API 之前调用一次 `XuehuaAudio.initialize()`（通常在 `main()` 中、`WidgetsFlutterBinding.ensureInitialized()` 之后）。
+在使用任何音频 API 之前调用一次 `XueHuaAudio.initialize()`（通常在 `main()` 中、`WidgetsFlutterBinding.ensureInitialized()` 之后）。
 
 ---
 
@@ -52,7 +52,7 @@ import 'package:xue_hua_audio/xue_hua_audio.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final player = await XuehuaAudio.initialize();
+  final player = await XueHuaAudio.initialize();
   final engine = player.engine;
 
   // 播放 Asset
@@ -77,7 +77,7 @@ Future<void> main() async {
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Dart（xue_hua_audio.dart）                       │
-│  XuehuaAudio · 扩展方法 · TempFileRegistry        │
+│  XueHuaAudio · 扩展方法 · TempFileRegistry        │
 └──────────────────────────┬──────────────────────────────┘
                            │ flutter_rust_bridge
 ┌──────────────────────────▼──────────────────────────────┐
@@ -108,11 +108,11 @@ Future<void> main() async {
 
 `XueHuaAudioTrack.replaceFromPath` / `replaceFromBytes` 同样支持 `loop` 参数。
 
-URL 相关参数可在初始化时通过 `XuehuaAudioOptions` 配置：
+URL 相关参数可在初始化时通过 `XueHuaAudioOptions` 配置：
 
 ```dart
-await XuehuaAudio.initialize(
-  options: XuehuaAudioOptions(
+await XueHuaAudio.initialize(
+  options: XueHuaAudioOptions(
     urlTimeout: Duration(seconds: 30),
     urlMaxRetries: 2,
     urlRetryDelay: Duration(milliseconds: 500),
@@ -313,7 +313,7 @@ await player.dispose();
 
 ### Android NDK 初始化
 
-Android 上 rodio/cpal 需要通过 [`ndk_context`](https://docs.rs/ndk-context) 获取 JVM `Context`。若 Rust 库仅由 Dart FFI（`dlopen`）加载，该上下文不会被设置，`XuehuaAudio.initialize()` 可能 panic：`android context was not initialized`。
+Android 上 rodio/cpal 需要通过 [`ndk_context`](https://docs.rs/ndk-context) 获取 JVM `Context`。若 Rust 库仅由 Dart FFI（`dlopen`）加载，该上下文不会被设置，`XueHuaAudio.initialize()` 可能 panic：`android context was not initialized`。
 
 **常规 Flutter 应用：** 将 `xue_hua_audio` 加入依赖即可 — 插件会注册 `XueHuaAudioPlugin`，在 JVM 中加载 `libxue_hua_audio.so` 并在 Dart `main()` 之前初始化 `ndk_context`，**无需修改 `MainActivity`**。
 

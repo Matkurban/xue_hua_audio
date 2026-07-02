@@ -6,12 +6,12 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   test('instance throws before initialize', () {
-    expect(() => XuehuaAudio.instance, throwsA(isA<StateError>()));
+    expect(() => XueHuaAudio.instance, throwsA(isA<StateError>()));
   });
 
   test('initialize is idempotent', () async {
-    final first = await XuehuaAudio.initialize();
-    final second = await XuehuaAudio.initialize();
+    final first = await XueHuaAudio.initialize();
+    final second = await XueHuaAudio.initialize();
     expect(identical(first, second), isTrue);
     expect(identical(first.engine, second.engine), isTrue);
     await first.dispose();

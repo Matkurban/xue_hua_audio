@@ -31,7 +31,7 @@ StreamSubscription<XueHuaPlaybackProgress> _subscribeTrackProgress({
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final player = await XuehuaAudio.initialize();
+  final player = await XueHuaAudio.initialize();
   runApp(AudioDemoApp(engine: player.engine));
 }
 
