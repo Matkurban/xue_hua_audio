@@ -11,7 +11,7 @@ Cross-platform Flutter FFI audio plugin powered by Rust/rodio.
                        DESC
   s.homepage         = 'https://github.com/Matkurban/xue_hua_audio'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Matkurban' => 'https://github.com/Matkurban' }
+  s.author           = { 'Matkurban' => '3496354336@qq.com' }
   s.module_name      = 'xue_hua_audio'
 
   # This will ensure the source files in Classes/ are included in the native

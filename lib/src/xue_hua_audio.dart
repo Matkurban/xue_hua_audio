@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart' as path;
 
 import 'rust/engine.dart';
 import 'rust/error.dart';
@@ -11,6 +11,7 @@ import 'rust/frb_generated.dart';
 import 'rust/playback.dart';
 import 'rust/recording.dart';
 import 'rust/track.dart';
+import 'dart:developer';
 
 /// 网络与下载相关配置。
 class XueHuaAudioOptions {
@@ -41,7 +42,18 @@ class XueHuaAudio {
     XueHuaAudioOptions options = const XueHuaAudioOptions(),
   }) async {
     if (_instance != null) return _instance!;
-    await RustLib.init();
+    try {
+      if (!RustLib.instance.initialized) {
+        await RustLib.init();
+      }
+    } catch (e, s) {
+      log(
+        e.toString(),
+        error: e,
+        stackTrace: s,
+        name: 'XueHuaAudio.initialize',
+      );
+    }
     final engine = await XueHuaAudioEngine.newInstance();
     _instance = XueHuaAudio._(engine, options);
     return _instance!;
@@ -234,7 +246,7 @@ Future<String> _writeTempAudioFile({
 }) async {
   final fileName =
       'xuehua_audio_${DateTime.now().microsecondsSinceEpoch}$suffix';
-  final file = File(p.join(Directory.systemTemp.path, fileName));
+  final file = File(path.join(Directory.systemTemp.path, fileName));
   await file.writeAsBytes(bytes, flush: true);
   return file.path;
 }
@@ -276,12 +288,12 @@ Future<String> _downloadToTempFile({
 }
 
 String _suffixFromAssetKey(String assetKey) {
-  final ext = p.extension(assetKey);
+  final ext = path.extension(assetKey);
   return ext.isEmpty ? '.bin' : ext;
 }
 
 String _suffixFromUrl(String url) {
-  final ext = p.extension(Uri.parse(url).path);
+  final ext = path.extension(Uri.parse(url).path);
   return ext.isEmpty ? '.bin' : ext;
 }
 
