@@ -45,7 +45,7 @@ pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -29488223;
 
 // Section: executor
 
-flutter_rust_bridge::frb_generated_default_handler!();
+pub use crate::frb_handler::FLUTTER_RUST_BRIDGE_HANDLER;
 
 // Section: wire_funcs
 

@@ -21,6 +21,8 @@ rodio = { version = "0.22.2", default-features = false, features = [
 ] }
 hound = "3.5.1"
 thiserror = "2.0.18"
+tokio = { version = "1.52.3", features = ["rt", "macros"] }
+threadpool = "1.8.1"
 
 [target.'cfg(target_os = "android")'.dependencies]
 jni = "0.22.4"
