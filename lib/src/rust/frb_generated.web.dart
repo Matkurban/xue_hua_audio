@@ -126,6 +126,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int dco_decode_box_autoadd_u_32(dynamic raw);
 
   @protected
+  XueHuaOutputDevice dco_decode_box_autoadd_xue_hua_output_device(dynamic raw);
+
+  @protected
   XueHuaRecordingCompleted dco_decode_box_autoadd_xue_hua_recording_completed(
     dynamic raw,
   );
@@ -151,10 +154,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
+  List<XueHuaOutputDevice> dco_decode_list_xue_hua_output_device(dynamic raw);
+
+  @protected
   double? dco_decode_opt_box_autoadd_f_64(dynamic raw);
 
   @protected
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
+
+  @protected
+  XueHuaOutputDevice? dco_decode_opt_box_autoadd_xue_hua_output_device(
+    dynamic raw,
+  );
 
   @protected
   int dco_decode_u_32(dynamic raw);
@@ -170,6 +181,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   XueHuaAudioError dco_decode_xue_hua_audio_error(dynamic raw);
+
+  @protected
+  XueHuaOutputDevice dco_decode_xue_hua_output_device(dynamic raw);
 
   @protected
   XueHuaPlaybackProgress dco_decode_xue_hua_playback_progress(dynamic raw);
@@ -277,6 +291,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
 
   @protected
+  XueHuaOutputDevice sse_decode_box_autoadd_xue_hua_output_device(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   XueHuaRecordingCompleted sse_decode_box_autoadd_xue_hua_recording_completed(
     SseDeserializer deserializer,
   );
@@ -302,10 +321,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
+  List<XueHuaOutputDevice> sse_decode_list_xue_hua_output_device(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer);
 
   @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
+  XueHuaOutputDevice? sse_decode_opt_box_autoadd_xue_hua_output_device(
+    SseDeserializer deserializer,
+  );
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
@@ -321,6 +350,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   XueHuaAudioError sse_decode_xue_hua_audio_error(SseDeserializer deserializer);
+
+  @protected
+  XueHuaOutputDevice sse_decode_xue_hua_output_device(
+    SseDeserializer deserializer,
+  );
 
   @protected
   XueHuaPlaybackProgress sse_decode_xue_hua_playback_progress(
@@ -453,6 +487,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_xue_hua_output_device(
+    XueHuaOutputDevice self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_xue_hua_recording_completed(
     XueHuaRecordingCompleted self,
     SseSerializer serializer,
@@ -483,10 +523,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_xue_hua_output_device(
+    List<XueHuaOutputDevice> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_xue_hua_output_device(
+    XueHuaOutputDevice? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);
@@ -503,6 +555,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_xue_hua_audio_error(
     XueHuaAudioError self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_xue_hua_output_device(
+    XueHuaOutputDevice self,
     SseSerializer serializer,
   );
 

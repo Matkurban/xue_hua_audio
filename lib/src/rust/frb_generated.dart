@@ -70,7 +70,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => -29488223;
+  int get rustContentHash => 799521932;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -86,7 +86,16 @@ abstract class RustLibApi extends BaseApi {
     required XueHuaAudioEngine that,
   });
 
+  Future<XueHuaOutputDevice?> crateEngineXueHuaAudioEngineCurrentOutputDevice({
+    required XueHuaAudioEngine that,
+  });
+
   Future<List<String>> crateEngineXueHuaAudioEngineListInputDevices({
+    required XueHuaAudioEngine that,
+  });
+
+  Future<List<XueHuaOutputDevice>>
+  crateEngineXueHuaAudioEngineListOutputDevices({
     required XueHuaAudioEngine that,
   });
 
@@ -103,6 +112,11 @@ abstract class RustLibApi extends BaseApi {
   });
 
   Future<XueHuaAudioEngine> crateEngineXueHuaAudioEngineNew();
+
+  Future<void> crateEngineXueHuaAudioEngineSetOutputDevice({
+    required XueHuaAudioEngine that,
+    int? deviceIndex,
+  });
 
   Future<void> crateEngineXueHuaAudioEngineStopAll({
     required XueHuaAudioEngine that,
@@ -277,7 +291,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<List<String>> crateEngineXueHuaAudioEngineListInputDevices({
+  Future<XueHuaOutputDevice?> crateEngineXueHuaAudioEngineCurrentOutputDevice({
     required XueHuaAudioEngine that,
   }) {
     return handler.executeNormal(
@@ -296,6 +310,42 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: SseCodec(
+          decodeSuccessData: sse_decode_opt_box_autoadd_xue_hua_output_device,
+          decodeErrorData: sse_decode_xue_hua_audio_error,
+        ),
+        constMeta: kCrateEngineXueHuaAudioEngineCurrentOutputDeviceConstMeta,
+        argValues: [that],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateEngineXueHuaAudioEngineCurrentOutputDeviceConstMeta =>
+      const TaskConstMeta(
+        debugName: "XueHuaAudioEngine_current_output_device",
+        argNames: ["that"],
+      );
+
+  @override
+  Future<List<String>> crateEngineXueHuaAudioEngineListInputDevices({
+    required XueHuaAudioEngine that,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerXueHuaAudioEngine(
+            that,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 3,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_list_String,
           decodeErrorData: sse_decode_xue_hua_audio_error,
         ),
@@ -309,6 +359,43 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateEngineXueHuaAudioEngineListInputDevicesConstMeta =>
       const TaskConstMeta(
         debugName: "XueHuaAudioEngine_list_input_devices",
+        argNames: ["that"],
+      );
+
+  @override
+  Future<List<XueHuaOutputDevice>>
+  crateEngineXueHuaAudioEngineListOutputDevices({
+    required XueHuaAudioEngine that,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerXueHuaAudioEngine(
+            that,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 4,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_xue_hua_output_device,
+          decodeErrorData: sse_decode_xue_hua_audio_error,
+        ),
+        constMeta: kCrateEngineXueHuaAudioEngineListOutputDevicesConstMeta,
+        argValues: [that],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateEngineXueHuaAudioEngineListOutputDevicesConstMeta =>
+      const TaskConstMeta(
+        debugName: "XueHuaAudioEngine_list_output_devices",
         argNames: ["that"],
       );
 
@@ -331,7 +418,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 3,
+            funcId: 5,
             port: port_,
           );
         },
@@ -372,7 +459,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 4,
+            funcId: 6,
             port: port_,
           );
         },
@@ -403,7 +490,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 5,
+            funcId: 7,
             port: port_,
           );
         },
@@ -423,6 +510,44 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "XueHuaAudioEngine_new", argNames: []);
 
   @override
+  Future<void> crateEngineXueHuaAudioEngineSetOutputDevice({
+    required XueHuaAudioEngine that,
+    int? deviceIndex,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerXueHuaAudioEngine(
+            that,
+            serializer,
+          );
+          sse_encode_opt_box_autoadd_u_32(deviceIndex, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 8,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_xue_hua_audio_error,
+        ),
+        constMeta: kCrateEngineXueHuaAudioEngineSetOutputDeviceConstMeta,
+        argValues: [that, deviceIndex],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateEngineXueHuaAudioEngineSetOutputDeviceConstMeta =>
+      const TaskConstMeta(
+        debugName: "XueHuaAudioEngine_set_output_device",
+        argNames: ["that", "deviceIndex"],
+      );
+
+  @override
   Future<void> crateEngineXueHuaAudioEngineStopAll({
     required XueHuaAudioEngine that,
   }) {
@@ -437,7 +562,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 6,
+            funcId: 9,
             port: port_,
           );
         },
@@ -473,7 +598,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 7,
+            funcId: 10,
             port: port_,
           );
         },
@@ -506,7 +631,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             that,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 8)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 11)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
@@ -537,7 +662,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             that,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 9)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 12)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
@@ -571,7 +696,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 10,
+            funcId: 13,
             port: port_,
           );
         },
@@ -607,7 +732,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 11,
+            funcId: 14,
             port: port_,
           );
         },
@@ -653,7 +778,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             pdeCallFfi(
               generalizedFrbRustBinding,
               serializer,
-              funcId: 12,
+              funcId: 15,
               port: port_,
             );
           },
@@ -691,7 +816,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 13,
+            funcId: 16,
             port: port_,
           );
         },
@@ -724,7 +849,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             that,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 14)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 17)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_opt_box_autoadd_f_64,
@@ -753,7 +878,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             that,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 15)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 18)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
@@ -787,7 +912,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 16,
+            funcId: 19,
             port: port_,
           );
         },
@@ -818,7 +943,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             that,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 17)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 20)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
@@ -852,7 +977,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 18,
+            funcId: 21,
             port: port_,
           );
         },
@@ -885,7 +1010,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             that,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 19)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 22)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_xue_hua_playback_progress,
@@ -916,7 +1041,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             that,
             serializer,
           );
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 20)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 23)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_f_64,
@@ -954,7 +1079,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 21,
+            funcId: 24,
             port: port_,
           );
         },
@@ -994,7 +1119,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 22,
+            funcId: 25,
             port: port_,
           );
         },
@@ -1030,7 +1155,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 23,
+            funcId: 26,
             port: port_,
           );
         },
@@ -1068,7 +1193,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 24,
+            funcId: 27,
             port: port_,
           );
         },
@@ -1106,7 +1231,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 25,
+            funcId: 28,
             port: port_,
           );
         },
@@ -1142,7 +1267,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 26,
+            funcId: 29,
             port: port_,
           );
         },
@@ -1178,7 +1303,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 27,
+            funcId: 30,
             port: port_,
           );
         },
@@ -1221,7 +1346,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             pdeCallFfi(
               generalizedFrbRustBinding,
               serializer,
-              funcId: 28,
+              funcId: 31,
               port: port_,
             );
           },
@@ -1253,7 +1378,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 29,
+            funcId: 32,
             port: port_,
           );
         },
@@ -1280,7 +1405,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 30,
+            funcId: 33,
             port: port_,
           );
         },
@@ -1466,6 +1591,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  XueHuaOutputDevice dco_decode_box_autoadd_xue_hua_output_device(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_xue_hua_output_device(raw);
+  }
+
+  @protected
   XueHuaRecordingCompleted dco_decode_box_autoadd_xue_hua_recording_completed(
     dynamic raw,
   ) {
@@ -1512,6 +1643,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<XueHuaOutputDevice> dco_decode_list_xue_hua_output_device(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>)
+        .map(dco_decode_xue_hua_output_device)
+        .toList();
+  }
+
+  @protected
   double? dco_decode_opt_box_autoadd_f_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_f_64(raw);
@@ -1521,6 +1660,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_u_32(raw);
+  }
+
+  @protected
+  XueHuaOutputDevice? dco_decode_opt_box_autoadd_xue_hua_output_device(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null
+        ? null
+        : dco_decode_box_autoadd_xue_hua_output_device(raw);
   }
 
   @protected
@@ -1568,6 +1717,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       default:
         throw Exception("unreachable");
     }
+  }
+
+  @protected
+  XueHuaOutputDevice dco_decode_xue_hua_output_device(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return XueHuaOutputDevice(
+      name: dco_decode_String(arr[0]),
+      isDefault: dco_decode_bool(arr[1]),
+    );
   }
 
   @protected
@@ -1812,6 +1973,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  XueHuaOutputDevice sse_decode_box_autoadd_xue_hua_output_device(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_xue_hua_output_device(deserializer));
+  }
+
+  @protected
   XueHuaRecordingCompleted sse_decode_box_autoadd_xue_hua_recording_completed(
     SseDeserializer deserializer,
   ) {
@@ -1866,6 +2035,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<XueHuaOutputDevice> sse_decode_list_xue_hua_output_device(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <XueHuaOutputDevice>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_xue_hua_output_device(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -1882,6 +2065,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_u_32(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  XueHuaOutputDevice? sse_decode_opt_box_autoadd_xue_hua_output_device(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_xue_hua_output_device(deserializer));
     } else {
       return null;
     }
@@ -1939,6 +2135,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       default:
         throw UnimplementedError('');
     }
+  }
+
+  @protected
+  XueHuaOutputDevice sse_decode_xue_hua_output_device(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_isDefault = sse_decode_bool(deserializer);
+    return XueHuaOutputDevice(name: var_name, isDefault: var_isDefault);
   }
 
   @protected
@@ -2232,6 +2438,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_xue_hua_output_device(
+    XueHuaOutputDevice self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_xue_hua_output_device(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_xue_hua_recording_completed(
     XueHuaRecordingCompleted self,
     SseSerializer serializer,
@@ -2293,6 +2508,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_xue_hua_output_device(
+    List<XueHuaOutputDevice> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_xue_hua_output_device(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -2309,6 +2536,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_u_32(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_xue_hua_output_device(
+    XueHuaOutputDevice? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_xue_hua_output_device(self, serializer);
     }
   }
 
@@ -2361,6 +2601,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       case XueHuaAudioError_NotRecording():
         sse_encode_i_32(6, serializer);
     }
+  }
+
+  @protected
+  void sse_encode_xue_hua_output_device(
+    XueHuaOutputDevice self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_bool(self.isDefault, serializer);
   }
 
   @protected
@@ -2449,9 +2699,17 @@ class XueHuaAudioEngineImpl extends RustOpaque implements XueHuaAudioEngine {
   Future<XueHuaAudioRecorder> createRecorder() => RustLib.instance.api
       .crateEngineXueHuaAudioEngineCreateRecorder(that: this);
 
+  /// 当前引擎偏好的输出设备；未设置偏好时返回系统默认输出。
+  Future<XueHuaOutputDevice?> currentOutputDevice() => RustLib.instance.api
+      .crateEngineXueHuaAudioEngineCurrentOutputDevice(that: this);
+
   /// 列出可用麦克风输入设备名称。
   Future<List<String>> listInputDevices() => RustLib.instance.api
       .crateEngineXueHuaAudioEngineListInputDevices(that: this);
+
+  /// 列出可用输出设备（名称与是否为系统默认，对应 rodio `Output` 公开信息）。
+  Future<List<XueHuaOutputDevice>> listOutputDevices() => RustLib.instance.api
+      .crateEngineXueHuaAudioEngineListOutputDevices(that: this);
 
   /// 从内存字节加载并播放（小文件 / 测试用；生产 Asset/URL 请走临时文件 + load_from_path）。
   Future<XueHuaAudioTrack> loadFromBytes({
@@ -2472,6 +2730,15 @@ class XueHuaAudioEngineImpl extends RustOpaque implements XueHuaAudioEngine {
     path: path,
     loop: loop,
   );
+
+  /// 设置输出设备。`None` 表示系统默认。
+  ///
+  /// 会先 [`Self::stop_all`]；若输出 sink 已打开则立即按新偏好重建。
+  Future<void> setOutputDevice({int? deviceIndex}) =>
+      RustLib.instance.api.crateEngineXueHuaAudioEngineSetOutputDevice(
+        that: this,
+        deviceIndex: deviceIndex,
+      );
 
   /// 停止并注销所有仍活跃的音轨。
   Future<void> stopAll() =>

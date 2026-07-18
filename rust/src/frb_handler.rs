@@ -4,17 +4,15 @@
 #[cfg(target_os = "android")]
 use threadpool::ThreadPool;
 
+#[cfg(not(target_os = "android"))]
+use flutter_rust_bridge::DefaultHandler;
+#[cfg(not(target_os = "android"))]
+use flutter_rust_bridge::for_generated::SimpleThreadPool;
+use flutter_rust_bridge::for_generated::{FLUTTER_RUST_BRIDGE_RUNTIME_VERSION, lazy_static};
 #[cfg(target_os = "android")]
 use flutter_rust_bridge::for_generated::{
     NoOpErrorListener, SimpleExecutor, SimpleHandler, SimpleThreadPool,
 };
-use flutter_rust_bridge::for_generated::{
-    lazy_static, FLUTTER_RUST_BRIDGE_RUNTIME_VERSION,
-};
-#[cfg(not(target_os = "android"))]
-use flutter_rust_bridge::for_generated::SimpleThreadPool;
-#[cfg(not(target_os = "android"))]
-use flutter_rust_bridge::DefaultHandler;
 
 use crate::frb_generated::FLUTTER_RUST_BRIDGE_CODEGEN_VERSION;
 
@@ -65,11 +63,9 @@ type FrbHandler = DefaultHandler<SimpleThreadPool>;
 
 fn build_handler() -> FrbHandler {
     assert_eq!(
-        FLUTTER_RUST_BRIDGE_CODEGEN_VERSION,
-        FLUTTER_RUST_BRIDGE_RUNTIME_VERSION,
+        FLUTTER_RUST_BRIDGE_CODEGEN_VERSION, FLUTTER_RUST_BRIDGE_RUNTIME_VERSION,
         "Please ensure flutter_rust_bridge's codegen ({}) and runtime ({}) versions are the same",
-        FLUTTER_RUST_BRIDGE_CODEGEN_VERSION,
-        FLUTTER_RUST_BRIDGE_RUNTIME_VERSION,
+        FLUTTER_RUST_BRIDGE_CODEGEN_VERSION, FLUTTER_RUST_BRIDGE_RUNTIME_VERSION,
     );
 
     #[cfg(target_os = "android")]

@@ -1,7 +1,7 @@
 library;
 
 export 'src/xue_hua_audio.dart';
-export 'src/rust/engine.dart' show XueHuaAudioEngine;
+export 'src/rust/engine.dart' show XueHuaAudioEngine, XueHuaOutputDevice;
 export 'src/rust/track.dart' show XueHuaAudioTrack;
 export 'src/rust/error.dart' show XueHuaAudioError;
 export 'src/rust/playback.dart' show XueHuaPlaybackProgress;

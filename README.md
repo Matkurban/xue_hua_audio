@@ -8,6 +8,7 @@ Features:
 
 - **Multi-track playback** — several sounds at once, each with independent volume, pause, and seek
 - **Progress streams** — push-based playback position (~100 ms), no Dart polling
+- **Output device selection** — list / query / set system output devices
 - **Recording** — microphone capture to WAV with level/duration streams
 - **Multiple sources** — local files, Flutter assets, and HTTP URLs
 
@@ -40,7 +41,7 @@ dependencies:
   xue_hua_audio: ^1.0.2
 ```
 
-Call `XueHuaAudio.initialize()` once before any audio API (typically in `main()` after `WidgetsFlutterBinding.ensureInitialized()`).
+Call `XueHuaAudio.initialize()` once before any audio API (typically in `main()` after `WidgetsFlutterBinding.ensureInitialized()`). Initialization is cheap (FFI load + empty engine); the system audio output device is opened lazily on the first playback (`loadLocal` / `loadAsset` / `loadUrl` / `loadFromBytes`).
 
 ---
 
@@ -152,6 +153,18 @@ await track.stopAndCleanup(); // + delete temp file if Asset/URL
 | `progress` | `double?` | Ratio 0.0–1.0 when duration is known |
 
 Initial UI can use `track.playbackProgress()` immediately; the stream updates thereafter.
+
+### Output devices
+
+```dart
+final devices = await engine.listOutputDevices();
+// devices[i].name / devices[i].isDefault
+
+final current = await engine.currentOutputDevice();
+
+await engine.setOutputDevice(deviceIndex: 1); // null = system default
+// Stops all tracks; rebuilds the output sink if it was already open.
+```
 
 ### Supported decode formats
 
@@ -357,7 +370,7 @@ flutter run
 The demo includes:
 
 - **Recording tab** — device picker, record/pause/stop, level meter, playback of recorded WAV with progress
-- **Playback tab** — multi-sample playback, volume, seek, progress streams
+- **Playback tab** — output device picker, multi-sample playback, volume, seek, progress streams
 
 See [`example/`](example/) for a full integration reference.
 

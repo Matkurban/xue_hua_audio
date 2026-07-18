@@ -8,6 +8,7 @@
 
 - **多轨播放** — 多路音频同时播放，各自独立音量、暂停、跳转
 - **进度 Stream** — Rust 侧推送播放进度（约 100 ms），无需 Dart 轮询
+- **输出设备选择** — 枚举 / 查询 / 设置系统输出设备
 - **麦克风录制** — 录制 WAV，附带电平与时长 Stream
 - **多种音源** — 本地文件、Flutter Asset、HTTP URL
 
@@ -40,7 +41,7 @@ dependencies:
   xue_hua_audio: ^1.0.2
 ```
 
-在使用任何音频 API 之前调用一次 `XueHuaAudio.initialize()`（通常在 `main()` 中、`WidgetsFlutterBinding.ensureInitialized()` 之后）。
+在使用任何音频 API 之前调用一次 `XueHuaAudio.initialize()`（通常在 `main()` 中、`WidgetsFlutterBinding.ensureInitialized()` 之后）。初始化本身很快（加载 FFI + 创建空引擎）；系统音频输出设备会在首次播放（`loadLocal` / `loadAsset` / `loadUrl` / `loadFromBytes`）时再打开。
 
 ---
 
@@ -152,6 +153,18 @@ await track.stopAndCleanup(); // 额外删除 Asset/URL 临时文件
 | `progress` | `double?` | 进度比 0.0–1.0（时长未知时为 null） |
 
 UI 可先用 `track.playbackProgress()` 立即渲染首帧，再依赖 Stream 更新。
+
+### 输出设备
+
+```dart
+final devices = await engine.listOutputDevices();
+// devices[i].name / devices[i].isDefault
+
+final current = await engine.currentOutputDevice();
+
+await engine.setOutputDevice(deviceIndex: 1); // null = 系统默认
+// 会停止全部音轨；若输出 sink 已打开则立即按新设备重建。
+```
 
 ### 支持的解码格式
 
@@ -357,7 +370,7 @@ flutter run
 Demo 包含：
 
 - **录制** — 设备选择、录/停/暂停、电平条、录完回放（含进度 Stream）
-- **播放** — 多素材同时播放、音量、跳转、进度 Stream
+- **播放** — 输出设备选择、多素材同时播放、音量、跳转、进度 Stream
 
 完整集成示例见 [`example/`](example/)。
 

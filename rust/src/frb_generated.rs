@@ -41,11 +41,11 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.12.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -29488223;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 799521932;
 
 // Section: executor
 
-pub use crate::frb_handler::FLUTTER_RUST_BRIDGE_HANDLER;
+flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
@@ -100,6 +100,56 @@ fn wire__crate__engine__XueHuaAudioEngine_create_recorder_impl(
         },
     )
 }
+fn wire__crate__engine__XueHuaAudioEngine_current_output_device_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "XueHuaAudioEngine_current_output_device",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<XueHuaAudioEngine>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, crate::error::XueHuaAudioError>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok =
+                        crate::engine::XueHuaAudioEngine::current_output_device(&*api_that_guard)?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__engine__XueHuaAudioEngine_list_input_devices_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -144,6 +194,56 @@ fn wire__crate__engine__XueHuaAudioEngine_list_input_devices_impl(
                     let api_that_guard = api_that_guard.unwrap();
                     let output_ok =
                         crate::engine::XueHuaAudioEngine::list_input_devices(&*api_that_guard)?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__engine__XueHuaAudioEngine_list_output_devices_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "XueHuaAudioEngine_list_output_devices",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<XueHuaAudioEngine>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, crate::error::XueHuaAudioError>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok =
+                        crate::engine::XueHuaAudioEngine::list_output_devices(&*api_that_guard)?;
                     Ok(output_ok)
                 })())
             }
@@ -286,6 +386,59 @@ fn wire__crate__engine__XueHuaAudioEngine_new_impl(
             move |context| {
                 transform_result_sse::<_, crate::error::XueHuaAudioError>((move || {
                     let output_ok = crate::engine::XueHuaAudioEngine::new()?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__engine__XueHuaAudioEngine_set_output_device_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "XueHuaAudioEngine_set_output_device",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<XueHuaAudioEngine>,
+            >>::sse_decode(&mut deserializer);
+            let api_device_index = <Option<u32>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, crate::error::XueHuaAudioError>((move || {
+                    let mut api_that_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_that, 0, false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => api_that_guard = Some(api_that.lockable_decode_sync_ref()),
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_that_guard = api_that_guard.unwrap();
+                    let output_ok = crate::engine::XueHuaAudioEngine::set_output_device(
+                        &*api_that_guard,
+                        api_device_index,
+                    )?;
                     Ok(output_ok)
                 })())
             }
@@ -1686,6 +1839,20 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for Vec<crate::engine::XueHuaOutputDevice> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::engine::XueHuaOutputDevice>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Option<f64> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1702,6 +1869,19 @@ impl SseDecode for Option<u32> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<u32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::engine::XueHuaOutputDevice> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::engine::XueHuaOutputDevice>::sse_decode(
+                deserializer,
+            ));
         } else {
             return None;
         }
@@ -1768,6 +1948,18 @@ impl SseDecode for crate::error::XueHuaAudioError {
                 unimplemented!("");
             }
         }
+    }
+}
+
+impl SseDecode for crate::engine::XueHuaOutputDevice {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_isDefault = <bool>::sse_decode(deserializer);
+        return crate::engine::XueHuaOutputDevice {
+            name: var_name,
+            is_default: var_isDefault,
+        };
     }
 }
 
@@ -1863,86 +2055,104 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        2 => wire__crate__engine__XueHuaAudioEngine_list_input_devices_impl(
+        2 => wire__crate__engine__XueHuaAudioEngine_current_output_device_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        3 => wire__crate__engine__XueHuaAudioEngine_load_from_bytes_impl(
+        3 => wire__crate__engine__XueHuaAudioEngine_list_input_devices_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        4 => wire__crate__engine__XueHuaAudioEngine_load_from_path_impl(
+        4 => wire__crate__engine__XueHuaAudioEngine_list_output_devices_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        5 => wire__crate__engine__XueHuaAudioEngine_new_impl(port, ptr, rust_vec_len, data_len),
-        6 => {
+        5 => wire__crate__engine__XueHuaAudioEngine_load_from_bytes_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        6 => wire__crate__engine__XueHuaAudioEngine_load_from_path_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        7 => wire__crate__engine__XueHuaAudioEngine_new_impl(port, ptr, rust_vec_len, data_len),
+        8 => wire__crate__engine__XueHuaAudioEngine_set_output_device_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        9 => {
             wire__crate__engine__XueHuaAudioEngine_stop_all_impl(port, ptr, rust_vec_len, data_len)
         }
-        7 => wire__crate__engine__XueHuaAudioEngine_stop_all_recorders_impl(
+        10 => wire__crate__engine__XueHuaAudioEngine_stop_all_recorders_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        10 => wire__crate__recording__XueHuaAudioRecorder_pause_impl(
+        13 => wire__crate__recording__XueHuaAudioRecorder_pause_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        11 => wire__crate__recording__XueHuaAudioRecorder_resume_impl(
+        14 => wire__crate__recording__XueHuaAudioRecorder_resume_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        12 => wire__crate__recording__XueHuaAudioRecorder_start_impl(
+        15 => wire__crate__recording__XueHuaAudioRecorder_start_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        13 => {
+        16 => {
             wire__crate__recording__XueHuaAudioRecorder_stop_impl(port, ptr, rust_vec_len, data_len)
         }
-        16 => {
+        19 => {
             wire__crate__track__XueHuaAudioTrack_is_paused_impl(port, ptr, rust_vec_len, data_len)
         }
-        18 => wire__crate__track__XueHuaAudioTrack_pause_impl(port, ptr, rust_vec_len, data_len),
-        21 => wire__crate__track__XueHuaAudioTrack_replace_from_bytes_impl(
+        21 => wire__crate__track__XueHuaAudioTrack_pause_impl(port, ptr, rust_vec_len, data_len),
+        24 => wire__crate__track__XueHuaAudioTrack_replace_from_bytes_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        22 => wire__crate__track__XueHuaAudioTrack_replace_from_path_impl(
+        25 => wire__crate__track__XueHuaAudioTrack_replace_from_path_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        23 => wire__crate__track__XueHuaAudioTrack_resume_impl(port, ptr, rust_vec_len, data_len),
-        24 => wire__crate__track__XueHuaAudioTrack_seek_to_impl(port, ptr, rust_vec_len, data_len),
-        25 => {
+        26 => wire__crate__track__XueHuaAudioTrack_resume_impl(port, ptr, rust_vec_len, data_len),
+        27 => wire__crate__track__XueHuaAudioTrack_seek_to_impl(port, ptr, rust_vec_len, data_len),
+        28 => {
             wire__crate__track__XueHuaAudioTrack_set_volume_impl(port, ptr, rust_vec_len, data_len)
         }
-        26 => wire__crate__track__XueHuaAudioTrack_stop_impl(port, ptr, rust_vec_len, data_len),
-        27 => wire__crate__track__XueHuaAudioTrack_volume_impl(port, ptr, rust_vec_len, data_len),
-        28 => wire__crate__track__XueHuaAudioTrack_watch_playback_progress_impl(
+        29 => wire__crate__track__XueHuaAudioTrack_stop_impl(port, ptr, rust_vec_len, data_len),
+        30 => wire__crate__track__XueHuaAudioTrack_volume_impl(port, ptr, rust_vec_len, data_len),
+        31 => wire__crate__track__XueHuaAudioTrack_watch_playback_progress_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        29 => wire__crate__init__init_app_impl(port, ptr, rust_vec_len, data_len),
-        30 => wire__crate__recording__list_input_devices_impl(port, ptr, rust_vec_len, data_len),
+        32 => wire__crate__init__init_app_impl(port, ptr, rust_vec_len, data_len),
+        33 => wire__crate__recording__list_input_devices_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -1955,21 +2165,21 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        8 => {
+        11 => {
             wire__crate__recording__XueHuaAudioRecorder_is_paused_impl(ptr, rust_vec_len, data_len)
         }
-        9 => wire__crate__recording__XueHuaAudioRecorder_is_recording_impl(
+        12 => wire__crate__recording__XueHuaAudioRecorder_is_recording_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        14 => wire__crate__track__XueHuaAudioTrack_duration_secs_impl(ptr, rust_vec_len, data_len),
-        15 => wire__crate__track__XueHuaAudioTrack_is_finished_impl(ptr, rust_vec_len, data_len),
-        17 => wire__crate__track__XueHuaAudioTrack_is_playing_impl(ptr, rust_vec_len, data_len),
-        19 => {
+        17 => wire__crate__track__XueHuaAudioTrack_duration_secs_impl(ptr, rust_vec_len, data_len),
+        18 => wire__crate__track__XueHuaAudioTrack_is_finished_impl(ptr, rust_vec_len, data_len),
+        20 => wire__crate__track__XueHuaAudioTrack_is_playing_impl(ptr, rust_vec_len, data_len),
+        22 => {
             wire__crate__track__XueHuaAudioTrack_playback_progress_impl(ptr, rust_vec_len, data_len)
         }
-        20 => wire__crate__track__XueHuaAudioTrack_position_secs_impl(ptr, rust_vec_len, data_len),
+        23 => wire__crate__track__XueHuaAudioTrack_position_secs_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -2057,6 +2267,27 @@ impl flutter_rust_bridge::IntoIntoDart<crate::error::XueHuaAudioError>
     for crate::error::XueHuaAudioError
 {
     fn into_into_dart(self) -> crate::error::XueHuaAudioError {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::engine::XueHuaOutputDevice {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.is_default.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::engine::XueHuaOutputDevice
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::engine::XueHuaOutputDevice>
+    for crate::engine::XueHuaOutputDevice
+{
+    fn into_into_dart(self) -> crate::engine::XueHuaOutputDevice {
         self
     }
 }
@@ -2290,6 +2521,16 @@ impl SseEncode for Vec<u8> {
     }
 }
 
+impl SseEncode for Vec<crate::engine::XueHuaOutputDevice> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::engine::XueHuaOutputDevice>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<f64> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -2306,6 +2547,16 @@ impl SseEncode for Option<u32> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <u32>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::engine::XueHuaOutputDevice> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::engine::XueHuaOutputDevice>::sse_encode(value, serializer);
         }
     }
 }
@@ -2372,6 +2623,14 @@ impl SseEncode for crate::error::XueHuaAudioError {
                 unimplemented!("");
             }
         }
+    }
+}
+
+impl SseEncode for crate::engine::XueHuaOutputDevice {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <bool>::sse_encode(self.is_default, serializer);
     }
 }
 

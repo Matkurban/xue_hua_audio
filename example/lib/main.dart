@@ -31,7 +31,10 @@ StreamSubscription<XueHuaPlaybackProgress> _subscribeTrackProgress({
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final sw = Stopwatch()..start();
   final player = await XueHuaAudio.initialize();
+  sw.stop();
+  debugPrint('XueHuaAudio.initialize 耗时: ${sw.elapsedMilliseconds}ms');
   runApp(AudioDemoApp(engine: player.engine));
 }
 
@@ -433,7 +436,58 @@ class _PlaybackDemoTabState extends State<PlaybackDemoTab> {
   final Map<String, StreamSubscription<XueHuaPlaybackProgress>> _progressSubs =
       {};
 
+  List<XueHuaOutputDevice> _outputDevices = [];
+  int? _selectedOutputIndex;
+
   XueHuaAudioEngine get _engine => widget.engine;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_loadOutputDevices());
+  }
+
+  Future<void> _loadOutputDevices() async {
+    try {
+      final devices = await _engine.listOutputDevices();
+      final current = await _engine.currentOutputDevice();
+      if (!mounted) return;
+      int? selected;
+      if (current != null) {
+        final match = devices.indexWhere(
+          (d) => d.name == current.name && d.isDefault == current.isDefault,
+        );
+        selected = match >= 0 ? match : (devices.isEmpty ? null : 0);
+      } else {
+        selected = devices.isEmpty ? null : 0;
+      }
+      setState(() {
+        _outputDevices = devices;
+        _selectedOutputIndex = selected;
+      });
+    } on XueHuaAudioError catch (error) {
+      await widget.onStatus('加载输出设备失败: $error');
+    }
+  }
+
+  Future<void> _selectOutputDevice(int? index) async {
+    for (final sub in _progressSubs.values) {
+      await sub.cancel();
+    }
+    _progressSubs.clear();
+    final tracks = _tracks.values.toList();
+    _tracks.clear();
+    _progress.clear();
+    _finishedNotified.clear();
+    _seekingKeys.clear();
+    _seekDragValues.clear();
+    for (final track in tracks) {
+      await track.stopAndCleanup();
+    }
+    await _engine.setOutputDevice(deviceIndex: index);
+    if (!mounted) return;
+    setState(() => _selectedOutputIndex = index);
+  }
 
   void _watchProgress(String assetKey, XueHuaAudioTrack track) {
     unawaited(_progressSubs.remove(assetKey)?.cancel());
@@ -543,16 +597,44 @@ class _PlaybackDemoTabState extends State<PlaybackDemoTab> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FilledButton(
-                onPressed: () => _run('全部播放', _playAll),
-                child: const Text('全部播放'),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                onPressed: () => _run('全部停止', _stopAll),
-                child: const Text('全部停止'),
+              Text('输出设备', style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 4),
+              if (_outputDevices.isEmpty)
+                const Text('未检测到输出设备')
+              else
+                DropdownButton<int>(
+                  isExpanded: true,
+                  value: _selectedOutputIndex,
+                  items: [
+                    for (var i = 0; i < _outputDevices.length; i++)
+                      DropdownMenuItem(
+                        value: i,
+                        child: Text(
+                          _outputDevices[i].isDefault
+                              ? '${_outputDevices[i].name} (默认)'
+                              : _outputDevices[i].name,
+                        ),
+                      ),
+                  ],
+                  onChanged: (value) =>
+                      _run('切换输出设备', () => _selectOutputDevice(value)),
+                ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  FilledButton(
+                    onPressed: () => _run('全部播放', _playAll),
+                    child: const Text('全部播放'),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton(
+                    onPressed: () => _run('全部停止', _stopAll),
+                    child: const Text('全部停止'),
+                  ),
+                ],
               ),
             ],
           ),
