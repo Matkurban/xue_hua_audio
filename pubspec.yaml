@@ -28,7 +28,12 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   freezed: ^3.2.5
-  build_runner: ^2.4.0
+  build_runner: ^ 2.15.2
+
+dependency_overrides:
+  build_runner: ^ 2.15.2
+  analyzer: ^14.1.0
+  meta: ^1.19.0
 
 flutter:
   plugin:
