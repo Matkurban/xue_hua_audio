@@ -43,8 +43,8 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
   MethodChannelXueHuaAudio({
     AudioPlayerHostApi? playerApi,
     AudioRecorderHostApi? recorderApi,
-  })  : _players = playerApi ?? AudioPlayerHostApi(),
-        _recorders = recorderApi ?? AudioRecorderHostApi();
+  }) : _players = playerApi ?? AudioPlayerHostApi(),
+       _recorders = recorderApi ?? AudioRecorderHostApi();
 
   final AudioPlayerHostApi _players;
   final AudioRecorderHostApi _recorders;
@@ -53,17 +53,19 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
   /// 将 [source] 转换为 Pigeon 传输结构。
   static AudioSourceMessage _encodeSource(AudioSource source) {
     return switch (source) {
-      FileSource(:final path) =>
-        AudioSourceMessage(type: SourceTypeMessage.file, uri: path),
+      FileSource(:final path) => AudioSourceMessage(
+        type: SourceTypeMessage.file,
+        uri: path,
+      ),
       UrlSource(:final url, :final headers) => AudioSourceMessage(
-          type: SourceTypeMessage.url,
-          uri: url,
-          headers: headers,
-        ),
+        type: SourceTypeMessage.url,
+        uri: url,
+        headers: headers,
+      ),
       AssetSource() => AudioSourceMessage(
-          type: SourceTypeMessage.asset,
-          uri: source.resolvedKey,
-        ),
+        type: SourceTypeMessage.asset,
+        uri: source.resolvedKey,
+      ),
     };
   }
 
@@ -106,21 +108,21 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
     final map = (raw as Map).cast<Object?, Object?>();
     return switch (map['type']) {
       'state' => PlayerStateEvent(
-          PlayerState.values.byName(map['state']! as String),
-        ),
+        PlayerState.values.byName(map['state']! as String),
+      ),
       'completed' => const PlayerCompletedEvent(),
       'duration' => PlayerDurationEvent(
-          map['durationMs'] == null
-              ? null
-              : Duration(milliseconds: (map['durationMs']! as num).toInt()),
-        ),
+        map['durationMs'] == null
+            ? null
+            : Duration(milliseconds: (map['durationMs']! as num).toInt()),
+      ),
       'error' => PlayerErrorEvent(
-          AudioError(
-            code: map['code'] as String? ?? AudioError.codePlaybackFailed,
-            message: map['message'] as String? ?? 'Unknown playback error',
-            details: map['details'],
-          ),
+        AudioError(
+          code: map['code'] as String? ?? AudioError.codePlaybackFailed,
+          message: map['message'] as String? ?? 'Unknown playback error',
+          details: map['details'],
         ),
+      ),
       _ => throw StateError('Unknown player event: $map'),
     };
   }
@@ -131,21 +133,21 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
     final map = (raw as Map).cast<Object?, Object?>();
     return switch (map['type']) {
       'state' => RecorderStateEvent(
-          RecorderState.values.byName(map['state']! as String),
-        ),
+        RecorderState.values.byName(map['state']! as String),
+      ),
       'amplitude' => RecorderAmplitudeEvent(
-          Amplitude(
-            current: (map['current']! as num).toDouble(),
-            max: (map['max']! as num).toDouble(),
-          ),
+        Amplitude(
+          current: (map['current']! as num).toDouble(),
+          max: (map['max']! as num).toDouble(),
         ),
+      ),
       'error' => RecorderErrorEvent(
-          AudioError(
-            code: map['code'] as String? ?? AudioError.codeRecordingFailed,
-            message: map['message'] as String? ?? 'Unknown recording error',
-            details: map['details'],
-          ),
+        AudioError(
+          code: map['code'] as String? ?? AudioError.codeRecordingFailed,
+          message: map['message'] as String? ?? 'Unknown recording error',
+          details: map['details'],
         ),
+      ),
       _ => throw StateError('Unknown recorder event: $map'),
     };
   }
@@ -189,30 +191,29 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
       _guard(() => _players.setLooping(playerId, looping));
 
   @override
-  Future<Duration> getPosition(int playerId) => _guard(() async =>
-      Duration(milliseconds: await _players.getPosition(playerId)));
+  Future<Duration> getPosition(int playerId) => _guard(
+    () async => Duration(milliseconds: await _players.getPosition(playerId)),
+  );
 
   @override
   Future<Duration?> getDuration(int playerId) => _guard(() async {
-        final ms = await _players.getDuration(playerId);
-        return ms == null ? null : Duration(milliseconds: ms);
-      });
+    final ms = await _players.getDuration(playerId);
+    return ms == null ? null : Duration(milliseconds: ms);
+  });
 
   @override
   Future<List<AudioDevice>> listOutputDevices() => _guard(() async {
-        final devices = await _players.listOutputDevices();
-        return [
-          for (final d in devices) AudioDevice(id: d.id, label: d.label),
-        ];
-      });
+    final devices = await _players.listOutputDevices();
+    return [for (final d in devices) AudioDevice(id: d.id, label: d.label)];
+  });
 
   @override
   Future<AudioDevice?> getOutputDevice(int playerId) => _guard(() async {
-        final device = await _players.getOutputDevice(playerId);
-        return device == null
-            ? null
-            : AudioDevice(id: device.id, label: device.label);
-      });
+    final device = await _players.getOutputDevice(playerId);
+    return device == null
+        ? null
+        : AudioDevice(id: device.id, label: device.label);
+  });
 
   @override
   Future<void> setOutputDevice(int playerId, String? deviceId) =>
@@ -224,9 +225,9 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
 
   @override
   Stream<PlayerEvent> playerEvents(int playerId) {
-    return EventChannel('xue_hua_audio/player_events_$playerId')
-        .receiveBroadcastStream()
-        .map(_decodePlayerEvent);
+    return EventChannel(
+      'xue_hua_audio/player_events_$playerId',
+    ).receiveBroadcastStream().map(_decodePlayerEvent);
   }
 
   // -- Recording / 录音 ----------------------------------------------------
@@ -239,28 +240,28 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
 
   @override
   Future<List<AudioDevice>> listInputDevices() => _guard(() async {
-        final devices = await _recorders.listInputDevices();
-        return [
-          for (final d in devices) AudioDevice(id: d.id, label: d.label),
-        ];
-      });
+    final devices = await _recorders.listInputDevices();
+    return [for (final d in devices) AudioDevice(id: d.id, label: d.label)];
+  });
 
   @override
   Future<AudioDevice?> getInputDevice(int recorderId) => _guard(() async {
-        final device = await _recorders.getInputDevice(recorderId);
-        return device == null
-            ? null
-            : AudioDevice(id: device.id, label: device.label);
-      });
+    final device = await _recorders.getInputDevice(recorderId);
+    return device == null
+        ? null
+        : AudioDevice(id: device.id, label: device.label);
+  });
 
   @override
   Future<void> setInputDevice(int recorderId, String? deviceId) =>
       _guard(() => _recorders.setInputDevice(recorderId, deviceId));
 
   @override
-  Future<void> startRecorder(int recorderId, RecordConfig config,
-          {required String path}) =>
-      _guard(() => _recorders.start(recorderId, _encodeConfig(config), path));
+  Future<void> startRecorder(
+    int recorderId,
+    RecordConfig config, {
+    required String path,
+  }) => _guard(() => _recorders.start(recorderId, _encodeConfig(config), path));
 
   @override
   Future<void> pauseRecorder(int recorderId) =>
@@ -284,8 +285,8 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
 
   @override
   Stream<RecorderEvent> recorderEvents(int recorderId) {
-    return EventChannel('xue_hua_audio/recorder_events_$recorderId')
-        .receiveBroadcastStream()
-        .map(_decodeRecorderEvent);
+    return EventChannel(
+      'xue_hua_audio/recorder_events_$recorderId',
+    ).receiveBroadcastStream().map(_decodeRecorderEvent);
   }
 }

@@ -75,6 +75,7 @@ class AudioError implements Exception {
   int get hashCode => Object.hash(code, message, details);
 
   @override
-  String toString() => 'AudioError($code): $message'
+  String toString() =>
+      'AudioError($code): $message'
       '${details == null ? '' : ' — $details'}';
 }

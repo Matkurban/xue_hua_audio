@@ -10,9 +10,9 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart' show immutable, protected, visibleForTesting;
 
 Object? _extractReplyValueOrThrow(
-    List<Object?>? replyList,
-    String channelName, {
-    required bool isNullValid,
+  List<Object?>? replyList,
+  String channelName, {
+  required bool isNullValid,
 }) {
   if (replyList == null) {
     throw PlatformException(
@@ -46,8 +46,9 @@ bool _deepEquals(Object? a, Object? b) {
   }
   if (a is List && b is List) {
     return a.length == b.length &&
-        a.indexed
-            .every(((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]));
+        a.indexed.every(
+          ((int, dynamic) item) => _deepEquals(item.$2, b[item.$1]),
+        );
   }
   if (a is Map && b is Map) {
     if (a.length != b.length) {
@@ -96,13 +97,14 @@ int _deepHash(Object? value) {
   return value.hashCode;
 }
 
-
 /// The kind of an audio source. / 音频源的种类。
 enum SourceTypeMessage {
   /// A local file path. / 本地文件路径。
   file,
+
   /// A remote HTTP(S) URL. / 远程 HTTP(S) 网络地址。
   url,
+
   /// A Flutter asset key. / Flutter Asset 资源键。
   asset,
 }
@@ -111,19 +113,17 @@ enum SourceTypeMessage {
 enum EncoderMessage {
   /// Linear PCM in a WAV container. / WAV 容器中的线性 PCM。
   wav,
+
   /// AAC-LC in an MPEG-4 container. / MPEG-4 容器中的 AAC-LC。
   aacLc,
+
   /// Opus (Ogg or WebM container, platform dependent). / Opus 编码（Ogg 或 WebM 容器，视平台而定）。
   opus,
 }
 
 /// Wire representation of an audio source. / 音频源的跨端传输结构。
 class AudioSourceMessage {
-  AudioSourceMessage({
-    required this.type,
-    required this.uri,
-    this.headers,
-  });
+  AudioSourceMessage({required this.type, required this.uri, this.headers});
 
   /// The kind of source. / 源的种类。
   SourceTypeMessage type;
@@ -137,15 +137,12 @@ class AudioSourceMessage {
   Map<String, String>? headers;
 
   List<Object?> _toList() {
-    return <Object?>[
-      type,
-      uri,
-      headers,
-    ];
+    return <Object?>[type, uri, headers];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static AudioSourceMessage decode(Object result) {
     result as List<Object?>;
@@ -165,7 +162,9 @@ class AudioSourceMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(type, other.type) && _deepEquals(uri, other.uri) && _deepEquals(headers, other.headers);
+    return _deepEquals(type, other.type) &&
+        _deepEquals(uri, other.uri) &&
+        _deepEquals(headers, other.headers);
   }
 
   @override
@@ -222,7 +221,8 @@ class RecordConfigMessage {
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static RecordConfigMessage decode(Object result) {
     result as List<Object?>;
@@ -245,7 +245,12 @@ class RecordConfigMessage {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(encoder, other.encoder) && _deepEquals(sampleRate, other.sampleRate) && _deepEquals(numChannels, other.numChannels) && _deepEquals(bitRate, other.bitRate) && _deepEquals(amplitudeIntervalMs, other.amplitudeIntervalMs) && _deepEquals(deviceId, other.deviceId);
+    return _deepEquals(encoder, other.encoder) &&
+        _deepEquals(sampleRate, other.sampleRate) &&
+        _deepEquals(numChannels, other.numChannels) &&
+        _deepEquals(bitRate, other.bitRate) &&
+        _deepEquals(amplitudeIntervalMs, other.amplitudeIntervalMs) &&
+        _deepEquals(deviceId, other.deviceId);
   }
 
   @override
@@ -261,10 +266,7 @@ class RecordConfigMessage {
 /// Wire representation of an audio device (input or output).
 /// 音频设备（输入或输出）的跨端传输结构。
 class AudioDeviceMessage {
-  AudioDeviceMessage({
-    required this.id,
-    required this.label,
-  });
+  AudioDeviceMessage({required this.id, required this.label});
 
   /// Platform-specific stable device identifier. / 平台相关的稳定设备标识。
   String id;
@@ -273,14 +275,12 @@ class AudioDeviceMessage {
   String label;
 
   List<Object?> _toList() {
-    return <Object?>[
-      id,
-      label,
-    ];
+    return <Object?>[id, label];
   }
 
   Object encode() {
-    return _toList();  }
+    return _toList();
+  }
 
   static AudioDeviceMessage decode(Object result) {
     result as List<Object?>;
@@ -312,7 +312,6 @@ class AudioDeviceMessage {
   }
 }
 
-
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -320,19 +319,19 @@ class _PigeonCodec extends StandardMessageCodec {
     if (value is int) {
       buffer.putUint8(4);
       buffer.putInt64(value);
-    }    else if (value is SourceTypeMessage) {
+    } else if (value is SourceTypeMessage) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    }    else if (value is EncoderMessage) {
+    } else if (value is EncoderMessage) {
       buffer.putUint8(130);
       writeValue(buffer, value.index);
-    }    else if (value is AudioSourceMessage) {
+    } else if (value is AudioSourceMessage) {
       buffer.putUint8(131);
       writeValue(buffer, value.encode());
-    }    else if (value is RecordConfigMessage) {
+    } else if (value is RecordConfigMessage) {
       buffer.putUint8(132);
       writeValue(buffer, value.encode());
-    }    else if (value is AudioDeviceMessage) {
+    } else if (value is AudioDeviceMessage) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
     } else {
@@ -367,9 +366,13 @@ class AudioPlayerHostApi {
   /// Constructor for [AudioPlayerHostApi]. The [binaryMessenger] named argument is
   /// available for dependency injection. If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  AudioPlayerHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
-      : pigeonVar_binaryMessenger = binaryMessenger,
-        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  AudioPlayerHostApi({
+    BinaryMessenger? binaryMessenger,
+    String messageChannelSuffix = '',
+  }) : pigeonVar_binaryMessenger = binaryMessenger,
+       pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty
+           ? '.$messageChannelSuffix'
+           : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -379,7 +382,8 @@ class AudioPlayerHostApi {
   /// Creates a native player instance and returns its id.
   /// 创建一个原生播放器实例并返回其 id。
   Future<int> createPlayer() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.createPlayer$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.createPlayer$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -389,11 +393,10 @@ class AudioPlayerHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as int;
   }
 
@@ -401,201 +404,222 @@ class AudioPlayerHostApi {
   /// milliseconds, or `null` when unknown (e.g. live streams).
   /// 加载音频源 [source]，返回音频时长（毫秒）；未知时（如直播流）返回 `null`。
   Future<int?> setSource(int playerId, AudioSourceMessage source) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.setSource$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.setSource$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId, source]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId, source],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
     return pigeonVar_replyValue as int?;
   }
 
   /// Starts or resumes playback. / 开始或恢复播放。
   Future<void> play(int playerId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.play$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.play$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Pauses playback keeping the position. / 暂停播放并保留进度。
   Future<void> pause(int playerId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.pause$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.pause$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Stops playback and rewinds to the beginning. / 停止播放并回到起点。
   Future<void> stop(int playerId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.stop$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.stop$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Seeks to [positionMs] milliseconds. / 跳转到 [positionMs]（毫秒）。
   Future<void> seekTo(int playerId, int positionMs) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.seekTo$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.seekTo$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId, positionMs]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId, positionMs],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Sets the volume, 0.0 to 1.0. / 设置音量（0.0 ~ 1.0）。
   Future<void> setVolume(int playerId, double volume) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.setVolume$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.setVolume$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId, volume]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId, volume],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Sets the playback speed, e.g. 0.5 to 2.0. / 设置播放速度（如 0.5 ~ 2.0）。
   Future<void> setSpeed(int playerId, double speed) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.setSpeed$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.setSpeed$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId, speed]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId, speed],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Enables or disables looping. / 开启或关闭循环播放。
   Future<void> setLooping(int playerId, bool looping) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.setLooping$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.setLooping$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId, looping]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId, looping],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Returns the current position in milliseconds. / 返回当前播放位置（毫秒）。
   Future<int> getPosition(int playerId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.getPosition$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.getPosition$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as int;
   }
 
   /// Returns the duration in milliseconds or `null` when unknown.
   /// 返回音频时长（毫秒），未知时返回 `null`。
   Future<int?> getDuration(int playerId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.getDuration$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.getDuration$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
     return pigeonVar_replyValue as int?;
   }
 
   /// Lists the available audio output devices. / 列出可用的音频输出设备。
   Future<List<AudioDeviceMessage>> listOutputDevices() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.listOutputDevices$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.listOutputDevices$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -605,32 +629,33 @@ class AudioPlayerHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return (pigeonVar_replyValue! as List<Object?>).cast<AudioDeviceMessage>();
   }
 
   /// Returns the output device used by the player, or `null` when following
   /// the system default. / 返回播放器当前使用的输出设备；跟随系统默认时返回 `null`。
   Future<AudioDeviceMessage?> getOutputDevice(int playerId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.getOutputDevice$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.getOutputDevice$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
     return pigeonVar_replyValue as AudioDeviceMessage?;
   }
 
@@ -638,40 +663,44 @@ class AudioPlayerHostApi {
   /// system default when `null`.
   /// 将播放器路由到输出设备 [deviceId]；传 `null` 恢复系统默认设备。
   Future<void> setOutputDevice(int playerId, String? deviceId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.setOutputDevice$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.setOutputDevice$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId, deviceId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId, deviceId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Releases all native resources of the player. / 释放播放器的全部原生资源。
   Future<void> disposePlayer(int playerId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.disposePlayer$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioPlayerHostApi.disposePlayer$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[playerId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[playerId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 }
 
@@ -681,9 +710,13 @@ class AudioRecorderHostApi {
   /// Constructor for [AudioRecorderHostApi]. The [binaryMessenger] named argument is
   /// available for dependency injection. If it is left null, the default
   /// BinaryMessenger will be used which routes to the host platform.
-  AudioRecorderHostApi({BinaryMessenger? binaryMessenger, String messageChannelSuffix = ''})
-      : pigeonVar_binaryMessenger = binaryMessenger,
-        pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+  AudioRecorderHostApi({
+    BinaryMessenger? binaryMessenger,
+    String messageChannelSuffix = '',
+  }) : pigeonVar_binaryMessenger = binaryMessenger,
+       pigeonVar_messageChannelSuffix = messageChannelSuffix.isNotEmpty
+           ? '.$messageChannelSuffix'
+           : '';
   final BinaryMessenger? pigeonVar_binaryMessenger;
 
   static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
@@ -693,7 +726,8 @@ class AudioRecorderHostApi {
   /// Creates a native recorder instance and returns its id.
   /// 创建一个原生录音机实例并返回其 id。
   Future<int> createRecorder() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.createRecorder$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.createRecorder$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -703,11 +737,10 @@ class AudioRecorderHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as int;
   }
 
@@ -715,7 +748,8 @@ class AudioRecorderHostApi {
   /// Returns `true` when recording is permitted.
   /// 检查（并在可能时请求）麦克风权限；允许录音时返回 `true`。
   Future<bool> hasPermission() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.hasPermission$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.hasPermission$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -725,17 +759,17 @@ class AudioRecorderHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return pigeonVar_replyValue! as bool;
   }
 
   /// Lists the available audio input devices. / 列出可用的音频输入设备。
   Future<List<AudioDeviceMessage>> listInputDevices() async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.listInputDevices$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.listInputDevices$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
@@ -745,32 +779,33 @@ class AudioRecorderHostApi {
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: false,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
     return (pigeonVar_replyValue! as List<Object?>).cast<AudioDeviceMessage>();
   }
 
   /// Returns the input device used by the recorder, or `null` when following
   /// the system default. / 返回录音机当前使用的输入设备；跟随系统默认时返回 `null`。
   Future<AudioDeviceMessage?> getInputDevice(int recorderId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.getInputDevice$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.getInputDevice$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[recorderId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[recorderId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
     return pigeonVar_replyValue as AudioDeviceMessage?;
   }
 
@@ -779,139 +814,157 @@ class AudioRecorderHostApi {
   /// 为录音机选择输入设备 [deviceId]；传 `null` 使用系统默认设备。
   /// 录音过程中切换的支持情况视平台而定。
   Future<void> setInputDevice(int recorderId, String? deviceId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.setInputDevice$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.setInputDevice$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[recorderId, deviceId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[recorderId, deviceId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Starts recording to [path] using [config]. Completes once recording
   /// has actually started.
   /// 使用 [config] 开始录音并写入 [path]；录音真正启动后才完成。
-  Future<void> start(int recorderId, RecordConfigMessage config, String path) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.start$pigeonVar_messageChannelSuffix';
+  Future<void> start(
+    int recorderId,
+    RecordConfigMessage config,
+    String path,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.start$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[recorderId, config, path]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[recorderId, config, path],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Pauses recording. / 暂停录音。
   Future<void> pause(int recorderId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.pause$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.pause$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[recorderId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[recorderId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Resumes a paused recording. / 恢复已暂停的录音。
   Future<void> resume(int recorderId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.resume$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.resume$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[recorderId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[recorderId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Stops recording and returns the recorded file path, or `null` when
   /// nothing was recorded.
   /// 停止录音并返回录音文件路径；未产生录音时返回 `null`。
   Future<String?> stop(int recorderId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.stop$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.stop$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[recorderId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[recorderId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
     return pigeonVar_replyValue as String?;
   }
 
   /// Stops recording and deletes the partial file. / 停止录音并删除未完成的文件。
   Future<void> cancel(int recorderId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.cancel$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.cancel$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[recorderId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[recorderId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 
   /// Releases all native resources of the recorder. / 释放录音机的全部原生资源。
   Future<void> disposeRecorder(int recorderId) async {
-    final pigeonVar_channelName = 'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.disposeRecorder$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.xue_hua_audio_platform_interface.AudioRecorderHostApi.disposeRecorder$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[recorderId]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[recorderId],
+    );
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
 
     _extractReplyValueOrThrow(
-        pigeonVar_replyList,
-        pigeonVar_channelName,
-        isNullValid: true,
-    )
-    ;
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: true,
+    );
   }
 }

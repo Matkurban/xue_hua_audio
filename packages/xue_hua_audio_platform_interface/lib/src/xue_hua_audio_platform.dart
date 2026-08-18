@@ -212,9 +212,7 @@ abstract class XueHuaAudioPlatform extends PlatformInterface {
   /// microphone permission. Returns `true` when recording is permitted.
   /// 检查（并在平台支持弹窗时请求）麦克风权限；允许录音时返回 `true`。
   Future<bool> hasRecordPermission() {
-    throw UnimplementedError(
-      'hasRecordPermission() has not been implemented.',
-    );
+    throw UnimplementedError('hasRecordPermission() has not been implemented.');
   }
 
   /// Lists the available audio input devices (microphones).
@@ -256,8 +254,11 @@ abstract class XueHuaAudioPlatform extends PlatformInterface {
   ///
   /// [path] 为绝对文件路径；Web 端会忽略该参数（数据保存在内存中，
   /// `stopRecorder` 返回 blob URL）。音频采集真正开始后 Future 才完成。
-  Future<void> startRecorder(int recorderId, RecordConfig config,
-      {required String path}) {
+  Future<void> startRecorder(
+    int recorderId,
+    RecordConfig config, {
+    required String path,
+  }) {
     throw UnimplementedError('startRecorder() has not been implemented.');
   }
 

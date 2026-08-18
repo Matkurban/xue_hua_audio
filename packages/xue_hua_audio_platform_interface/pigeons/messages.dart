@@ -24,7 +24,6 @@ import 'package:pigeon/pigeon.dart';
     dartPackageName: 'xue_hua_audio_platform_interface',
   ),
 )
-
 /// The kind of an audio source. / 音频源的种类。
 enum SourceTypeMessage {
   /// A local file path. / 本地文件路径。

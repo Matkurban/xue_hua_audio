@@ -72,7 +72,10 @@ class _ThrowingRecorderApi extends AudioRecorderHostApi {
 
   @override
   Future<void> start(
-      int recorderId, RecordConfigMessage config, String path) async {
+    int recorderId,
+    RecordConfigMessage config,
+    String path,
+  ) async {
     throw PlatformException(
       code: AudioError.codePermissionDenied,
       message: 'denied',
@@ -119,8 +122,10 @@ void main() {
 
       await channel.setSource(
         7,
-        const AudioSource.url('https://x/a.mp3',
-            headers: {'Authorization': 'Bearer t'}),
+        const AudioSource.url(
+          'https://x/a.mp3',
+          headers: {'Authorization': 'Bearer t'},
+        ),
       );
 
       expect(api.lastSource!.type, SourceTypeMessage.url);
@@ -137,14 +142,17 @@ void main() {
     });
 
     test('PlatformException is translated into AudioError', () async {
-      final channel =
-          MethodChannelXueHuaAudio(recorderApi: _ThrowingRecorderApi());
+      final channel = MethodChannelXueHuaAudio(
+        recorderApi: _ThrowingRecorderApi(),
+      );
 
       await expectLater(
         channel.startRecorder(1, const RecordConfig(), path: '/tmp/a.wav'),
-        throwsA(isA<AudioError>()
-            .having((e) => e.code, 'code', AudioError.codePermissionDenied)
-            .having((e) => e.message, 'message', 'denied')),
+        throwsA(
+          isA<AudioError>()
+              .having((e) => e.code, 'code', AudioError.codePermissionDenied)
+              .having((e) => e.message, 'message', 'denied'),
+        ),
       );
     });
 
@@ -152,30 +160,27 @@ void main() {
       const channelName = 'xue_hua_audio/player_events_7';
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockStreamHandler(
-        const EventChannel(channelName),
-        MockStreamHandler.inline(
-          onListen: (arguments, events) {
-            events.success({'type': 'state', 'state': 'playing'});
-            events.success({'type': 'duration', 'durationMs': 1500});
-            events.success({'type': 'completed'});
-            events.success({
-              'type': 'error',
-              'code': AudioError.codePlaybackFailed,
-              'message': 'x',
-            });
-            events.endOfStream();
-          },
-        ),
-      );
+            const EventChannel(channelName),
+            MockStreamHandler.inline(
+              onListen: (arguments, events) {
+                events.success({'type': 'state', 'state': 'playing'});
+                events.success({'type': 'duration', 'durationMs': 1500});
+                events.success({'type': 'completed'});
+                events.success({
+                  'type': 'error',
+                  'code': AudioError.codePlaybackFailed,
+                  'message': 'x',
+                });
+                events.endOfStream();
+              },
+            ),
+          );
 
       final channel = MethodChannelXueHuaAudio(playerApi: _FakePlayerApi());
       final events = await channel.playerEvents(7).toList();
 
       expect(events, hasLength(4));
-      expect(
-        (events[0] as PlayerStateEvent).state,
-        PlayerState.playing,
-      );
+      expect((events[0] as PlayerStateEvent).state, PlayerState.playing);
       expect(
         (events[1] as PlayerDurationEvent).duration,
         const Duration(milliseconds: 1500),
@@ -191,15 +196,19 @@ void main() {
       const channelName = 'xue_hua_audio/recorder_events_3';
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockStreamHandler(
-        const EventChannel(channelName),
-        MockStreamHandler.inline(
-          onListen: (arguments, events) {
-            events.success({'type': 'state', 'state': 'recording'});
-            events.success({'type': 'amplitude', 'current': -9.5, 'max': -1.0});
-            events.endOfStream();
-          },
-        ),
-      );
+            const EventChannel(channelName),
+            MockStreamHandler.inline(
+              onListen: (arguments, events) {
+                events.success({'type': 'state', 'state': 'recording'});
+                events.success({
+                  'type': 'amplitude',
+                  'current': -9.5,
+                  'max': -1.0,
+                });
+                events.endOfStream();
+              },
+            ),
+          );
 
       final channel = MethodChannelXueHuaAudio(playerApi: _FakePlayerApi());
       final events = await channel.recorderEvents(3).toList();
