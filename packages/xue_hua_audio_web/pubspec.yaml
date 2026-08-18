@@ -1,0 +1,31 @@
+name: xue_hua_audio_web
+description: "Web implementation of the xue_hua_audio plugin, using HTMLAudioElement, Web Audio API and MediaRecorder. / xue_hua_audio 插件的 Web 实现，基于 HTMLAudioElement、Web Audio API 与 MediaRecorder。"
+version: 2.0.0
+repository: https://github.com/Matkurban/xue_hua_audio
+issue_tracker: https://github.com/Matkurban/xue_hua_audio/issues
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.29.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  web: ^1.1.0
+  xue_hua_audio_platform_interface: ^2.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    implements: xue_hua_audio
+    platforms:
+      web:
+        pluginClass: XueHuaAudioWebPlugin
+        fileName: xue_hua_audio_web.dart

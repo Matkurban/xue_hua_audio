@@ -1,0 +1,21 @@
+name: xue_hua_audio_platform_interface
+description: "A common platform interface for the xue_hua_audio plugin. / xue_hua_audio 插件的通用平台接口。"
+version: 2.0.0
+repository: https://github.com/Matkurban/xue_hua_audio
+issue_tracker: https://github.com/Matkurban/xue_hua_audio/issues
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.29.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plugin_platform_interface: ^2.1.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  pigeon: ^27.0.0

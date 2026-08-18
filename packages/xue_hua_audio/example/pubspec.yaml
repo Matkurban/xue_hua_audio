@@ -1,0 +1,25 @@
+name: xue_hua_audio_example
+description: "Demonstrates how to use the xue_hua_audio plugin. / 演示如何使用 xue_hua_audio 插件。"
+publish_to: "none"
+version: 2.0.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  path_provider: ^2.1.5
+  xue_hua_audio: ^2.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/audio/

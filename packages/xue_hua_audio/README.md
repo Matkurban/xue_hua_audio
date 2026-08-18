@@ -24,15 +24,16 @@ Features:
   its native resources and is disposed independently.
 - **Recording** — WAV / AAC-LC / Opus output, pause & resume, cancel,
   configurable sample rate / channels / bit rate, input device selection.
-- **Real-time amplitude** — `Stream<Amplitude>` with current / max dBFS and a
-  normalized 0–1 value, ready for waveform UIs.
 - **Device management** — enumerate output/input devices, query the current
   one and route each player / recorder to a specific device.
+- **Real-time amplitude** — `Stream<Amplitude>` with current / max dBFS and a
+  normalized 0–1 value, ready for waveform UIs.
 - **Type-safe events** — `Stream`s for state, position, duration, and errors;
   structured `AudioError` (code + message + details) everywhere.
 - **Bilingual docs** — every public API carries English + Chinese dartdoc.
 
-Migrating from 1.x (the Rust/FFI version)? See [MIGRATION.md](MIGRATION.md).
+Migrating from 1.x (the Rust/FFI version)? See
+[MIGRATION.md](https://github.com/Matkurban/xue_hua_audio/blob/main/MIGRATION.md).
 
 ---
 
@@ -229,15 +230,10 @@ entirely.
 
 ## Example app
 
-The [example](packages/xue_hua_audio/example) demonstrates all three source
-kinds, seek / volume / speed / loop controls, and recording with a live
-waveform:
-
-```bash
-cd packages/xue_hua_audio/example
-flutter run
-```
+The [example](https://github.com/Matkurban/xue_hua_audio/tree/main/packages/xue_hua_audio/example)
+demonstrates all three source kinds, seek / volume / speed / loop controls,
+and recording with a live waveform.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT.

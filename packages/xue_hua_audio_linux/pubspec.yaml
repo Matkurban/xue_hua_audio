@@ -1,0 +1,27 @@
+name: xue_hua_audio_linux
+description: "Linux implementation of the xue_hua_audio plugin, using GStreamer. / xue_hua_audio 插件的 Linux 实现，基于 GStreamer。"
+version: 2.0.0
+repository: https://github.com/Matkurban/xue_hua_audio
+issue_tracker: https://github.com/Matkurban/xue_hua_audio/issues
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+  flutter: ">=3.29.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  xue_hua_audio_platform_interface: ^2.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  plugin:
+    implements: xue_hua_audio
+    platforms:
+      linux:
+        pluginClass: XueHuaAudioLinuxPlugin

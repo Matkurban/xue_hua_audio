@@ -1,0 +1,6 @@
+# Workspace-level analysis options. Individual packages include the
+# flutter_lints rule set via their own analysis_options.yaml.
+# 工作区级分析配置；各包通过自身的 analysis_options.yaml 引入 flutter_lints 规则集。
+analyzer:
+  exclude:
+    - legacy/**

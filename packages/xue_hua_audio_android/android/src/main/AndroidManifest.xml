@@ -1,0 +1,9 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Required for AudioRecord microphone capture. Apps that never record
+       can remove it with tools:node="remove".
+       AudioRecord 麦克风采集所需权限；完全不录音的应用可通过
+       tools:node="remove" 移除。 -->
+  <uses-permission android:name="android.permission.RECORD_AUDIO" />
+  <!-- Required for network URL playback. / 播放网络音频所需权限。 -->
+  <uses-permission android:name="android.permission.INTERNET" />
+</manifest>

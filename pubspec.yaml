@@ -1,0 +1,45 @@
+# xue_hua_audio monorepo workspace root.
+# xue_hua_audio 联合插件（Federated Plugin）单仓工作区根配置。
+name: xue_hua_audio_workspace
+description: "Workspace for the xue_hua_audio federated audio plugin. / xue_hua_audio 联合音频插件工作区。"
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+
+workspace:
+  - packages/xue_hua_audio
+  - packages/xue_hua_audio/example
+  - packages/xue_hua_audio_platform_interface
+  - packages/xue_hua_audio_android
+  - packages/xue_hua_audio_darwin
+  - packages/xue_hua_audio_web
+  - packages/xue_hua_audio_windows
+  - packages/xue_hua_audio_linux
+
+dev_dependencies:
+  melos: ^8.0.0
+
+# Melos 7+ reads its configuration from this pubspec.
+# Melos 7 及以上版本从本 pubspec 读取配置。
+melos:
+  scripts:
+    analyze:
+      description: "Run static analysis in every package. / 对所有包运行静态分析。"
+      run: dart analyze .
+      exec:
+        concurrency: 4
+    test:
+      description: "Run unit tests in packages that have a test/ dir. / 对包含 test/ 目录的包运行单元测试。"
+      run: flutter test
+      exec:
+        concurrency: 1
+      packageFilters:
+        dirExists: test
+    pigeon:
+      description: "Regenerate Pigeon bindings for all platforms. / 重新生成所有平台的 Pigeon 绑定代码。"
+      run: dart run pigeon --input pigeons/messages.dart
+      exec:
+        concurrency: 1
+      packageFilters:
+        scope: xue_hua_audio_platform_interface

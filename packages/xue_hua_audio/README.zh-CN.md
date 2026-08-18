@@ -22,15 +22,16 @@
 - **多实例**——可创建任意数量的 `AudioPlayer`，各自持有原生资源、独立释放。
 - **录音**——WAV / AAC-LC / Opus 输出，暂停与恢复、取消，采样率 / 声道 /
   比特率可配置，支持选择输入设备。
-- **实时振幅**——`Stream<Amplitude>` 提供当前 / 峰值 dBFS 及归一化 0~1 数值，
-  可直接驱动波形 UI。
 - **设备管理**——枚举输出 / 输入设备、查询当前设备，并可为每个播放器 /
   录音机指定具体设备。
+- **实时振幅**——`Stream<Amplitude>` 提供当前 / 峰值 dBFS 及归一化 0~1 数值，
+  可直接驱动波形 UI。
 - **类型安全事件**——状态、进度、时长、错误均为独立 `Stream`；全链路结构化
   `AudioError`（code + message + details）。
 - **双语文档**——所有公开 API 均带中英双语 dartdoc。
 
-从 1.x（Rust/FFI 版本）迁移？请阅读 [MIGRATION.md](MIGRATION.md)。
+从 1.x（Rust/FFI 版本）迁移？请阅读
+[MIGRATION.md](https://github.com/Matkurban/xue_hua_audio/blob/main/MIGRATION.md)。
 
 ---
 
@@ -223,14 +224,9 @@ xue_hua_audio                     ← 应用直接依赖的包
 
 ## 示例应用
 
-[example](packages/xue_hua_audio/example) 演示了三种音源播放、跳转 / 音量 /
-变速 / 循环控制，以及带实时波形的录音：
-
-```bash
-cd packages/xue_hua_audio/example
-flutter run
-```
+[example](https://github.com/Matkurban/xue_hua_audio/tree/main/packages/xue_hua_audio/example)
+演示了三种音源播放、跳转 / 音量 / 变速 / 循环控制，以及带实时波形的录音。
 
 ## 许可证
 
-MIT——详见 [LICENSE](LICENSE)。
+MIT。
