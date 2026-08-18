@@ -43,7 +43,9 @@ class AudioPlayer {
   ///
   /// 原生实例采用异步惰性创建；所有方法都会自动等待创建完成，因此
   /// 构造后即可直接使用。
-  AudioPlayer({this.positionUpdateInterval = const Duration(milliseconds: 100)}) {
+  AudioPlayer({
+    this.positionUpdateInterval = const Duration(milliseconds: 100),
+  }) {
     _idFuture = _create();
   }
 

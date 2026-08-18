@@ -13,8 +13,7 @@ void main() {
   });
 
   group('AudioRecorder', () {
-    test('start transitions to recording and stop returns the path',
-        () async {
+    test('start transitions to recording and stop returns the path', () async {
       final recorder = AudioRecorder();
       final states = <RecorderState>[];
       recorder.onStateChanged.listen(states.add);
@@ -66,25 +65,27 @@ void main() {
       await recorder.dispose();
     });
 
-    test('recorder errors surface on onError and set the error state',
-        () async {
-      final recorder = AudioRecorder();
-      await recorder.start(const RecordConfig(), path: '/tmp/a.wav');
-      final errors = <AudioError>[];
-      recorder.onError.listen(errors.add);
+    test(
+      'recorder errors surface on onError and set the error state',
+      () async {
+        final recorder = AudioRecorder();
+        await recorder.start(const RecordConfig(), path: '/tmp/a.wav');
+        final errors = <AudioError>[];
+        recorder.onError.listen(errors.add);
 
-      platform.emitRecorder(
-        100,
-        const RecorderErrorEvent(
-          AudioError(code: AudioError.codeRecordingFailed, message: 'lost'),
-        ),
-      );
-      await pumpEventQueue();
+        platform.emitRecorder(
+          100,
+          const RecorderErrorEvent(
+            AudioError(code: AudioError.codeRecordingFailed, message: 'lost'),
+          ),
+        );
+        await pumpEventQueue();
 
-      expect(errors.single.code, AudioError.codeRecordingFailed);
-      expect(recorder.state, RecorderState.error);
-      await recorder.dispose();
-    });
+        expect(errors.single.code, AudioError.codeRecordingFailed);
+        expect(recorder.state, RecorderState.error);
+        await recorder.dispose();
+      },
+    );
 
     test('dispose releases the native recorder and is idempotent', () async {
       final recorder = AudioRecorder();
@@ -93,10 +94,7 @@ void main() {
       await recorder.dispose();
       await recorder.dispose();
 
-      expect(
-        platform.calls.where((c) => c == 'disposeRecorder:100').length,
-        1,
-      );
+      expect(platform.calls.where((c) => c == 'disposeRecorder:100').length, 1);
       expect(() => recorder.stop(), throwsStateError);
     });
   });

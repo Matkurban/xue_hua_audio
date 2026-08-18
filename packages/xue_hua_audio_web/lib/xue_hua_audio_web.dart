@@ -187,8 +187,9 @@ class XueHuaAudioWebPlugin extends XueHuaAudioPlatform {
     required String kind,
     required String fallbackLabel,
   }) async {
-    final devices =
-        await web.window.navigator.mediaDevices.enumerateDevices().toDart;
+    final devices = await web.window.navigator.mediaDevices
+        .enumerateDevices()
+        .toDart;
     return [
       for (final device in devices.toDart)
         if (device.kind == kind)
@@ -221,9 +222,11 @@ class XueHuaAudioWebPlugin extends XueHuaAudioPlatform {
       _recorderOf(recorderId).setInputDevice(deviceId);
 
   @override
-  Future<void> startRecorder(int recorderId, RecordConfig config,
-          {required String path}) =>
-      _recorderOf(recorderId).start(config);
+  Future<void> startRecorder(
+    int recorderId,
+    RecordConfig config, {
+    required String path,
+  }) => _recorderOf(recorderId).start(config);
 
   @override
   Future<void> pauseRecorder(int recorderId) async =>

@@ -42,11 +42,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(title: const Text('xue_hua_audio 2.0')),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: const [
-          PlayerCard(),
-          SizedBox(height: 16),
-          RecorderCard(),
-        ],
+        children: const [PlayerCard(), SizedBox(height: 16), RecorderCard()],
       ),
     );
   }
@@ -115,8 +111,9 @@ class _DeviceSelectorState extends State<DeviceSelector> {
 
   void _showError(AudioError error) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(error.toString())));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(error.toString())));
   }
 
   @override
@@ -257,7 +254,10 @@ class _PlayerCardState extends State<PlayerCard> {
               children: [
                 const Icon(Icons.music_note),
                 const SizedBox(width: 8),
-                Text('播放器 Player', style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  '播放器 Player',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const Spacer(),
                 Chip(label: Text(_state.name)),
               ],
@@ -309,13 +309,15 @@ class _PlayerCardState extends State<PlayerCard> {
                     max: maxMs > 0 ? maxMs : 1,
                     onChangeStart: (_) => _seeking = true,
                     onChanged: maxMs > 0
-                        ? (value) => setState(() =>
-                            _position = Duration(milliseconds: value.round()))
+                        ? (value) => setState(
+                            () => _position = Duration(
+                              milliseconds: value.round(),
+                            ),
+                          )
                         : null,
                     onChangeEnd: (value) async {
                       _seeking = false;
-                      await _player
-                          .seek(Duration(milliseconds: value.round()));
+                      await _player.seek(Duration(milliseconds: value.round()));
                     },
                   ),
                 ),
@@ -329,9 +331,11 @@ class _PlayerCardState extends State<PlayerCard> {
                   onPressed: () => _player.state == PlayerState.playing
                       ? _player.pause()
                       : _player.play(),
-                  icon: Icon(_state == PlayerState.playing
-                      ? Icons.pause
-                      : Icons.play_arrow),
+                  icon: Icon(
+                    _state == PlayerState.playing
+                        ? Icons.pause
+                        : Icons.play_arrow,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 IconButton.filledTonal(
@@ -503,8 +507,10 @@ class _RecorderCardState extends State<RecorderCard> {
               children: [
                 const Icon(Icons.mic),
                 const SizedBox(width: 8),
-                Text('录音机 Recorder',
-                    style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  '录音机 Recorder',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const Spacer(),
                 Chip(label: Text(_state.name)),
               ],
@@ -548,8 +554,9 @@ class _RecorderCardState extends State<RecorderCard> {
                   label: const Text('停止'),
                 ),
                 OutlinedButton.icon(
-                  onPressed:
-                      recording || paused ? () => _recorder.cancel() : null,
+                  onPressed: recording || paused
+                      ? () => _recorder.cancel()
+                      : null,
                   icon: const Icon(Icons.delete_outline, size: 18),
                   label: const Text('取消'),
                 ),
@@ -580,10 +587,7 @@ class _RecorderCardState extends State<RecorderCard> {
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  _error!,
-                  style: TextStyle(color: scheme.error),
-                ),
+                child: Text(_error!, style: TextStyle(color: scheme.error)),
               ),
           ],
         ),

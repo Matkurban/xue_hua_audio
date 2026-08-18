@@ -132,8 +132,9 @@ class FakeAudioPlatform extends XueHuaAudioPlatform
   }
 
   @override
-  Future<List<AudioDevice>> listInputDevices() async =>
-      const [AudioDevice(id: 'mic-0', label: 'Fake microphone')];
+  Future<List<AudioDevice>> listInputDevices() async => const [
+    AudioDevice(id: 'mic-0', label: 'Fake microphone'),
+  ];
 
   @override
   Future<AudioDevice?> getInputDevice(int recorderId) async {
@@ -150,8 +151,11 @@ class FakeAudioPlatform extends XueHuaAudioPlatform
   }
 
   @override
-  Future<void> startRecorder(int recorderId, RecordConfig config,
-      {required String path}) async {
+  Future<void> startRecorder(
+    int recorderId,
+    RecordConfig config, {
+    required String path,
+  }) async {
     calls.add('startRecorder:$recorderId:$path');
     emitRecorder(recorderId, const RecorderStateEvent(RecorderState.recording));
   }

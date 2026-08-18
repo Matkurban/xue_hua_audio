@@ -108,8 +108,7 @@ class AudioRecorder {
   /// 返回 [AudioDevice] 列表；把某个设备的 id 传给 [setInputDevice] 或
   /// `RecordConfig.deviceId` 即可用该设备录音。Web 端在麦克风权限授予前
   /// label 可能为空。
-  Future<List<AudioDevice>> listInputDevices() =>
-      _platform.listInputDevices();
+  Future<List<AudioDevice>> listInputDevices() => _platform.listInputDevices();
 
   /// Returns the input device this recorder captures from, or `null` when it
   /// follows the system default.

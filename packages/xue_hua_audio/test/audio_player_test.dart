@@ -18,19 +18,22 @@ void main() {
       final durations = <Duration?>[];
       player.onDurationChanged.listen(durations.add);
 
-      final duration =
-          await player.setSource(const AudioSource.file('/tmp/a.wav'));
+      final duration = await player.setSource(
+        const AudioSource.file('/tmp/a.wav'),
+      );
 
       expect(duration, const Duration(seconds: 3));
       expect(player.duration, const Duration(seconds: 3));
       await pumpEventQueue();
       expect(durations, [const Duration(seconds: 3)]);
-      expect(platform.calls, contains('setSource:0:AudioSource.file(/tmp/a.wav)'));
+      expect(
+        platform.calls,
+        contains('setSource:0:AudioSource.file(/tmp/a.wav)'),
+      );
       await player.dispose();
     });
 
-    test('failed setSource throws AudioError and enters error state',
-        () async {
+    test('failed setSource throws AudioError and enters error state', () async {
       platform.setSourceError = const AudioError(
         code: AudioError.codeSourceLoadFailed,
         message: 'boom',
@@ -39,8 +42,13 @@ void main() {
 
       await expectLater(
         player.setSource(const AudioSource.url('https://x/a.mp3')),
-        throwsA(isA<AudioError>()
-            .having((e) => e.code, 'code', AudioError.codeSourceLoadFailed)),
+        throwsA(
+          isA<AudioError>().having(
+            (e) => e.code,
+            'code',
+            AudioError.codeSourceLoadFailed,
+          ),
+        ),
       );
       expect(player.state, PlayerState.error);
       await player.dispose();
@@ -59,8 +67,7 @@ void main() {
       await player.dispose();
     });
 
-    test('commands are forwarded to the platform with the player id',
-        () async {
+    test('commands are forwarded to the platform with the player id', () async {
       final player = AudioPlayer();
       await player.setSource(const AudioSource.asset('assets/a.wav'));
       await player.play();
@@ -86,8 +93,7 @@ void main() {
       await player.dispose();
     });
 
-    test('platform state events drive onStateChanged and completion',
-        () async {
+    test('platform state events drive onStateChanged and completion', () async {
       final player = AudioPlayer();
       await player.setSource(const AudioSource.file('/tmp/a.wav'));
       final states = <PlayerState>[];
@@ -107,8 +113,9 @@ void main() {
     });
 
     test('position is polled while playing', () async {
-      final player =
-          AudioPlayer(positionUpdateInterval: const Duration(milliseconds: 10));
+      final player = AudioPlayer(
+        positionUpdateInterval: const Duration(milliseconds: 10),
+      );
       await player.setSource(const AudioSource.file('/tmp/a.wav'));
       final positions = <Duration>[];
       player.onPositionChanged.listen(positions.add);
@@ -149,10 +156,7 @@ void main() {
       await player.dispose();
       await player.dispose();
 
-      expect(
-        platform.calls.where((c) => c == 'disposePlayer:0').length,
-        1,
-      );
+      expect(platform.calls.where((c) => c == 'disposePlayer:0').length, 1);
       expect(player.isDisposed, isTrue);
       expect(() => player.play(), throwsStateError);
     });

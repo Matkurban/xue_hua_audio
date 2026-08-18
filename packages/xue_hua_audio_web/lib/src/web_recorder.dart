@@ -79,19 +79,19 @@ class WebRecorder {
   static String? _pickMimeType(AudioEncoder encoder) {
     final candidates = switch (encoder) {
       AudioEncoder.opus => [
-          'audio/webm;codecs=opus',
-          'audio/ogg;codecs=opus',
-          'audio/webm',
-        ],
+        'audio/webm;codecs=opus',
+        'audio/ogg;codecs=opus',
+        'audio/webm',
+      ],
       AudioEncoder.aacLc => ['audio/mp4', 'audio/aac'],
       // WAV recording is not supported by MediaRecorder; fall back to the
       // best available compressed format.
       // MediaRecorder 不支持 WAV，回退到可用的压缩格式。
       AudioEncoder.wav => [
-          'audio/webm;codecs=opus',
-          'audio/mp4',
-          'audio/ogg;codecs=opus',
-        ],
+        'audio/webm;codecs=opus',
+        'audio/mp4',
+        'audio/ogg;codecs=opus',
+      ],
     };
     for (final type in candidates) {
       if (web.MediaRecorder.isTypeSupported(type)) {
@@ -130,8 +130,9 @@ class WebRecorder {
 
     final web.MediaStream stream;
     try {
-      stream =
-          await web.window.navigator.mediaDevices.getUserMedia(constraints).toDart;
+      stream = await web.window.navigator.mediaDevices
+          .getUserMedia(constraints)
+          .toDart;
     } catch (e) {
       throw AudioError(
         code: AudioError.codePermissionDenied,
@@ -234,10 +235,7 @@ class WebRecorder {
       _emitState(RecorderState.stopped);
       return null;
     }
-    final blob = web.Blob(
-      _chunks.toJS,
-      web.BlobPropertyBag(type: _mimeType),
-    );
+    final blob = web.Blob(_chunks.toJS, web.BlobPropertyBag(type: _mimeType));
     _chunks.clear();
     _emitState(RecorderState.stopped);
     return web.URL.createObjectURL(blob);

@@ -198,7 +198,8 @@ class WebPlayer {
     } catch (e) {
       throw AudioError(
         code: AudioError.codePlaybackFailed,
-        message: 'Playback was blocked by the browser (user gesture may be '
+        message:
+            'Playback was blocked by the browser (user gesture may be '
             'required): $e',
       );
     }
