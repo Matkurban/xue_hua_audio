@@ -18,7 +18,7 @@ workspace:
   - packages/xue_hua_audio_linux
 
 dev_dependencies:
-  melos: ^8.0.0
+  melos: ^8.3.0
 
 # Melos 7+ reads its configuration from this pubspec.
 # Melos 7 及以上版本从本 pubspec 读取配置。
@@ -26,20 +26,23 @@ melos:
   scripts:
     analyze:
       description: "Run static analysis in every package. / 对所有包运行静态分析。"
-      run: dart analyze .
       exec:
+        command: dart analyze .
         concurrency: 4
+
     test:
       description: "Run unit tests in packages that have a test/ dir. / 对包含 test/ 目录的包运行单元测试。"
-      run: flutter test
       exec:
+        command: flutter test
         concurrency: 1
-      packageFilters:
-        dirExists: test
+        packageFilters:
+          dirExists: test
+
     pigeon:
       description: "Regenerate Pigeon bindings for all platforms. / 重新生成所有平台的 Pigeon 绑定代码。"
-      run: dart run pigeon --input pigeons/messages.dart
       exec:
+        command: dart run pigeon --input pigeons/messages.dart
         concurrency: 1
-      packageFilters:
-        scope: xue_hua_audio_platform_interface
+        packageFilters:
+          scope: xue_hua_audio_platform_interface
+
