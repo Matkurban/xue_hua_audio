@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
+- update flutter version to 3.38.0 version
+
 ## 2.0.0
 
 - Initial release: Media3 ExoPlayer playback (file / URL / asset, volume,

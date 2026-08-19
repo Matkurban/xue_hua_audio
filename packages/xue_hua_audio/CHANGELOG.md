@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
+- update flutter version to 3.38.0 version
+
 ## 2.0.0
 
 Complete rewrite as a federated plugin with fully native implementations.
