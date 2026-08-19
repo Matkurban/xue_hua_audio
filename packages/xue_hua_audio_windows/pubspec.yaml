@@ -24,4 +24,4 @@ flutter:
     implements: xue_hua_audio
     platforms:
       windows:
-        pluginClass: XueHuaAudioWindowsPlugin
+        pluginClass: XueHuaAudioWindowsPluginCApi

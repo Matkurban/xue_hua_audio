@@ -43,6 +43,12 @@ add_library(${PLUGIN_NAME} SHARED
 # full control over build settings.
 apply_standard_settings(${PLUGIN_NAME})
 
+# Sources contain UTF-8 comments; tell MSVC not to guess the ANSI code page.
+# 源码含 UTF-8 中文注释，需显式告知 MSVC 不要按系统 ANSI 代码页解析。
+if(MSVC)
+  target_compile_options(${PLUGIN_NAME} PRIVATE "/utf-8")
+endif()
+
 # Symbols are hidden by default to reduce the chance of accidental conflicts
 # between plugins. This should not be removed; any symbols that should be
 # exported should be explicitly exported with the FLUTTER_PLUGIN_EXPORT macro.

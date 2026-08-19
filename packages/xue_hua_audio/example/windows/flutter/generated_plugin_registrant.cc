@@ -6,9 +6,9 @@
 
 #include "generated_plugin_registrant.h"
 
-#include <xue_hua_audio_windows/xue_hua_audio_windows_plugin.h>
+#include <xue_hua_audio_windows/xue_hua_audio_windows_plugin_c_api.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
-  XueHuaAudioWindowsPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("XueHuaAudioWindowsPlugin"));
+  XueHuaAudioWindowsPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("XueHuaAudioWindowsPluginCApi"));
 }

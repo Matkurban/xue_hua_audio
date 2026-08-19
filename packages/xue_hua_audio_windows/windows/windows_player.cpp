@@ -2,6 +2,7 @@
 
 #include <mferror.h>
 
+#include <algorithm>
 #include <cmath>
 
 namespace xue_hua_audio_windows {
