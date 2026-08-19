@@ -1,13 +1,13 @@
 name: xue_hua_audio_android
 description: "Android implementation of the xue_hua_audio plugin, using Media3 ExoPlayer and AudioRecord. / xue_hua_audio 插件的 Android 实现，基于 Media3 ExoPlayer 与 AudioRecord。"
-version: 2.0.0
+version: 2.0.1
 repository: https://github.com/Matkurban/xue_hua_audio
 issue_tracker: https://github.com/Matkurban/xue_hua_audio/issues
 resolution: workspace
 
 environment:
   sdk: ^3.12.0
-  flutter: ">=3.29.0"
+  flutter: ">=3.38.0"
 
 dependencies:
   flutter:
