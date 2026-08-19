@@ -3,7 +3,7 @@ description: "Cross-platform native Flutter audio plugin — playback (file/URL/
 version: 2.0.1
 repository: https://github.com/Matkurban/xue_hua_audio
 issue_tracker: https://github.com/Matkurban/xue_hua_audio/issues
-#resolution: workspace
+resolution: workspace
 
 environment:
   sdk: ^3.12.0
