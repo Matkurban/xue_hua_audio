@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.2
+
+- Raise the minimum Flutter version to 3.44.0.
+  最低 Flutter 版本提升至 3.44.0。
+- Align the example Android build with Gradle 8.14.5 and Android Gradle Plugin 8.13.2.
+  示例 Android 工程对齐 Gradle 8.14.5 与 Android Gradle Plugin 8.13.2。
+
 ## 2.0.1
 
 - update flutter version to 3.38.0 version

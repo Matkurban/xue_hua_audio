@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.2
+
+- Raise the minimum Flutter version to 3.44.0.
+  最低 Flutter 版本提升至 3.44.0。
+
 ## 2.0.1
 
 - update flutter version to 3.38.0 version
