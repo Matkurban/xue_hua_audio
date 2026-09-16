@@ -7,13 +7,13 @@
 生成：每个平台都使用其第一方原生音频 API 实现，并通过类型安全的
 [Pigeon](https://pub.dev/packages/pigeon) 通道通信。
 
-| 平台 | 播放 | 录音 |
-| --- | --- | --- |
-| Android | Media3 ExoPlayer | AudioRecord（WAV / AAC-LC） |
-| iOS / macOS | AVPlayer | AVAudioEngine（WAV / AAC-LC） |
-| Windows | Media Foundation `IMFMediaEngine` | WASAPI（WAV / AAC-LC） |
-| Linux | GStreamer `playbin` | GStreamer `level`（WAV / Opus / AAC） |
-| Web | HTMLAudioElement | MediaRecorder + AnalyserNode（Opus / MP4） |
+| 平台          | 播放                                | 录音                                       |
+|-------------|-----------------------------------|------------------------------------------|
+| Android     | Media3 ExoPlayer                  | AudioRecord（WAV / AAC-LC）                |
+| iOS / macOS | AVPlayer                          | AVAudioEngine（WAV / AAC-LC）              |
+| Windows     | Media Foundation `IMFMediaEngine` | WASAPI（WAV / AAC-LC）                     |
+| Linux       | GStreamer `playbin`               | GStreamer `level`（WAV / Opus / AAC）      |
+| Web         | HTMLAudioElement                  | MediaRecorder + AnalyserNode（Opus / MP4） |
 
 特性：
 
@@ -39,7 +39,7 @@
 
 ```yaml
 dependencies:
-  xue_hua_audio: ^2.0.0
+  xue_hua_audio: ^lasted
 ```
 
 无需任何初始化调用。
@@ -129,14 +129,14 @@ await recorder.start(RecordConfig(deviceId: inputs.first.id), path: ...);
 
 平台差异：
 
-| 平台 | 设置输出设备 | 录音中切换输入设备 |
-| --- | --- | --- |
-| Android | ✅ 立即生效（API 23+） | ✅ |
-| iOS | ❌ 抛 `unsupported`（由系统路由） | ✅（`setPreferredInput`） |
-| macOS | ✅ 立即生效 | ❌ 请在 `start` 前设置 |
-| Windows | ✅ 自下一次 `setSource` 生效（Win10 1703+） | ❌ 请在 `start` 前设置 |
-| Linux | ✅ 自下一次 `setSource` 生效 | ❌ 请在 `start` 前设置 |
-| Web | ✅ 立即生效（`setSinkId`） | ❌ 请在 `start` 前设置 |
+| 平台      | 设置输出设备                             | 录音中切换输入设备              |
+|---------|------------------------------------|------------------------|
+| Android | ✅ 立即生效（API 23+）                    | ✅                      |
+| iOS     | ❌ 抛 `unsupported`（由系统路由）           | ✅（`setPreferredInput`） |
+| macOS   | ✅ 立即生效                             | ❌ 请在 `start` 前设置       |
+| Windows | ✅ 自下一次 `setSource` 生效（Win10 1703+） | ❌ 请在 `start` 前设置       |
+| Linux   | ✅ 自下一次 `setSource` 生效              | ❌ 请在 `start` 前设置       |
+| Web     | ✅ 立即生效（`setSinkId`）                | ❌ 请在 `start` 前设置       |
 
 iOS 上 `listOutputDevices` 只能返回当前音频路由中的设备；Web 端在授予媒体
 权限前设备 label 可能为空。
