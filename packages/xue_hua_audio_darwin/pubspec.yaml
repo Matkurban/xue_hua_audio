@@ -1,6 +1,6 @@
 name: xue_hua_audio_darwin
 description: "iOS and macOS implementation of the xue_hua_audio plugin, using AVFoundation (AVPlayer + AVAudioEngine). / xue_hua_audio 插件的 iOS 与 macOS 实现，基于 AVFoundation（AVPlayer + AVAudioEngine）。"
-version: 2.0.2
+version: 2.0.3
 repository: https://github.com/Matkurban/xue_hua_audio
 issue_tracker: https://github.com/Matkurban/xue_hua_audio/issues
 resolution: workspace
@@ -12,7 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  xue_hua_audio_platform_interface: ^2.0.0
+  xue_hua_audio_platform_interface: ^2.0.3
 
 dev_dependencies:
   flutter_test:
