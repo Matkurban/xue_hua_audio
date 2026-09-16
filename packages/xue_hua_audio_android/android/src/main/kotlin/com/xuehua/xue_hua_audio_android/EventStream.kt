@@ -16,46 +16,46 @@ import io.flutter.plugin.common.EventChannel
 class EventStream(messenger: BinaryMessenger, name: String) :
     EventChannel.StreamHandler {
 
-  private val channel = EventChannel(messenger, name)
-  private var sink: EventChannel.EventSink? = null
-  private val pending = ArrayDeque<Map<String, Any?>>()
+    private val channel = EventChannel(messenger, name)
+    private var sink: EventChannel.EventSink? = null
+    private val pending = ArrayDeque<Map<String, Any?>>()
 
-  init {
-    channel.setStreamHandler(this)
-  }
-
-  /**
-   * Sends [event] to Dart, buffering it when nobody listens yet.
-   * Must be called on the main thread.
-   *
-   * 将 [event] 发送给 Dart；若尚无订阅者则先缓冲。必须在主线程调用。
-   *
-   * @param event The event payload map. / 事件负载 Map。
-   */
-  fun send(event: Map<String, Any?>) {
-    val currentSink = sink
-    if (currentSink != null) {
-      currentSink.success(event)
-    } else if (pending.size < 128) {
-      pending.addLast(event)
+    init {
+        channel.setStreamHandler(this)
     }
-  }
 
-  /** Tears the channel down. / 关闭通道。 */
-  fun dispose() {
-    sink?.endOfStream()
-    sink = null
-    channel.setStreamHandler(null)
-  }
-
-  override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
-    sink = events
-    while (pending.isNotEmpty()) {
-      events.success(pending.removeFirst())
+    /**
+     * Sends [event] to Dart, buffering it when nobody listens yet.
+     * Must be called on the main thread.
+     *
+     * 将 [event] 发送给 Dart；若尚无订阅者则先缓冲。必须在主线程调用。
+     *
+     * @param event The event payload map. / 事件负载 Map。
+     */
+    fun send(event: Map<String, Any?>) {
+        val currentSink = sink
+        if (currentSink != null) {
+            currentSink.success(event)
+        } else if (pending.size < 128) {
+            pending.addLast(event)
+        }
     }
-  }
 
-  override fun onCancel(arguments: Any?) {
-    sink = null
-  }
+    /** Tears the channel down. / 关闭通道。 */
+    fun dispose() {
+        sink?.endOfStream()
+        sink = null
+        channel.setStreamHandler(null)
+    }
+
+    override fun onListen(arguments: Any?, events: EventChannel.EventSink) {
+        sink = events
+        while (pending.isNotEmpty()) {
+            events.success(pending.removeFirst())
+        }
+    }
+
+    override fun onCancel(arguments: Any?) {
+        sink = null
+    }
 }

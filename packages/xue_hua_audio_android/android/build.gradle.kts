@@ -74,9 +74,8 @@ kotlin {
 dependencies {
     // Media3 ExoPlayer drives all audio playback (file/URL/asset).
     // Media3 ExoPlayer 负责全部音频播放（本地文件/网络/Asset）。
-    implementation("androidx.media3:media3-exoplayer:1.8.0")
-    implementation("androidx.media3:media3-datasource:1.8.0")
-
+    implementation("androidx.media3:media3-exoplayer:1.11.1")
+    implementation("androidx.media3:media3-datasource:1.11.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.mockito:mockito-core:5.0.0")
+    testImplementation("org.mockito:mockito-core:5.23.0")
 }
