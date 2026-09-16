@@ -12,12 +12,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  xue_hua_audio_platform_interface: ^2.0.0
-  xue_hua_audio_android: ^2.0.0
-  xue_hua_audio_darwin: ^2.0.0
-  xue_hua_audio_web: ^2.0.0
-  xue_hua_audio_windows: ^2.0.0
-  xue_hua_audio_linux: ^2.0.0
+  xue_hua_audio_platform_interface: ^2.0.2
+  xue_hua_audio_android: ^2.0.2
+  xue_hua_audio_darwin: ^2.0.2
+  xue_hua_audio_web: ^2.0.2
+  xue_hua_audio_windows: ^2.0.2
+  xue_hua_audio_linux: ^2.0.2
 
 dev_dependencies:
   flutter_test:
