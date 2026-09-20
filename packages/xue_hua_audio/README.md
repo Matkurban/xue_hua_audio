@@ -46,6 +46,19 @@ dependencies:
 
 No initialization call is needed.
 
+## AI agent skills
+
+This package ships Agent Skills that teach coding agents the 2.0 playback,
+recording, and platform-setup APIs. After adding the dependency, install
+them into your editor:
+
+```bash
+dart run skills@ get -p xue_hua_audio
+```
+
+Or install every skill from every dependency with `dart run skills@ get --all`.
+See [Ship skills with packages](https://dart.dev/tools/pub/package-skills).
+
 ## Playback
 
 ```dart

@@ -18,7 +18,7 @@ workspace:
   - packages/xue_hua_audio_linux
 
 dev_dependencies:
-  melos: ^8.7.0
+  melos: ^8.8.0
 
 # Melos 7+ reads its configuration from this pubspec.
 # Melos 7 及以上版本从本 pubspec 读取配置。

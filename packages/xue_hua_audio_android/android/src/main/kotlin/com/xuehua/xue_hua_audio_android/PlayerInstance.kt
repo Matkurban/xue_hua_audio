@@ -232,11 +232,6 @@ class PlayerInstance(
      */
     @OptIn(UnstableApi::class)
     fun setOutputDevice(deviceId: String?) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            throw FlutterError(
-                "unsupported", "Output device selection requires Android 6.0+", null
-            )
-        }
         if (deviceId == null) {
             player.setPreferredAudioDevice(null)
             preferredOutputDeviceId = null

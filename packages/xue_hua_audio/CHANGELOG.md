@@ -1,3 +1,10 @@
+## 2.0.4
+
+- Ship Agent Skills for playback, recording, and platform setup so coding
+  agents can install them with `dart run skills@ get -p xue_hua_audio`.
+  随包发布播放、录音与平台配置的 Agent Skills，可通过
+  `dart run skills@ get -p xue_hua_audio` 安装。
+
 ## 2.0.3
 
 - update package version

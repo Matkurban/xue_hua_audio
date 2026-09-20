@@ -1,6 +1,6 @@
 name: xue_hua_audio
 description: "Cross-platform native Flutter audio plugin — playback (file/URL/asset) and microphone recording with real-time amplitude, on Android/iOS/macOS/Windows/Linux/Web."
-version: 2.0.3
+version: 2.0.4
 repository: https://github.com/Matkurban/xue_hua_audio
 issue_tracker: https://github.com/Matkurban/xue_hua_audio/issues
 resolution: workspace
