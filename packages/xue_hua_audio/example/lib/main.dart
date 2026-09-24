@@ -5,9 +5,10 @@ import 'dart:async';
 import 'dart:io' show Directory;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:xue_hua_audio/xue_hua_audio.dart';
+import 'package:xue_hua_audio_example/app_theme.dart';
 
 void main() {
   runApp(const ExampleApp());
@@ -21,11 +22,10 @@ class ExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'xue_hua_audio demo',
-      theme: ThemeData(
-        colorSchemeSeed: const Color(0xFF3F6CFF),
-        useMaterial3: true,
-        brightness: Brightness.light,
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
+      debugShowCheckedModeBanner: false,
       home: const HomePage(),
     );
   }
@@ -111,9 +111,8 @@ class _DeviceSelectorState extends State<DeviceSelector> {
 
   void _showError(AudioError error) {
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(error.toString())));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(error.toString())));
   }
 
   @override
@@ -175,8 +174,7 @@ class PlayerCard extends StatefulWidget {
 class _PlayerCardState extends State<PlayerCard> {
   final AudioPlayer _player = AudioPlayer();
   final TextEditingController _urlController = TextEditingController(
-    text:
-        'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
+    text: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
   );
 
   PlayerState _state = PlayerState.idle;
