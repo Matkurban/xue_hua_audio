@@ -247,6 +247,8 @@ The [example](https://github.com/Matkurban/xue_hua_audio/tree/main/packages/xue_
 demonstrates all three source kinds, seek / volume / speed / loop controls,
 and recording with a live waveform.
 
+Live demo: <https://matkurban.github.io/xue_hua_audio/>
+
 ## License
 
 MIT.

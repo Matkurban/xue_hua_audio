@@ -231,7 +231,9 @@ entirely.
 
 The [example](packages/xue_hua_audio/example) demonstrates all three source
 kinds, seek / volume / speed / loop controls, and recording with a live
-waveform:
+waveform.
+
+Live demo: <https://matkurban.github.io/xue_hua_audio/>
 
 ```bash
 cd packages/xue_hua_audio/example

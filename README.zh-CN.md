@@ -236,7 +236,9 @@ xue_hua_audio                     ← 应用直接依赖的包
 ## 示例应用
 
 [example](packages/xue_hua_audio/example) 演示了三种音源播放、跳转 / 音量 /
-变速 / 循环控制，以及带实时波形的录音：
+变速 / 循环控制，以及带实时波形的录音。
+
+在线演示：<https://matkurban.github.io/xue_hua_audio/>
 
 ```bash
 cd packages/xue_hua_audio/example
