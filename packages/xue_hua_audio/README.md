@@ -2,6 +2,8 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
+**Live example:** https://matkurban.github.io/xue_hua_audio/
+
 Cross-platform **native** Flutter audio plugin — playback (file / URL / asset)
 and microphone recording with a real-time amplitude stream, on six platforms.
 No Rust toolchain, no FFI, no codegen: every platform is implemented with its

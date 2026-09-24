@@ -2,6 +2,8 @@
 
 [English](README.md) | **简体中文**
 
+**在线示例：** https://matkurban.github.io/xue_hua_audio/
+
 跨平台**纯原生** Flutter 音频插件——支持本地文件 / 网络 URL / Asset 三种音源播放，
 以及带实时振幅流的麦克风录音，覆盖六大平台。无需 Rust 工具链、无 FFI、无代码
 生成：每个平台都使用其第一方原生音频 API 实现，并通过类型安全的
