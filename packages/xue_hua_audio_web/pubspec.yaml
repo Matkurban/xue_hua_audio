@@ -1,6 +1,6 @@
 name: xue_hua_audio_web
 description: "Web implementation of the xue_hua_audio plugin, using HTMLAudioElement, Web Audio API and MediaRecorder. / xue_hua_audio 插件的 Web 实现，基于 HTMLAudioElement、Web Audio API 与 MediaRecorder。"
-version: 2.0.3
+version: 2.0.4
 repository: https://github.com/Matkurban/xue_hua_audio
 issue_tracker: https://github.com/Matkurban/xue_hua_audio/issues
 resolution: workspace

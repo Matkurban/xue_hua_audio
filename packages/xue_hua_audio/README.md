@@ -1,8 +1,8 @@
 # xue_hua_audio
 
-**English** | [简体中文](README.zh-CN.md)
-
 **Live example:** https://matkurban.github.io/xue_hua_audio/
+
+**English** | [简体中文](README.zh-CN.md)
 
 Cross-platform **native** Flutter audio plugin — playback (file / URL / asset)
 and microphone recording with a real-time amplitude stream, on six platforms.
@@ -11,7 +11,7 @@ first-class native audio API and wired up through a type-safe
 [Pigeon](https://pub.dev/packages/pigeon) channel.
 
 | Platform    | Playback                          | Recording                                 |
-|-------------|-----------------------------------|-------------------------------------------|
+| ----------- | --------------------------------- | ----------------------------------------- |
 | Android     | Media3 ExoPlayer                  | AudioRecord (WAV / AAC-LC)                |
 | iOS / macOS | AVPlayer                          | AVAudioEngine (WAV / AAC-LC)              |
 | Windows     | Media Foundation `IMFMediaEngine` | WASAPI (WAV / AAC-LC)                     |
@@ -146,14 +146,14 @@ await recorder.start(RecordConfig(deviceId: inputs.first.id), path: ...);
 
 Platform notes:
 
-| Platform | Set output device                         | Switch input while recording |
-|----------|-------------------------------------------|------------------------------|
-| Android  | ✅ immediate (API 23+)                     | ✅                            |
-| iOS      | ❌ `unsupported` (system routing)          | ✅ (`setPreferredInput`)      |
-| macOS    | ✅ immediate                               | ❌ set before `start`         |
-| Windows  | ✅ from the next `setSource` (Win10 1703+) | ❌ set before `start`         |
-| Linux    | ✅ from the next `setSource`               | ❌ set before `start`         |
-| Web      | ✅ immediate (`setSinkId`)                 | ❌ set before `start`         |
+| Platform | Set output device                          | Switch input while recording |
+| -------- | ------------------------------------------ | ---------------------------- |
+| Android  | ✅ immediate (API 23+)                     | ✅                           |
+| iOS      | ❌ `unsupported` (system routing)          | ✅ (`setPreferredInput`)     |
+| macOS    | ✅ immediate                               | ❌ set before `start`        |
+| Windows  | ✅ from the next `setSource` (Win10 1703+) | ❌ set before `start`        |
+| Linux    | ✅ from the next `setSource`               | ❌ set before `start`        |
+| Web      | ✅ immediate (`setSinkId`)                 | ❌ set before `start`        |
 
 On iOS `listOutputDevices` returns only the devices of the current audio
 route; on the Web labels may be empty until a media permission is granted.
