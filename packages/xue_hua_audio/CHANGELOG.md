@@ -1,3 +1,7 @@
+## 2.0.5
+
+- update package version
+
 ## 2.0.4
 
 - Ship Agent Skills for playback, recording, and platform setup so coding
