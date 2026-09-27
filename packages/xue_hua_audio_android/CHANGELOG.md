@@ -1,3 +1,8 @@
+## 2.0.5
+
+- update `xue_hua_audio_platform_interface` version to `2.0.4` .
+- use new `pigeon` version generate code .
+
 ## 2.0.4
 
 - update android package version
