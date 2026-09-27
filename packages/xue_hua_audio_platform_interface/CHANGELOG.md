@@ -1,3 +1,7 @@
+## 2.0.4
+
+- update `pigeon` version to `29.0.4`
+
 ## 2.0.3
 
 - update package version
