@@ -1,3 +1,8 @@
+## 2.0.5
+
+- Adapt the host APIs to Pigeon 29 Swift `async throws` methods so iOS and macOS builds compile.
+  将 Host API 适配到 Pigeon 29 生成的 Swift `async throws` 方法，使 iOS 与 macOS 构建可以通过。
+
 ## 2.0.4 
 
 - update `xue_hua_audio_platform_interface` version to 2.0.4 .

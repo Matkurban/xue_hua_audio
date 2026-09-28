@@ -1,3 +1,10 @@
+## 2.0.6
+
+- Adapt the host APIs to Pigeon 29 Kotlin `suspend` methods so release builds compile.
+  将 Host API 适配到 Pigeon 29 生成的 Kotlin `suspend` 方法，使 release 构建可以通过。
+- Depend on `kotlinx-coroutines-android` 1.11.0.
+  依赖 `kotlinx-coroutines-android` 1.11.0。
+
 ## 2.0.5
 
 - update `xue_hua_audio_platform_interface` version to `2.0.4` .

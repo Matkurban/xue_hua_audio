@@ -46,10 +46,14 @@ import AVFoundation
 /// Entry point of the iOS/macOS implementation: registers the Pigeon host
 /// APIs and manages players, recorders, permissions and asset resolution.
 ///
+/// Mutable state stays on the main thread, so the class is
+/// `@unchecked Sendable` for the main-queue hops in the async host APIs.
+///
 /// iOS/macOS 实现入口：注册 Pigeon Host API，并管理播放器、录音机、
-/// 权限与 Asset 资源解析。
+/// 权限与 Asset 资源解析。可变状态只在主线程访问，因此类标记为
+/// `@unchecked Sendable`，供异步 Host API 切回主队列时使用。
 public class XueHuaAudioDarwinPlugin: NSObject, FlutterPlugin, AudioPlayerHostApi,
-  AudioRecorderHostApi
+  AudioRecorderHostApi, @unchecked Sendable
 {
   public static func register(with registrar: FlutterPluginRegistrar) {
     #if os(macOS)
@@ -108,6 +112,20 @@ public class XueHuaAudioDarwinPlugin: NSObject, FlutterPlugin, AudioPlayerHostAp
 
   // MARK: - AudioPlayerHostApi
 
+  /// Runs [body] on the main queue. Pigeon calls async host APIs from a
+  /// `@MainActor` task, but a nonisolated `async` method can hop off the main
+  /// thread. AVFoundation and the instance maps stay on the main thread.
+  ///
+  /// 在主队列执行 [body]。Pigeon 从 `@MainActor` 任务调用异步 Host API，
+  /// 但 nonisolated 的 `async` 方法可能离开主线程。AVFoundation 与实例表留在主线程。
+  private func performOnMain<T>(_ body: @escaping () throws -> T) async throws -> T {
+    try await withCheckedThrowingContinuation { continuation in
+      DispatchQueue.main.async {
+        continuation.resume(with: Result { try body() })
+      }
+    }
+  }
+
   private func playerOf(_ id: Int64) throws -> PlayerInstance {
     guard let player = players[id] else {
       throw PigeonError(code: "instanceNotFound", message: "No player with id \(id)", details: nil)
@@ -122,16 +140,19 @@ public class XueHuaAudioDarwinPlugin: NSObject, FlutterPlugin, AudioPlayerHostAp
     return id
   }
 
-  func setSource(
-    playerId: Int64, source: AudioSourceMessage,
-    completion: @escaping (Result<Int64?, Error>) -> Void
-  ) {
-    do {
-      let player = try playerOf(playerId)
-      let url = try resolveUrl(source)
-      player.setSource(url: url, headers: source.headers, callback: completion)
-    } catch {
-      completion(.failure(error))
+  func setSource(playerId: Int64, source: AudioSourceMessage) async throws -> Int64? {
+    try await withCheckedThrowingContinuation { continuation in
+      DispatchQueue.main.async {
+        do {
+          let player = try self.playerOf(playerId)
+          let url = try self.resolveUrl(source)
+          player.setSource(url: url, headers: source.headers) { result in
+            continuation.resume(with: result)
+          }
+        } catch {
+          continuation.resume(throwing: error)
+        }
+      }
     }
   }
 
@@ -147,13 +168,17 @@ public class XueHuaAudioDarwinPlugin: NSObject, FlutterPlugin, AudioPlayerHostAp
     try playerOf(playerId).stop()
   }
 
-  func seekTo(
-    playerId: Int64, positionMs: Int64, completion: @escaping (Result<Void, Error>) -> Void
-  ) {
-    do {
-      try playerOf(playerId).seekTo(positionMs: positionMs, callback: completion)
-    } catch {
-      completion(.failure(error))
+  func seekTo(playerId: Int64, positionMs: Int64) async throws {
+    try await withCheckedThrowingContinuation { continuation in
+      DispatchQueue.main.async {
+        do {
+          try self.playerOf(playerId).seekTo(positionMs: positionMs) { result in
+            continuation.resume(with: result)
+          }
+        } catch {
+          continuation.resume(throwing: error)
+        }
+      }
     }
   }
 
@@ -177,71 +202,55 @@ public class XueHuaAudioDarwinPlugin: NSObject, FlutterPlugin, AudioPlayerHostAp
     return try playerOf(playerId).duration()
   }
 
-  func listOutputDevices(
-    completion: @escaping (Result<[AudioDeviceMessage], Error>) -> Void
-  ) {
-    #if os(macOS)
-      completion(
-        .success(
-          CoreAudioDevices.devices(input: false).map {
-            AudioDeviceMessage(id: $0.uid, label: $0.name)
-          }))
-    #else
-      // iOS cannot enumerate every output; report the current route only.
-      // iOS 无法枚举全部输出设备，只能返回当前音频路由中的设备。
-      let outputs = AVAudioSession.sharedInstance().currentRoute.outputs
-      completion(
-        .success(outputs.map { AudioDeviceMessage(id: $0.uid, label: $0.portName) }))
-    #endif
+  func listOutputDevices() async throws -> [AudioDeviceMessage] {
+    try await performOnMain {
+      #if os(macOS)
+        return CoreAudioDevices.devices(input: false).map {
+          AudioDeviceMessage(id: $0.uid, label: $0.name)
+        }
+      #else
+        // iOS cannot enumerate every output; report the current route only.
+        // iOS 无法枚举全部输出设备，只能返回当前音频路由中的设备。
+        let outputs = AVAudioSession.sharedInstance().currentRoute.outputs
+        return outputs.map { AudioDeviceMessage(id: $0.uid, label: $0.portName) }
+      #endif
+    }
   }
 
-  func getOutputDevice(
-    playerId: Int64, completion: @escaping (Result<AudioDeviceMessage?, Error>) -> Void
-  ) {
-    do {
-      let player = try playerOf(playerId)
+  func getOutputDevice(playerId: Int64) async throws -> AudioDeviceMessage? {
+    try await performOnMain {
+      let player = try self.playerOf(playerId)
       #if os(macOS)
         guard let uid = player.outputDeviceUid,
           let device = CoreAudioDevices.device(forUid: uid, input: false)
         else {
-          completion(.success(nil))
-          return
+          return nil
         }
-        completion(.success(AudioDeviceMessage(id: device.uid, label: device.name)))
+        return AudioDeviceMessage(id: device.uid, label: device.name)
       #else
         // Playback always follows the system route on iOS; report the
         // route's first output for information.
         // iOS 播放始终跟随系统路由；返回路由中的第一个输出设备以供参考。
         _ = player
         let output = AVAudioSession.sharedInstance().currentRoute.outputs.first
-        completion(
-          .success(output.map { AudioDeviceMessage(id: $0.uid, label: $0.portName) }))
+        return output.map { AudioDeviceMessage(id: $0.uid, label: $0.portName) }
       #endif
-    } catch {
-      completion(.failure(error))
     }
   }
 
-  func setOutputDevice(
-    playerId: Int64, deviceId: String?, completion: @escaping (Result<Void, Error>) -> Void
-  ) {
-    do {
-      let player = try playerOf(playerId)
+  func setOutputDevice(playerId: Int64, deviceId: String?) async throws {
+    try await performOnMain {
+      let player = try self.playerOf(playerId)
       #if os(macOS)
         try player.setOutputDevice(uid: deviceId)
-        completion(.success(()))
       #else
         _ = player
         _ = deviceId
-        completion(
-          .failure(
-            PigeonError(
-              code: "unsupported",
-              message: "iOS does not allow apps to route playback to a specific output device",
-              details: nil)))
+        throw PigeonError(
+          code: "unsupported",
+          message: "iOS does not allow apps to route playback to a specific output device",
+          details: nil)
       #endif
-    } catch {
-      completion(.failure(error))
     }
   }
 
@@ -266,79 +275,74 @@ public class XueHuaAudioDarwinPlugin: NSObject, FlutterPlugin, AudioPlayerHostAp
     return id
   }
 
-  func hasPermission(completion: @escaping (Result<Bool, Error>) -> Void) {
-    switch AVCaptureDevice.authorizationStatus(for: .audio) {
+  func hasPermission() async throws -> Bool {
+    let status = try await performOnMain {
+      AVCaptureDevice.authorizationStatus(for: .audio)
+    }
+    switch status {
     case .authorized:
-      completion(.success(true))
+      return true
     case .notDetermined:
-      AVCaptureDevice.requestAccess(for: .audio) { granted in
-        DispatchQueue.main.async { completion(.success(granted)) }
+      return try await withCheckedThrowingContinuation { continuation in
+        AVCaptureDevice.requestAccess(for: .audio) { granted in
+          DispatchQueue.main.async {
+            continuation.resume(returning: granted)
+          }
+        }
       }
     default:
-      completion(.success(false))
+      return false
     }
   }
 
-  func listInputDevices(completion: @escaping (Result<[AudioDeviceMessage], Error>) -> Void) {
-    #if os(iOS)
-      let inputs = AVAudioSession.sharedInstance().availableInputs ?? []
-      completion(
-        .success(inputs.map { AudioDeviceMessage(id: $0.uid, label: $0.portName) }))
-    #else
-      completion(
-        .success(
-          CoreAudioDevices.devices(input: true).map {
-            AudioDeviceMessage(id: $0.uid, label: $0.name)
-          }))
-    #endif
+  func listInputDevices() async throws -> [AudioDeviceMessage] {
+    try await performOnMain {
+      #if os(iOS)
+        let inputs = AVAudioSession.sharedInstance().availableInputs ?? []
+        return inputs.map { AudioDeviceMessage(id: $0.uid, label: $0.portName) }
+      #else
+        return CoreAudioDevices.devices(input: true).map {
+          AudioDeviceMessage(id: $0.uid, label: $0.name)
+        }
+      #endif
+    }
   }
 
-  func getInputDevice(
-    recorderId: Int64, completion: @escaping (Result<AudioDeviceMessage?, Error>) -> Void
-  ) {
-    do {
-      guard let deviceId = try recorderOf(recorderId).currentInputDeviceId() else {
-        completion(.success(nil))
-        return
+  func getInputDevice(recorderId: Int64) async throws -> AudioDeviceMessage? {
+    try await performOnMain {
+      guard let deviceId = try self.recorderOf(recorderId).currentInputDeviceId() else {
+        return nil
       }
       #if os(iOS)
         let session = AVAudioSession.sharedInstance()
         let port =
           session.currentRoute.inputs.first(where: { $0.uid == deviceId })
           ?? session.availableInputs?.first(where: { $0.uid == deviceId })
-        completion(
-          .success(
-            AudioDeviceMessage(id: deviceId, label: port?.portName ?? deviceId)))
+        return AudioDeviceMessage(id: deviceId, label: port?.portName ?? deviceId)
       #else
         let device = CoreAudioDevices.device(forUid: deviceId, input: true)
-        completion(
-          .success(
-            AudioDeviceMessage(id: deviceId, label: device?.name ?? deviceId)))
+        return AudioDeviceMessage(id: deviceId, label: device?.name ?? deviceId)
       #endif
-    } catch {
-      completion(.failure(error))
     }
   }
 
-  func setInputDevice(
-    recorderId: Int64, deviceId: String?, completion: @escaping (Result<Void, Error>) -> Void
-  ) {
-    do {
-      try recorderOf(recorderId).setInputDevice(deviceId: deviceId)
-      completion(.success(()))
-    } catch {
-      completion(.failure(error))
+  func setInputDevice(recorderId: Int64, deviceId: String?) async throws {
+    try await performOnMain {
+      try self.recorderOf(recorderId).setInputDevice(deviceId: deviceId)
     }
   }
 
-  func start(
-    recorderId: Int64, config: RecordConfigMessage, path: String,
-    completion: @escaping (Result<Void, Error>) -> Void
-  ) {
-    do {
-      try recorderOf(recorderId).start(config: config, path: path, callback: completion)
-    } catch {
-      completion(.failure(error))
+  func start(recorderId: Int64, config: RecordConfigMessage, path: String) async throws {
+    try await withCheckedThrowingContinuation { continuation in
+      DispatchQueue.main.async {
+        do {
+          try self.recorderOf(recorderId).start(config: config, path: path) { result in
+            continuation.resume(with: result)
+          }
+        } catch {
+          continuation.resume(throwing: error)
+        }
+      }
     }
   }
 
@@ -350,19 +354,31 @@ public class XueHuaAudioDarwinPlugin: NSObject, FlutterPlugin, AudioPlayerHostAp
     try recorderOf(recorderId).resume()
   }
 
-  func stop(recorderId: Int64, completion: @escaping (Result<String?, Error>) -> Void) {
-    do {
-      try recorderOf(recorderId).stop(callback: completion)
-    } catch {
-      completion(.failure(error))
+  func stop(recorderId: Int64) async throws -> String? {
+    try await withCheckedThrowingContinuation { continuation in
+      DispatchQueue.main.async {
+        do {
+          try self.recorderOf(recorderId).stop { result in
+            continuation.resume(with: result)
+          }
+        } catch {
+          continuation.resume(throwing: error)
+        }
+      }
     }
   }
 
-  func cancel(recorderId: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
-    do {
-      try recorderOf(recorderId).cancel(callback: completion)
-    } catch {
-      completion(.failure(error))
+  func cancel(recorderId: Int64) async throws {
+    try await withCheckedThrowingContinuation { continuation in
+      DispatchQueue.main.async {
+        do {
+          try self.recorderOf(recorderId).cancel { result in
+            continuation.resume(with: result)
+          }
+        } catch {
+          continuation.resume(throwing: error)
+        }
+      }
     }
   }
 

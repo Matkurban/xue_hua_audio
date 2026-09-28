@@ -11,6 +11,9 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.PluginRegistry
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Entry point of the Android implementation: registers the Pigeon host
@@ -135,6 +138,21 @@ class XueHuaAudioAndroidPlugin :
         listDevices(flow).firstOrNull { it.id == deviceId }
 
     /**
+     * Bridges a callback-style native call to the suspend Host API Pigeon 29
+     * generates. The callback may complete synchronously.
+     *
+     * 把仍使用 callback 的原生调用接到 Pigeon 29 生成的 suspend Host API。
+     * callback 可以同步完成。
+     */
+    private suspend fun <T> awaitResult(block: ((Result<T>) -> Unit) -> Unit): T =
+        suspendCancellableCoroutine { continuation ->
+            block { result ->
+                if (!continuation.isActive) return@block
+                result.fold(continuation::resume, continuation::resumeWithException)
+            }
+        }
+
+    /**
      * Playback host API backed by [PlayerInstance]s (Media3 ExoPlayer).
      * 基于 [PlayerInstance]（Media3 ExoPlayer）的播放 Host API 实现。
      */
@@ -149,19 +167,15 @@ class XueHuaAudioAndroidPlugin :
             return id
         }
 
-        override fun setSource(
-            playerId: Long,
-            source: AudioSourceMessage,
-            callback: (Result<Long?>) -> Unit,
-        ) {
+        override suspend fun setSource(playerId: Long, source: AudioSourceMessage): Long? {
             val player =
                 players[playerId]
-                    ?: return callback(
-                        Result.failure(
-                            FlutterError("instanceNotFound", "No player with id $playerId", null)
-                        )
+                    ?: throw FlutterError(
+                        "instanceNotFound", "No player with id $playerId", null
                     )
-            player.setSource(source.type, source.uri, source.headers, callback)
+            return awaitResult { callback ->
+                player.setSource(source.type, source.uri, source.headers, callback)
+            }
         }
 
         override fun play(playerId: Long) = playerOf(playerId).play()
@@ -170,15 +184,13 @@ class XueHuaAudioAndroidPlugin :
 
         override fun stop(playerId: Long) = playerOf(playerId).stop()
 
-        override fun seekTo(playerId: Long, positionMs: Long, callback: (Result<Unit>) -> Unit) {
+        override suspend fun seekTo(playerId: Long, positionMs: Long) {
             val player =
                 players[playerId]
-                    ?: return callback(
-                        Result.failure(
-                            FlutterError("instanceNotFound", "No player with id $playerId", null)
-                        )
+                    ?: throw FlutterError(
+                        "instanceNotFound", "No player with id $playerId", null
                     )
-            player.seekTo(positionMs, callback)
+            awaitResult<Unit> { callback -> player.seekTo(positionMs, callback) }
         }
 
         override fun setVolume(playerId: Long, volume: Double) =
@@ -193,37 +205,16 @@ class XueHuaAudioAndroidPlugin :
 
         override fun getDuration(playerId: Long): Long? = playerOf(playerId).duration()
 
-        override fun listOutputDevices(callback: (Result<List<AudioDeviceMessage>>) -> Unit) {
-            callback(Result.success(listDevices(AudioManager.GET_DEVICES_OUTPUTS)))
+        override suspend fun listOutputDevices(): List<AudioDeviceMessage> =
+            listDevices(AudioManager.GET_DEVICES_OUTPUTS)
+
+        override suspend fun getOutputDevice(playerId: Long): AudioDeviceMessage? {
+            val deviceId = playerOf(playerId).outputDeviceId()
+            return deviceId?.let { deviceById(AudioManager.GET_DEVICES_OUTPUTS, it) }
         }
 
-        override fun getOutputDevice(
-            playerId: Long,
-            callback: (Result<AudioDeviceMessage?>) -> Unit,
-        ) {
-            val deviceId =
-                try {
-                    playerOf(playerId).outputDeviceId()
-                } catch (e: FlutterError) {
-                    return callback(Result.failure(e))
-                }
-            callback(
-                Result.success(
-                    deviceId?.let { deviceById(AudioManager.GET_DEVICES_OUTPUTS, it) })
-            )
-        }
-
-        override fun setOutputDevice(
-            playerId: Long,
-            deviceId: String?,
-            callback: (Result<Unit>) -> Unit,
-        ) {
-            try {
-                playerOf(playerId).setOutputDevice(deviceId)
-                callback(Result.success(Unit))
-            } catch (e: FlutterError) {
-                callback(Result.failure(e))
-            }
+        override suspend fun setOutputDevice(playerId: Long, deviceId: String?) {
+            playerOf(playerId).setOutputDevice(deviceId)
         }
 
         override fun disposePlayer(playerId: Long) {
@@ -247,17 +238,17 @@ class XueHuaAudioAndroidPlugin :
             return id
         }
 
-        override fun hasPermission(callback: (Result<Boolean>) -> Unit) {
+        override suspend fun hasPermission(): Boolean = awaitResult { callback ->
             if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) ==
                 PackageManager.PERMISSION_GRANTED
             ) {
                 callback(Result.success(true))
-                return
+                return@awaitResult
             }
             val activity: Activity? = activityBinding?.activity
             if (activity == null) {
                 callback(Result.success(false))
-                return
+                return@awaitResult
             }
             pendingPermissionCallbacks.add(callback)
             if (pendingPermissionCallbacks.size == 1) {
@@ -267,91 +258,51 @@ class XueHuaAudioAndroidPlugin :
             }
         }
 
-        override fun listInputDevices(callback: (Result<List<AudioDeviceMessage>>) -> Unit) {
-            callback(Result.success(listDevices(AudioManager.GET_DEVICES_INPUTS)))
+        override suspend fun listInputDevices(): List<AudioDeviceMessage> =
+            listDevices(AudioManager.GET_DEVICES_INPUTS)
+
+        override suspend fun getInputDevice(recorderId: Long): AudioDeviceMessage? {
+            val deviceId = recorderOf(recorderId).inputDeviceId()
+            return deviceId?.let { deviceById(AudioManager.GET_DEVICES_INPUTS, it) }
         }
 
-        override fun getInputDevice(
-            recorderId: Long,
-            callback: (Result<AudioDeviceMessage?>) -> Unit,
-        ) {
-            val deviceId =
-                try {
-                    recorderOf(recorderId).inputDeviceId()
-                } catch (e: FlutterError) {
-                    return callback(Result.failure(e))
-                }
-            callback(
-                Result.success(
-                    deviceId?.let { deviceById(AudioManager.GET_DEVICES_INPUTS, it) })
-            )
+        override suspend fun setInputDevice(recorderId: Long, deviceId: String?) {
+            recorderOf(recorderId).setInputDevice(deviceId)
         }
 
-        override fun setInputDevice(
-            recorderId: Long,
-            deviceId: String?,
-            callback: (Result<Unit>) -> Unit,
-        ) {
-            try {
-                recorderOf(recorderId).setInputDevice(deviceId)
-                callback(Result.success(Unit))
-            } catch (e: FlutterError) {
-                callback(Result.failure(e))
-            }
-        }
-
-        override fun start(
+        override suspend fun start(
             recorderId: Long,
             config: RecordConfigMessage,
             path: String,
-            callback: (Result<Unit>) -> Unit,
         ) {
             val recorder =
                 recorders[recorderId]
-                    ?: return callback(
-                        Result.failure(
-                            FlutterError(
-                                "instanceNotFound",
-                                "No recorder with id $recorderId",
-                                null
-                            )
-                        )
+                    ?: throw FlutterError(
+                        "instanceNotFound", "No recorder with id $recorderId", null
                     )
-            recorder.start(config, path, callback)
+            awaitResult<Unit> { callback -> recorder.start(config, path, callback) }
         }
 
         override fun pause(recorderId: Long) = recorderOf(recorderId).pause()
 
         override fun resume(recorderId: Long) = recorderOf(recorderId).resume()
 
-        override fun stop(recorderId: Long, callback: (Result<String?>) -> Unit) {
+        override suspend fun stop(recorderId: Long): String? {
             val recorder =
                 recorders[recorderId]
-                    ?: return callback(
-                        Result.failure(
-                            FlutterError(
-                                "instanceNotFound",
-                                "No recorder with id $recorderId",
-                                null
-                            )
-                        )
+                    ?: throw FlutterError(
+                        "instanceNotFound", "No recorder with id $recorderId", null
                     )
-            recorder.stop(callback)
+            return awaitResult { callback -> recorder.stop(callback) }
         }
 
-        override fun cancel(recorderId: Long, callback: (Result<Unit>) -> Unit) {
+        override suspend fun cancel(recorderId: Long) {
             val recorder =
                 recorders[recorderId]
-                    ?: return callback(
-                        Result.failure(
-                            FlutterError(
-                                "instanceNotFound",
-                                "No recorder with id $recorderId",
-                                null
-                            )
-                        )
+                    ?: throw FlutterError(
+                        "instanceNotFound", "No recorder with id $recorderId", null
                     )
-            recorder.cancel(callback)
+            awaitResult<Unit> { callback -> recorder.cancel(callback) }
         }
 
         override fun disposeRecorder(recorderId: Long) {

@@ -1,3 +1,10 @@
+## 2.0.7
+
+- Fix Android, iOS, and macOS release builds against Pigeon 29 async host APIs.
+  修复 Android、iOS 与 macOS 在 Pigeon 29 异步 Host API 下的 release 构建。
+- Require `xue_hua_audio_android` 2.0.6 and `xue_hua_audio_darwin` 2.0.5.
+  依赖 `xue_hua_audio_android` 2.0.6 与 `xue_hua_audio_darwin` 2.0.5。
+
 ## 2.0.4 
 
 - update `xue_hua_audio_platform_interface` version to `2.0.4` .
