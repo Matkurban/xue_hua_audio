@@ -190,7 +190,7 @@ class XueHuaAudioAndroidPlugin :
                     ?: throw FlutterError(
                         "instanceNotFound", "No player with id $playerId", null
                     )
-            awaitResult<Unit> { callback -> player.seekTo(positionMs, callback) }
+            awaitResult { callback -> player.seekTo(positionMs, callback) }
         }
 
         override fun setVolume(playerId: Long, volume: Double) =
@@ -280,7 +280,7 @@ class XueHuaAudioAndroidPlugin :
                     ?: throw FlutterError(
                         "instanceNotFound", "No recorder with id $recorderId", null
                     )
-            awaitResult<Unit> { callback -> recorder.start(config, path, callback) }
+            awaitResult { callback -> recorder.start(config, path, callback) }
         }
 
         override fun pause(recorderId: Long) = recorderOf(recorderId).pause()
@@ -302,7 +302,7 @@ class XueHuaAudioAndroidPlugin :
                     ?: throw FlutterError(
                         "instanceNotFound", "No recorder with id $recorderId", null
                     )
-            awaitResult<Unit> { callback -> recorder.cancel(callback) }
+            awaitResult { callback -> recorder.cancel(callback) }
         }
 
         override fun disposeRecorder(recorderId: Long) {

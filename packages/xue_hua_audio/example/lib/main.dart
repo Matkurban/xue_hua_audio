@@ -41,7 +41,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('xue_hua_audio 2.0')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(8),
         children: const [PlayerCard(), SizedBox(height: 16), RecorderCard()],
       ),
     );
@@ -244,7 +244,7 @@ class _PlayerCardState extends State<PlayerCard> {
     final maxMs = total.inMilliseconds.toDouble();
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -343,7 +343,7 @@ class _PlayerCardState extends State<PlayerCard> {
                 const SizedBox(width: 16),
                 const Icon(Icons.volume_up, size: 18),
                 SizedBox(
-                  width: 120,
+                  width: 80,
                   child: Slider(
                     value: _volume,
                     onChanged: (value) {
@@ -354,7 +354,7 @@ class _PlayerCardState extends State<PlayerCard> {
                 ),
                 const Icon(Icons.speed, size: 18),
                 SizedBox(
-                  width: 120,
+                  width: 80,
                   child: Slider(
                     value: _speed,
                     min: 0.5,
@@ -374,6 +374,7 @@ class _PlayerCardState extends State<PlayerCard> {
                     setState(() => _looping = value);
                     _player.setLooping(value);
                   },
+                  materialTapTargetSize: .shrinkWrap,
                 ),
               ],
             ),
@@ -497,7 +498,7 @@ class _RecorderCardState extends State<RecorderCard> {
     final paused = _state == RecorderState.paused;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

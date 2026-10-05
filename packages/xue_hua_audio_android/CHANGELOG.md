@@ -1,3 +1,9 @@
+## 2.0.1
+
+- update `com.android.tools.build:gradle` to `9.1.0` version
+- this version build need `compileSdk` = `37`
+- update example android project version
+
 ## 2.0.6
 
 - Adapt the host APIs to Pigeon 29 Kotlin `suspend` methods so release builds compile.

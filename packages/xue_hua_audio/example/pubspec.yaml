@@ -11,12 +11,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.9
+  cupertino_icons: ^2.0.0
   path_provider: ^2.1.6
   xue_hua_audio:
     path: ../
   flex_color_scheme: ^9.0.0
-  material_ui: ^1.4.0
+  material_ui: ^1.5.0
   cupertino_ui: ^1.1.1
 
 dev_dependencies:

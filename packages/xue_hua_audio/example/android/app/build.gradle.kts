@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "com.xuehua.xue_hua_audio_example"
-    compileSdk = flutter.compileSdkVersion
+//    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
