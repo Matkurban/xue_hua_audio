@@ -1,3 +1,7 @@
+## 2.0.8
+
+- update `xue_hua_audio_android` version to `2.1.0`
+
 ## 2.0.7
 
 - Fix Android, iOS, and macOS release builds against Pigeon 29 async host APIs.
