@@ -1,4 +1,4 @@
-## 2.0.1
+## 2.1.0
 
 - update `com.android.tools.build:gradle` to `9.1.0` version
 - this version build need `compileSdk` = `37`
