@@ -16,8 +16,8 @@ dependencies:
   xue_hua_audio:
     path: ../
   flex_color_scheme: ^9.0.0
-  material_ui: ^1.5.0
-  cupertino_ui: ^1.1.1
+  material_ui: ^1.6.0
+  cupertino_ui: ^1.1.2
 
 dev_dependencies:
   flutter_test:
