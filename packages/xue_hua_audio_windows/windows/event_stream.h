@@ -51,6 +51,15 @@ class EventStream {
     channel_.SetStreamHandler(std::move(handler));
   }
 
+  // The channel does not unregister its handler on destruction; without this
+  // a later listen/cancel message would call into a freed EventStream.
+  // EventChannel 析构时不会注销处理器；若不手动注销，之后的 listen/cancel
+  // 消息会访问已释放的 EventStream。
+  ~EventStream() { channel_.SetStreamHandler(nullptr); }
+
+  EventStream(const EventStream&) = delete;
+  EventStream& operator=(const EventStream&) = delete;
+
   // Sends `event` to Dart, buffering when nobody listens yet.
   // 将 `event` 发送给 Dart；若尚无订阅者则先缓冲。
   void Send(const flutter::EncodableMap& event) {

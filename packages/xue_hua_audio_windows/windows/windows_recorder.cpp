@@ -9,8 +9,11 @@
 #include <windows.h>
 #include <wrl/client.h>
 
+#include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <vector>
 
@@ -52,7 +55,8 @@ class WindowsRecorder::FileWriter {
 class WindowsRecorder::WavFileWriter : public WindowsRecorder::FileWriter {
  public:
   WavFileWriter(const std::string& path, int sample_rate, int channels)
-      : file_(Utf8ToWide(path), std::ios::binary | std::ios::trunc) {
+      : file_(std::filesystem::path(Utf8ToWide(path)),
+              std::ios::binary | std::ios::trunc) {
     const uint32_t byte_rate = sample_rate * channels * 2;
     const uint16_t block_align = static_cast<uint16_t>(channels * 2);
     uint8_t header[44] = {};
@@ -213,6 +217,24 @@ std::optional<std::string> WindowsRecorder::Start(
   if (channels_ < 1 || channels_ > 2) {
     channels_ = 1;
   }
+  int bit_rate = static_cast<int>(config.bit_rate());
+  if (config.encoder() == EncoderMessage::kAacLc) {
+    // The Media Foundation AAC encoder only accepts 44.1/48 kHz and
+    // 96/128/160/192 kbps; WASAPI resamples the capture to match.
+    // Media Foundation AAC 编码器仅支持 44.1/48 kHz 与 96/128/160/192 kbps，
+    // 由 WASAPI 将采集重采样到对应采样率。
+    if (sample_rate_ != 44100 && sample_rate_ != 48000) {
+      sample_rate_ = sample_rate_ > 44100 ? 48000 : 44100;
+    }
+    const int rates[] = {96000, 128000, 160000, 192000};
+    int best = rates[0];
+    for (int rate : rates) {
+      if (std::abs(rate - bit_rate) < std::abs(best - bit_rate)) {
+        best = rate;
+      }
+    }
+    bit_rate = best;
+  }
 
   // Resolve the capture device. / 解析采集设备。
   ComPtr<IMMDeviceEnumerator> enumerator;
@@ -280,7 +302,7 @@ std::optional<std::string> WindowsRecorder::Start(
     writer_ = std::move(writer);
   } else {
     auto writer = std::make_unique<AacFileWriter>(
-        path, sample_rate_, channels_, static_cast<int>(config.bit_rate()));
+        path, sample_rate_, channels_, bit_rate);
     if (!writer->IsOpen()) {
       return "Cannot create the AAC sink writer for: " + path;
     }
@@ -298,6 +320,7 @@ std::optional<std::string> WindowsRecorder::Start(
   capture_client_ = capture_client.Detach();
   output_path_ = path;
   max_db_ = -160.0;
+  recorded_ = true;
   running_ = true;
   paused_ = false;
 
@@ -312,6 +335,10 @@ void WindowsRecorder::CaptureLoop(int64_t amplitude_interval_ms) {
   auto* capture = static_cast<IAudioCaptureClient*>(capture_client_);
   ULONGLONG last_emit = GetTickCount64();
   std::vector<BYTE> silence;
+  // Peak over the whole amplitude interval, not just the last packet.
+  // 统计整个振幅间隔内的峰值，而不只是最后一个数据包。
+  int interval_peak = 0;
+  const std::weak_ptr<int> alive = alive_;
 
   while (running_) {
     UINT32 packet_frames = 0;
@@ -340,25 +367,29 @@ void WindowsRecorder::CaptureLoop(int64_t amplitude_interval_ms) {
       writer_->Write(pcm, byte_count);
 
       // Peak amplitude in dBFS. / 峰值振幅（dBFS）。
-      int peak = 0;
       const int16_t* samples = reinterpret_cast<const int16_t*>(pcm);
       const size_t sample_count = byte_count / 2;
       for (size_t i = 0; i < sample_count; ++i) {
         const int magnitude = std::abs(static_cast<int>(samples[i]));
-        if (magnitude > peak) {
-          peak = magnitude;
+        if (magnitude > interval_peak) {
+          interval_peak = magnitude;
         }
       }
+      const int peak = (std::min)(interval_peak, 32767);
       const ULONGLONG now = GetTickCount64();
       if (now - last_emit >= static_cast<ULONGLONG>(amplitude_interval_ms)) {
         last_emit = now;
+        interval_peak = 0;
         const double db =
             peak == 0 ? -160.0 : 20.0 * std::log10(peak / 32767.0);
         if (db > max_db_) {
           max_db_ = db;
         }
         const double current_max = max_db_;
-        dispatcher_->Post([this, db, current_max]() {
+        dispatcher_->Post([this, alive, db, current_max]() {
+          if (alive.expired()) {
+            return;  // Recorder already destroyed. / 录音器已销毁。
+          }
           events_->Send(flutter::EncodableMap{
               {flutter::EncodableValue("type"),
                flutter::EncodableValue("amplitude")},
@@ -415,18 +446,23 @@ void WindowsRecorder::Resume() {
 
 std::optional<std::string> WindowsRecorder::Stop() {
   StopThread();
-  if (output_path_.empty()) {
+  if (!recorded_) {
     return std::nullopt;
   }
+  recorded_ = false;
   EmitState("stopped");
   return output_path_;
 }
 
 void WindowsRecorder::Cancel() {
   StopThread();
-  if (!output_path_.empty()) {
+  // Only delete the file of the recording being cancelled, never one that
+  // was already returned by stop().
+  // 只删除正在取消的录音文件，绝不删除已由 stop() 返回的文件。
+  if (recorded_ && !output_path_.empty()) {
     DeleteFileW(Utf8ToWide(output_path_).c_str());
   }
+  recorded_ = false;
   EmitState("stopped");
 }
 
