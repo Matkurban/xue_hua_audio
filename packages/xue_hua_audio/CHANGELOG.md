@@ -1,3 +1,8 @@
+## 2.0.9
+
+- Require `xue_hua_audio_linux` `^2.0.5` (fixes the Linux build).
+  依赖 `xue_hua_audio_linux` `^2.0.5`（修复 Linux 编译）。
+
 ## 2.0.8
 
 - update `xue_hua_audio_android` version to `2.1.0`

@@ -1,3 +1,8 @@
+## 2.0.5
+
+- Fix Linux build: use the Pigeon-generated enum names (`XUE_HUA_AUDIO_PLATFORM_INTERFACE_*`) instead of the stale `XHA_MESSAGES_*` names in `xue_hua_audio_linux_plugin.cc`.
+  修复 Linux 编译错误：插件源码改用 Pigeon 生成的枚举名 `XUE_HUA_AUDIO_PLATFORM_INTERFACE_*`。
+
 ## 2.0.4 
 
 - update `xue_hua_audio_platform_interface` version to 2.0.4 .
