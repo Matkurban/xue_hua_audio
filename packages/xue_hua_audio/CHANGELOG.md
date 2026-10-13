@@ -1,3 +1,10 @@
+## 2.0.10
+
+- Require `xue_hua_audio_linux` `^2.0.6` and `xue_hua_audio_windows` `^2.0.5` (crash and recording fixes).
+  依赖 `xue_hua_audio_linux` `^2.0.6` 与 `xue_hua_audio_windows` `^2.0.5`（崩溃与录音修复）。
+- Example: add an end-to-end playback/recording integration test (`example/integration_test`).
+  示例：新增端到端播放/录音集成测试（`example/integration_test`）。
+
 ## 2.0.9
 
 - Require `xue_hua_audio_linux` `^2.0.5` (fixes the Linux build).

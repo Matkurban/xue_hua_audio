@@ -1,6 +1,6 @@
 name: xue_hua_audio_windows
 description: "Windows implementation of the xue_hua_audio plugin, using Media Foundation and WASAPI. / xue_hua_audio 插件的 Windows 实现，基于 Media Foundation 与 WASAPI。"
-version: 2.0.4
+version: 2.0.5
 repository: https://github.com/Matkurban/xue_hua_audio
 issue_tracker: https://github.com/Matkurban/xue_hua_audio/issues
 resolution: workspace

@@ -94,6 +94,18 @@ WindowsPlayer::~WindowsPlayer() {
   if (notify_) {
     notify_->Detach();
   }
+  // Never leave a Dart future hanging on a disposed player.
+  // 播放器释放时必须回复挂起的调用，避免 Dart 端 Future 永不完成。
+  if (pending_load_) {
+    auto load = std::move(pending_load_);
+    pending_load_ = nullptr;
+    load(std::nullopt, "Player was disposed");
+  }
+  if (pending_seek_) {
+    auto done = std::move(pending_seek_);
+    pending_seek_ = nullptr;
+    done();
+  }
   if (engine_) {
     engine_->Shutdown();
   }
@@ -107,15 +119,31 @@ void WindowsPlayer::EmitState(const std::string& state) {
   events_->SendState(state);
 }
 
+void WindowsPlayer::EmitDuration(std::optional<int64_t> duration_ms) {
+  if (reported_duration_.has_value() && *reported_duration_ == duration_ms) {
+    return;
+  }
+  reported_duration_ = duration_ms;
+  events_->Send(flutter::EncodableMap{
+      {flutter::EncodableValue("type"), flutter::EncodableValue("duration")},
+      {flutter::EncodableValue("durationMs"),
+       duration_ms.has_value() ? flutter::EncodableValue(duration_ms.value())
+                               : flutter::EncodableValue()},
+  });
+}
+
 void WindowsPlayer::SetSource(const std::string& url, LoadCallback callback) {
   if (!engine_) {
     callback(std::nullopt, "Media engine is not available");
     return;
   }
   if (pending_load_) {
-    pending_load_(std::nullopt, "Replaced by a newer setSource call");
+    auto previous = std::move(pending_load_);
+    pending_load_ = nullptr;
+    previous(std::nullopt, "Replaced by a newer setSource call");
   }
   pending_load_ = std::move(callback);
+  reported_duration_.reset();
   started_once_ = false;
   stopped_by_user_ = false;
   last_state_.clear();
@@ -140,15 +168,7 @@ void WindowsPlayer::OnEngineEvent(DWORD event, DWORD_PTR param1,
         auto load = std::move(pending_load_);
         pending_load_ = nullptr;
         const auto duration = Duration();
-        flutter::EncodableMap duration_event{
-            {flutter::EncodableValue("type"),
-             flutter::EncodableValue("duration")},
-            {flutter::EncodableValue("durationMs"),
-             duration.has_value()
-                 ? flutter::EncodableValue(duration.value())
-                 : flutter::EncodableValue()},
-        };
-        events_->Send(duration_event);
+        EmitDuration(duration);
         EmitState("ready");
         load(duration, std::nullopt);
       }
@@ -167,9 +187,26 @@ void WindowsPlayer::OnEngineEvent(DWORD event, DWORD_PTR param1,
                                    : (started_once_ ? "paused" : "ready"));
       }
       break;
-    case MF_MEDIA_ENGINE_EVENT_ENDED:
+    case MF_MEDIA_ENGINE_EVENT_DURATIONCHANGE: {
+      // Streamed sources may only learn their real length later.
+      // 流式来源可能稍后才得到真实时长。
+      const auto duration = Duration();
+      if (duration.has_value() && !pending_load_) {
+        EmitDuration(duration);
+      }
+      break;
+    }
+    case MF_MEDIA_ENGINE_EVENT_ENDED: {
+      // At the end the length is certain. / 播放结束时长度确定。
+      auto duration = Duration();
+      const int64_t position = Position();
+      if (!duration.has_value() || position > duration.value()) {
+        duration = position;
+      }
+      EmitDuration(duration);
       EmitState("completed");
       break;
+    }
     case MF_MEDIA_ENGINE_EVENT_SEEKED:
       if (pending_seek_) {
         auto done = std::move(pending_seek_);
@@ -231,7 +268,9 @@ void WindowsPlayer::SeekTo(int64_t position_ms, std::function<void()> done) {
     return;
   }
   if (pending_seek_) {
-    pending_seek_();
+    auto previous = std::move(pending_seek_);
+    pending_seek_ = nullptr;
+    previous();
   }
   pending_seek_ = std::move(done);
   if (FAILED(engine_->SetCurrentTime(position_ms / 1000.0))) {

@@ -193,6 +193,29 @@ struct LinuxPlayer {
     events->SendState(state);
   }
 
+  // Last duration sent to Dart (-2 = none yet).
+  // 最近一次上报给 Dart 的时长（-2 表示尚未上报）。
+  int64_t reported_duration_ms = -2;
+
+  // Sends a duration event when `duration_ms` differs from the last one.
+  // Streamed sources (e.g. Ogg over HTTP) only know their real duration
+  // after more data arrives, so this is called on preroll, on
+  // DURATION_CHANGED and at EOS.
+  // 当时长与上次不同时上报 duration 事件。流式来源（如 HTTP 上的 Ogg）在
+  // 读取更多数据后才知道真实时长，因此在预滚、DURATION_CHANGED 与 EOS 时调用。
+  void EmitDuration(int64_t duration_ms) {
+    if (duration_ms == reported_duration_ms) {
+      return;
+    }
+    reported_duration_ms = duration_ms;
+    FlValue* map = fl_value_new_map();
+    fl_value_set_string_take(map, "type", fl_value_new_string("duration"));
+    fl_value_set_string_take(map, "durationMs",
+                             duration_ms < 0 ? fl_value_new_null()
+                                             : fl_value_new_int(duration_ms));
+    events->Send(map);
+  }
+
   // Duration in ms, or -1 when unknown. / 时长（毫秒），未知为 -1。
   int64_t DurationMs() {
     gint64 nanos = 0;
@@ -223,6 +246,8 @@ struct LinuxPlayer {
   }
 
   ~LinuxPlayer() {
+    g_clear_object(&pending_load);
+    g_clear_object(&pending_seek);
     if (bus_watch_id != 0) {
       g_source_remove(bus_watch_id);
     }
@@ -267,7 +292,10 @@ struct LinuxRecorder {
     recording = false;
   }
 
-  ~LinuxRecorder() { Teardown(); }
+  ~LinuxRecorder() {
+    Teardown();
+    g_clear_object(&pending_stop);
+  }
 };
 
 // ---------------------------------------------------------------------------
@@ -307,22 +335,18 @@ static gboolean player_bus_cb(GstBus* bus, GstMessage* message,
       // duration; a pending seek is complete.
       // 预滚完成：可用时长回复挂起的加载请求；挂起的 seek 也已完成。
       if (player->pending_load != nullptr) {
-        auto* handle = player->pending_load;
+        g_autoptr(XhaMessagesAudioPlayerHostApiResponseHandle) handle = player->pending_load;
         player->pending_load = nullptr;
         const int64_t duration = player->DurationMs();
-        FlValue* map = fl_value_new_map();
-        fl_value_set_string_take(map, "type", fl_value_new_string("duration"));
-        fl_value_set_string_take(map, "durationMs",
-                                 duration < 0 ? fl_value_new_null()
-                                              : fl_value_new_int(duration));
-        player->events->Send(map);
+        player->reported_duration_ms = -2;
+        player->EmitDuration(duration);
         player->EmitState("ready");
         int64_t duration_value = duration;
         xha_messages_audio_player_host_api_respond_set_source(
             handle, duration < 0 ? nullptr : &duration_value);
       }
       if (player->pending_seek != nullptr) {
-        auto* handle = player->pending_seek;
+        g_autoptr(XhaMessagesAudioPlayerHostApiResponseHandle) handle = player->pending_seek;
         player->pending_seek = nullptr;
         xha_messages_audio_player_host_api_respond_seek_to(handle);
       }
@@ -348,7 +372,27 @@ static gboolean player_bus_cb(GstBus* bus, GstMessage* message,
       }
       break;
     }
+    case GST_MESSAGE_DURATION_CHANGED: {
+      // The cached duration is stale; re-query once the pipeline settles.
+      // 缓存时长已失效；重新查询。
+      const int64_t duration = player->DurationMs();
+      if (duration >= 0) {
+        player->EmitDuration(duration);
+      }
+      break;
+    }
     case GST_MESSAGE_EOS: {
+      {
+        // At EOS the stream length is known for sure; streamed sources may
+        // have reported an estimate (or nothing) at preroll.
+        // EOS 时流长度确定；流式来源在预滚时可能只给出估计值或未知。
+        int64_t duration = player->DurationMs();
+        const int64_t position = player->PositionMs();
+        if (duration < 0 || position > duration) {
+          duration = position;
+        }
+        player->EmitDuration(duration);
+      }
       if (player->looping) {
         player->Seek(0);
         break;
@@ -363,7 +407,7 @@ static gboolean player_bus_cb(GstBus* bus, GstMessage* message,
       gst_message_parse_error(message, &error, &debug);
       const char* text = error != nullptr ? error->message : "Unknown error";
       if (player->pending_load != nullptr) {
-        auto* handle = player->pending_load;
+        g_autoptr(XhaMessagesAudioPlayerHostApiResponseHandle) handle = player->pending_load;
         player->pending_load = nullptr;
         xha_messages_audio_player_host_api_respond_error_set_source(
             handle, "sourceLoadFailed", text, nullptr);
@@ -399,9 +443,25 @@ static gboolean recorder_bus_cb(GstBus* bus, GstMessage* message,
         break;
       }
       double peak_db = -160.0;
-      const guint channels = gst_value_list_get_size(peaks);
+      // `level` posts "peak" as a GValueArray (older GStreamer) or a
+      // GstValueArray; it is never a GstValueList.
+      // `level` 的 "peak" 为 GValueArray（旧版）或 GstValueArray，而非 GstValueList。
+      G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+      GValueArray* legacy_peaks =
+          G_VALUE_HOLDS(peaks, G_TYPE_VALUE_ARRAY)
+              ? static_cast<GValueArray*>(g_value_get_boxed(peaks))
+              : nullptr;
+      const guint channels =
+          legacy_peaks != nullptr ? legacy_peaks->n_values
+          : GST_VALUE_HOLDS_ARRAY(peaks) ? gst_value_array_get_size(peaks)
+                                         : 0;
+      G_GNUC_END_IGNORE_DEPRECATIONS
       for (guint i = 0; i < channels; ++i) {
-        const GValue* value = gst_value_list_get_value(peaks, i);
+        G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+        const GValue* value =
+            legacy_peaks != nullptr ? g_value_array_get_nth(legacy_peaks, i)
+                                    : gst_value_array_get_value(peaks, i);
+        G_GNUC_END_IGNORE_DEPRECATIONS
         const double channel_db = g_value_get_double(value);
         if (channel_db > peak_db) {
           peak_db = channel_db;
@@ -423,7 +483,7 @@ static gboolean recorder_bus_cb(GstBus* bus, GstMessage* message,
       recorder->Teardown();
       recorder->EmitState("stopped");
       if (recorder->pending_stop != nullptr) {
-        auto* handle = recorder->pending_stop;
+        g_autoptr(XhaMessagesAudioRecorderHostApiResponseHandle) handle = recorder->pending_stop;
         recorder->pending_stop = nullptr;
         if (recorder->cancel_requested) {
           std::remove(recorder->output_path.c_str());
@@ -443,7 +503,7 @@ static gboolean recorder_bus_cb(GstBus* bus, GstMessage* message,
       recorder->events->SendError("recordingFailed", text);
       recorder->EmitState("error");
       if (recorder->pending_stop != nullptr) {
-        auto* handle = recorder->pending_stop;
+        g_autoptr(XhaMessagesAudioRecorderHostApiResponseHandle) handle = recorder->pending_stop;
         recorder->pending_stop = nullptr;
         if (recorder->cancel_requested) {
           xha_messages_audio_recorder_host_api_respond_cancel(handle);
@@ -500,8 +560,9 @@ static void handle_set_source(
     xha_messages_audio_player_host_api_respond_error_set_source(
         player->pending_load, "sourceLoadFailed",
         "Replaced by a newer setSource call", nullptr);
+    g_clear_object(&player->pending_load);
   }
-  player->pending_load = response_handle;
+  player->pending_load = XHA_MESSAGES_AUDIO_PLAYER_HOST_API_RESPONSE_HANDLE(g_object_ref(response_handle));
   player->started_once = false;
   player->stopped_by_user = false;
   player->last_state.clear();
@@ -536,7 +597,7 @@ static void handle_set_source(
   g_object_set(player->playbin, "uri", uri.c_str(), nullptr);
   if (gst_element_set_state(player->playbin, GST_STATE_PAUSED) ==
       GST_STATE_CHANGE_FAILURE) {
-    player->pending_load = nullptr;
+    g_clear_object(&player->pending_load);
     xha_messages_audio_player_host_api_respond_error_set_source(
         response_handle, "sourceLoadFailed", "Failed to start loading",
         nullptr);
@@ -600,10 +661,11 @@ static void handle_seek_to(
   }
   if (player->pending_seek != nullptr) {
     xha_messages_audio_player_host_api_respond_seek_to(player->pending_seek);
+    g_clear_object(&player->pending_seek);
   }
-  player->pending_seek = response_handle;
+  player->pending_seek = XHA_MESSAGES_AUDIO_PLAYER_HOST_API_RESPONSE_HANDLE(g_object_ref(response_handle));
   if (!player->Seek(position_ms)) {
-    player->pending_seek = nullptr;
+    g_clear_object(&player->pending_seek);
     xha_messages_audio_player_host_api_respond_seek_to(response_handle);
   }
 }
@@ -876,7 +938,8 @@ static void handle_start(
       encoder_branch = "wavenc";
       break;
     case XUE_HUA_AUDIO_PLATFORM_INTERFACE_ENCODER_MESSAGE_OPUS:
-      encoder_branch = "opusenc ! oggmux";
+      encoder_branch =
+          "audioresample ! audio/x-raw,rate=48000 ! opusenc ! oggmux";
       break;
     case XUE_HUA_AUDIO_PLATFORM_INTERFACE_ENCODER_MESSAGE_AAC_LC:
       encoder_branch = "avenc_aac ! mp4mux";
@@ -1013,7 +1076,7 @@ static void finish_recorder(LinuxRecorder* recorder,
     return;
   }
   recorder->cancel_requested = cancel;
-  recorder->pending_stop = response_handle;
+  recorder->pending_stop = XHA_MESSAGES_AUDIO_RECORDER_HOST_API_RESPONSE_HANDLE(g_object_ref(response_handle));
   // Send EOS so the muxer/encoder can finalize the file; the bus watch
   // responds once EOS reaches the sink.
   // 发送 EOS 以便封装器/编码器完成文件收尾；EOS 到达 sink 后由总线回调回复。

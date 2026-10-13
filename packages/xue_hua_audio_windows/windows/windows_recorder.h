@@ -91,8 +91,16 @@ class WindowsRecorder {
   int channels_ = 1;
 
   std::string output_path_;
+  // True between a successful Start() and the matching Stop()/Cancel().
+  // 成功 Start() 后至对应的 Stop()/Cancel() 前为 true。
+  bool recorded_ = false;
   std::optional<std::string> preferred_device_id_;
   double max_db_ = -160.0;
+
+  // Posted platform-thread tasks hold a weak_ptr to this token and skip
+  // themselves once the recorder is destroyed.
+  // 投递到平台线程的任务持有此令牌的 weak_ptr，录音器销毁后自动跳过。
+  std::shared_ptr<int> alive_ = std::make_shared<int>(0);
 };
 
 }  // namespace xue_hua_audio_windows

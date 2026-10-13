@@ -1,3 +1,14 @@
+## 2.0.6
+
+- Fix a crash (use-after-free) on every `setSource`, `seekTo` and recorder `stop`/`cancel`: deferred Pigeon response handles are now retained until answered.
+  修复每次 `setSource`、`seekTo` 及录音 `stop`/`cancel` 时的崩溃（释放后使用）：延迟回复的 Pigeon 句柄现在会被持有直至回复。
+- Fix recorder amplitude always reporting -160 dBFS (the `level` peak field is an array, not a list).
+  修复录音振幅始终为 -160 dBFS 的问题（`level` 的 peak 字段是数组而非列表）。
+- Fix Opus recording failing to start: capture is resampled to 48 kHz before `opusenc`.
+  修复 Opus 录音无法启动：编码前重采样到 48 kHz。
+- Report updated durations for streamed sources (e.g. Ogg/Opus over HTTP) on `DURATION_CHANGED` and at end of stream.
+  流式来源（如 HTTP 上的 Ogg/Opus）在 `DURATION_CHANGED` 与播放结束时上报更新后的时长。
+
 ## 2.0.5
 
 - Fix Linux build: use the Pigeon-generated enum names (`XUE_HUA_AUDIO_PLATFORM_INTERFACE_*`) instead of the stale `XHA_MESSAGES_*` names in `xue_hua_audio_linux_plugin.cc`.

@@ -95,7 +95,12 @@ class WindowsPlayer {
   Microsoft::WRL::ComPtr<IMFMediaEngine> engine_;
   Microsoft::WRL::ComPtr<Notify> notify_;
 
+  void EmitDuration(std::optional<int64_t> duration_ms);
+
   LoadCallback pending_load_;
+  // Last duration sent to Dart; reset on every setSource.
+  // 最近一次上报给 Dart 的时长；每次 setSource 时重置。
+  std::optional<std::optional<int64_t>> reported_duration_;
   std::function<void()> pending_seek_;
   std::optional<std::string> output_device_id_;
   double speed_ = 1.0;
