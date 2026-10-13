@@ -510,15 +510,15 @@ static void handle_set_source(
   const gchar* uri_value = xha_messages_audio_source_message_get_uri(source);
   std::string uri;
   switch (xha_messages_audio_source_message_get_type_(source)) {
-    case XHA_MESSAGES_SOURCE_TYPE_MESSAGE_URL:
+    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_SOURCE_TYPE_MESSAGE_URL:
       uri = uri_value;
       break;
-    case XHA_MESSAGES_SOURCE_TYPE_MESSAGE_FILE: {
+    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_SOURCE_TYPE_MESSAGE_FILE: {
       g_autofree gchar* file_uri = gst_filename_to_uri(uri_value, nullptr);
       uri = file_uri != nullptr ? file_uri : "";
       break;
     }
-    case XHA_MESSAGES_SOURCE_TYPE_MESSAGE_ASSET: {
+    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_SOURCE_TYPE_MESSAGE_ASSET: {
       // Assets live next to the executable under data/flutter_assets/.
       // Asset 资源位于可执行文件旁的 data/flutter_assets/ 目录。
       g_autofree gchar* exe_path = g_file_read_link("/proc/self/exe", nullptr);
@@ -872,13 +872,13 @@ static void handle_start(
   // Encoder branch of the pipeline. / 管线的编码分支。
   std::string encoder_branch;
   switch (xha_messages_record_config_message_get_encoder(config)) {
-    case XHA_MESSAGES_ENCODER_MESSAGE_WAV:
+    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_ENCODER_MESSAGE_WAV:
       encoder_branch = "wavenc";
       break;
-    case XHA_MESSAGES_ENCODER_MESSAGE_OPUS:
+    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_ENCODER_MESSAGE_OPUS:
       encoder_branch = "opusenc ! oggmux";
       break;
-    case XHA_MESSAGES_ENCODER_MESSAGE_AAC_LC:
+    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_ENCODER_MESSAGE_AAC_LC:
       encoder_branch = "avenc_aac ! mp4mux";
       break;
   }
