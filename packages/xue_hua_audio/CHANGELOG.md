@@ -1,3 +1,10 @@
+## 2.1.1
+
+- Fix `AudioWaveform` showing a regular repeating, stepped pattern while silent: the history is now event driven (one bar per level event, no holding/decay between events), with a -50 dBFS noise gate, soft-knee curve (`curve`), and scroll speed that follows the measured event rate. `WaveformController.samplesPerSecond` is replaced by `maxBarsPerSecond`; new `curve`, `barInterval`; default `minDb` is -50.
+  修复 `AudioWaveform` 在静音时出现规律重复、阶梯状图案：历史改为事件驱动（每个电平事件一根柱，事件之间不保持/衰减），加入 -50 dBFS 噪声门与软膝曲线（`curve`），滚动速度跟随实测事件频率。`WaveformController.samplesPerSecond` 改为 `maxBarsPerSecond`；新增 `curve`、`barInterval`；默认 `minDb` 为 -50。
+- Require `xue_hua_audio_platform_interface ^2.0.5` (50 ms amplitude default), `xue_hua_audio_darwin ^2.0.6`, `xue_hua_audio_android ^2.1.1` (accurate interval peaks).
+  依赖 `xue_hua_audio_platform_interface ^2.0.5`（振幅默认 50 ms）、`xue_hua_audio_darwin ^2.0.6`、`xue_hua_audio_android ^2.1.1`（间隔峰值更准确）。
+
 ## 2.1.0
 
 - Add `AudioWaveform`: a live, scrolling recording waveform (bars / line / filled) driven by an `AudioRecorder`, a dBFS `Stream<double>`, or a `WaveformController`. Fixed-rate ring buffer, attack/release smoothing, dB range, gradient, edge fade, idle dots, RTL-aware scrolling, accessibility semantics.

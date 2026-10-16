@@ -1,3 +1,8 @@
+## 2.0.6
+
+- Amplitude events now report the peak of *all* audio since the previous event (previously only the single buffer that triggered the event, so ~half of the audio was ignored and values were uneven). Tap buffer reduced to 2048 frames.
+  振幅事件现在上报自上次事件以来*全部*音频的峰值（此前仅取触发事件的那一个 buffer，约一半音频被忽略且数值不均匀）；tap 缓冲减小为 2048 帧。
+
 ## 2.0.5
 
 - Adapt the host APIs to Pigeon 29 Swift `async throws` methods so iOS and macOS builds compile.

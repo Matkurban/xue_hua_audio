@@ -34,6 +34,10 @@ final class RecorderInstance {
   private var maxDb: Double = -160
   private var lastEmit = DispatchTime.now()
   private var amplitudeInterval: Double = 0.1
+  /// Loudest sample seen since the last amplitude event, so every buffer
+  /// contributes (not just the one that happens to trigger the emit).
+  /// 自上次振幅事件以来的最大采样，保证每个 buffer 都参与（而非仅触发推送的那一个）。
+  private var intervalPeak: Float = 0
 
   /// Instance-level preferred input device id, `nil` = system default.
   /// 实例级偏好的输入设备 id；`nil` 表示系统默认设备。
@@ -174,8 +178,9 @@ final class RecorderInstance {
     self.maxDb = -160
     self.amplitudeInterval = Double(config.amplitudeIntervalMs) / 1000.0
     self.lastEmit = DispatchTime.now()
+    self.intervalPeak = 0
 
-    input.installTap(onBus: 0, bufferSize: 4096, format: inputFormat) {
+    input.installTap(onBus: 0, bufferSize: 2048, format: inputFormat) {
       [weak self] buffer, _ in
       self?.handleBuffer(buffer)
     }
@@ -213,12 +218,14 @@ final class RecorderInstance {
         }
       }
     }
-    let db = peak > 0 ? Double(20 * log10(peak)) : -160.0
+    intervalPeak = max(intervalPeak, peak)
 
     let now = DispatchTime.now()
     let elapsed = Double(now.uptimeNanoseconds - lastEmit.uptimeNanoseconds) / 1_000_000_000
     if elapsed >= amplitudeInterval {
       lastEmit = now
+      let db = intervalPeak > 0 ? Double(20 * log10(intervalPeak)) : -160.0
+      intervalPeak = 0
       maxDb = max(maxDb, db)
       let currentMax = maxDb
       DispatchQueue.main.async { [weak self] in

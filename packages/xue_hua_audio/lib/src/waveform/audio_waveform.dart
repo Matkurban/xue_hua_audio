@@ -61,7 +61,7 @@ class AudioWaveform extends StatefulWidget {
     this.barWidth = 3,
     this.spacing = 3,
     this.radius,
-    this.minDb = -60,
+    this.minDb = -50,
     this.maxDb = 0,
     this.fadeEdges = true,
     this.textDirection,

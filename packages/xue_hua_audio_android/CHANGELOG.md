@@ -1,3 +1,8 @@
+## 2.1.1
+
+- Amplitude events now report the peak of all audio since the previous event instead of the single triggering buffer.
+  振幅事件现在上报自上次事件以来全部音频的峰值，而非仅触发事件的那个 buffer。
+
 ## 2.1.0
 
 - update `com.android.tools.build:gradle` to `9.1.0` version

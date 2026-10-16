@@ -139,7 +139,7 @@ AudioWaveform(
 )
 
 // Your own controller (shared / driven manually).
-final wave = WaveformController(samplesPerSecond: 30, attack: .7, release: .25);
+final wave = WaveformController(maxBarsPerSecond: 30, minDb: -50);
 AudioWaveform(controller: wave, active: true); // wave.addDb(-12) from anywhere
 
 // Finished recording + playback progress (levels normalized 0–1).

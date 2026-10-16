@@ -323,6 +323,9 @@ class RecorderInstance(
     private fun captureLoop(audioRecord: AudioRecord, writer: PcmFileWriter, intervalMs: Long) {
         val buffer = ByteArray(4096)
         var lastEmit = 0L
+        // Loudest sample since the last event: every buffer contributes.
+        // 自上次事件以来的最大采样：每个 buffer 都参与。
+        var intervalPeak = 0
         var failure: Exception? = null
         try {
             while (running) {
@@ -340,10 +343,13 @@ class RecorderInstance(
                     peak = max(peak, abs(sample))
                     i += 2
                 }
+                intervalPeak = max(intervalPeak, peak)
                 val now = System.currentTimeMillis()
                 if (now - lastEmit >= intervalMs) {
                     lastEmit = now
-                    val db = if (peak == 0) -160.0 else 20.0 * log10(peak / 32767.0)
+                    val db =
+                        if (intervalPeak == 0) -160.0 else 20.0 * log10(intervalPeak / 32767.0)
+                    intervalPeak = 0
                     maxDb = max(maxDb, db)
                     val currentMax = maxDb
                     mainHandler.post {

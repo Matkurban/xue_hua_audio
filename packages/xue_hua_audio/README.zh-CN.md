@@ -136,7 +136,7 @@ AudioWaveform(
 )
 
 // 自行控制：共享或手动输入。
-final wave = WaveformController(samplesPerSecond: 30, attack: .7, release: .25);
+final wave = WaveformController(maxBarsPerSecond: 30, minDb: -50);
 AudioWaveform(controller: wave, active: true); // 任意位置 wave.addDb(-12)
 
 // 已完成录音 + 播放进度（levels 为 0–1 归一化数据）。

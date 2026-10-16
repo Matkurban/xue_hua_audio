@@ -1,3 +1,8 @@
+## 2.0.5
+
+- `RecordConfig.amplitudeInterval` now defaults to 50 ms (was 100 ms) for smoother level meters.
+  `RecordConfig.amplitudeInterval` 默认值由 100 ms 改为 50 ms，电平表更平滑。
+
 ## 2.0.4
 
 - update `pigeon` version to `29.0.4`
