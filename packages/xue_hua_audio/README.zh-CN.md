@@ -120,6 +120,33 @@ if (await recorder.hasPermission()) {
 await recorder.dispose();
 ```
 
+### 实时波形
+
+```dart
+// 零配置：跟随录音器（开始录音时清空，暂停时冻结）。
+AudioWaveform(recorder: recorder)
+
+// 任意 dBFS 流，自定义外观。
+AudioWaveform(
+  levels: recorder.onAmplitudeChanged.map((a) => a.current),
+  style: WaveformStyle.bars, // bars | line | filled
+  gradient: const LinearGradient(colors: [Colors.indigo, Colors.pink]),
+  height: 64,
+  minDb: -50,
+)
+
+// 自行控制：共享或手动输入。
+final wave = WaveformController(samplesPerSecond: 30, attack: .7, release: .25);
+AudioWaveform(controller: wave, active: true); // 任意位置 wave.addDb(-12)
+
+// 已完成录音 + 播放进度（levels 为 0–1 归一化数据）。
+StaticWaveform(levels: saved, progress: position / duration)
+```
+
+采样以固定速率写入环形缓冲，滚动速度与事件频率无关；仅在激活时运行 Ticker。
+颜色默认取自主题（`primary` / `outlineVariant`），滚动方向跟随 `Directionality`
+（可用 `textDirection` 覆盖），并设置了无障碍语义标签。
+
 ## 音频设备
 
 播放输出设备（每个播放器独立）：

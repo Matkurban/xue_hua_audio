@@ -33,3 +33,5 @@ export 'package:xue_hua_audio_platform_interface/xue_hua_audio_platform_interfac
 
 export 'src/audio_player.dart';
 export 'src/audio_recorder.dart';
+export 'src/waveform/audio_waveform.dart';
+export 'src/waveform/waveform_controller.dart';
