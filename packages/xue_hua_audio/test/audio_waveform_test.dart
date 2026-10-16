@@ -286,6 +286,28 @@ void main() {
     });
   });
 
+  group('defaults', () {
+    test('are public documented constants', () {
+      expect(WaveformColors.active, const Color(0xFF22A45D));
+      expect(WaveformColors.inactive, const Color(0xFFB8BEC4));
+    });
+
+    testWidgets('render without any Material/Theme ancestor', (tester) async {
+      await tester.pumpWidget(
+        const Directionality(
+          textDirection: TextDirection.ltr,
+          child: Column(
+            children: [
+              AudioWaveform(active: false),
+              StaticWaveform(levels: [0.2, 0.8], progress: 0.5),
+            ],
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('StaticWaveform', () {
     testWidgets('paints and exposes progress via semantics', (tester) async {
       await tester.pumpWidget(
