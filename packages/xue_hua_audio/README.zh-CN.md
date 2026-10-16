@@ -130,22 +130,24 @@ AudioWaveform(recorder: recorder)
 AudioWaveform(
   levels: recorder.onAmplitudeChanged.map((a) => a.current),
   style: WaveformStyle.bars, // bars | line | filled
-  gradient: const LinearGradient(colors: [Colors.indigo, Colors.pink]),
+  gradient: const LinearGradient(colors: [Color(0xFF3F51B5), Color(0xFFE91E63)]),
   height: 64,
   minDb: -50,
 )
 
 // 自行控制：共享或手动输入。
-final wave = WaveformController(samplesPerSecond: 30, attack: .7, release: .25);
+final wave = WaveformController(maxBarsPerSecond: 30, minDb: -50);
 AudioWaveform(controller: wave, active: true); // 任意位置 wave.addDb(-12)
 
 // 已完成录音 + 播放进度（levels 为 0–1 归一化数据）。
 StaticWaveform(levels: saved, progress: position / duration)
 ```
 
-采样以固定速率写入环形缓冲，滚动速度与事件频率无关；仅在激活时运行 Ticker。
-颜色默认取自主题（`primary` / `outlineVariant`），滚动方向跟随 `Directionality`
-（可用 `textDirection` 覆盖），并设置了无障碍语义标签。
+每个电平事件产生一根柱（事件之间不保持、不衰减），低于 `minDb`（−50 dBFS）的输入
+显示为平直圆点，滚动速度跟随原生事件频率；仅在激活时运行 Ticker。颜色默认为
+`WaveformColors.active`（绿色 `0xFF22A45D`）与 `WaveformColors.inactive`（灰色
+`0xFFB8BEC4`）——本库不依赖 Material，可通过 `color` / `gradient` / `inactiveColor`
+自定义。滚动方向跟随 `Directionality`（可用 `textDirection` 覆盖），并设置了无障碍语义标签。
 
 ## 音频设备
 

@@ -42,7 +42,7 @@ class RecordConfig {
   /// [bitRate]: bit rate in bits/second for compressed encoders,
   /// defaults to 128000.
   /// [amplitudeInterval]: how often amplitude events are emitted,
-  /// defaults to 100 ms.
+  /// defaults to 50 ms.
   /// [deviceId]: input device id from `listInputDevices()`, `null` uses the
   /// system default microphone.
   ///
@@ -52,7 +52,7 @@ class RecordConfig {
   /// [sampleRate]：采样率（Hz），默认 44100。
   /// [numChannels]：声道数，1（单声道，默认）或 2（立体声）。
   /// [bitRate]：压缩编码器使用的比特率（bit/s），默认 128000。
-  /// [amplitudeInterval]：振幅事件的推送间隔，默认 100 毫秒。
+  /// [amplitudeInterval]：振幅事件的推送间隔，默认 50 毫秒。
   /// [deviceId]：来自 `listInputDevices()` 的输入设备 id；`null` 表示使用
   /// 系统默认麦克风。
   const RecordConfig({
@@ -60,7 +60,7 @@ class RecordConfig {
     this.sampleRate = 44100,
     this.numChannels = 1,
     this.bitRate = 128000,
-    this.amplitudeInterval = const Duration(milliseconds: 100),
+    this.amplitudeInterval = const Duration(milliseconds: 50),
     this.deviceId,
   });
 

@@ -133,23 +133,27 @@ AudioWaveform(recorder: recorder)
 AudioWaveform(
   levels: recorder.onAmplitudeChanged.map((a) => a.current),
   style: WaveformStyle.bars, // bars | line | filled
-  gradient: const LinearGradient(colors: [Colors.indigo, Colors.pink]),
+  gradient: const LinearGradient(colors: [Color(0xFF3F51B5), Color(0xFFE91E63)]),
   height: 64,
   minDb: -50,
 )
 
 // Your own controller (shared / driven manually).
-final wave = WaveformController(samplesPerSecond: 30, attack: .7, release: .25);
+final wave = WaveformController(maxBarsPerSecond: 30, minDb: -50);
 AudioWaveform(controller: wave, active: true); // wave.addDb(-12) from anywhere
 
 // Finished recording + playback progress (levels normalized 0–1).
 StaticWaveform(levels: saved, progress: position / duration)
 ```
 
-Samples are written at a fixed rate into a ring buffer, so scrolling speed is
-independent of the event rate; the ticker only runs while active. Colors
-default to the theme (`primary` / `outlineVariant`), scrolling follows
-`Directionality` (override with `textDirection`), and a semantics label is set.
+One bar is added per level event (nothing is held or decayed between events),
+quiet input below `minDb` (−50 dBFS) shows as flat dots, and scrolling speed
+follows the native event rate; the ticker only runs while active. Colors
+default to `WaveformColors.active` (green `0xFF22A45D`) and
+`WaveformColors.inactive` (gray `0xFFB8BEC4`) — the library does not depend on
+Material, so pass `color` / `gradient` / `inactiveColor` to customize.
+Scrolling follows `Directionality` (override with `textDirection`), and a
+semantics label is set.
 
 ## Audio devices
 

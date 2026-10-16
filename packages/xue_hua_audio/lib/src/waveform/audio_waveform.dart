@@ -2,12 +2,27 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:xue_hua_audio_platform_interface/xue_hua_audio_platform_interface.dart';
 
 import '../audio_recorder.dart';
 import 'waveform_controller.dart';
+
+/// Default colors of the waveform widgets. The library does not depend on
+/// Material, so these are fixed values; pass `color` / `gradient` /
+/// `inactiveColor` to customize.
+///
+/// 波形组件的默认颜色。本库不依赖 Material，因此使用固定值；
+/// 可通过 `color` / `gradient` / `inactiveColor` 自定义。
+abstract final class WaveformColors {
+  /// Active bars/lines: a fresh green. / 活动柱/线：清新的绿色。
+  static const Color active = Color(0xFF22A45D);
+
+  /// Idle dots and unplayed bars: a muted cool gray.
+  /// 空闲圆点与未播放柱：柔和的冷灰色。
+  static const Color inactive = Color(0xFFB8BEC4);
+}
 
 /// Visual style of [AudioWaveform]. / [AudioWaveform] 的绘制样式。
 enum WaveformStyle {
@@ -61,7 +76,7 @@ class AudioWaveform extends StatefulWidget {
     this.barWidth = 3,
     this.spacing = 3,
     this.radius,
-    this.minDb = -60,
+    this.minDb = -50,
     this.maxDb = 0,
     this.fadeEdges = true,
     this.textDirection,
@@ -88,15 +103,15 @@ class AudioWaveform extends StatefulWidget {
   /// Painting style. / 绘制样式。
   final WaveformStyle style;
 
-  /// Solid color; defaults to `colorScheme.primary`. Ignored if [gradient].
-  /// 纯色，默认 `colorScheme.primary`；设置 [gradient] 时忽略。
+  /// Solid color; defaults to [WaveformColors.active]. Ignored if [gradient].
+  /// 纯色，默认 [WaveformColors.active]；设置 [gradient] 时忽略。
   final Color? color;
 
   /// Gradient applied across the full width. / 横跨整个宽度的渐变。
   final Gradient? gradient;
 
-  /// Color of the idle dots; defaults to `colorScheme.outlineVariant`.
-  /// 空闲圆点颜色，默认 `colorScheme.outlineVariant`。
+  /// Color of the idle dots; defaults to [WaveformColors.inactive].
+  /// 空闲圆点颜色，默认 [WaveformColors.inactive]。
   final Color? inactiveColor;
 
   /// Widget height. / 组件高度。
@@ -237,7 +252,6 @@ class _AudioWaveformState extends State<AudioWaveform>
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final direction = widget.textDirection ?? Directionality.of(context);
     final label =
         widget.semanticLabel ??
@@ -253,9 +267,9 @@ class _AudioWaveformState extends State<AudioWaveform>
             painter: _LivePainter(
               controller: _controller,
               style: widget.style,
-              color: widget.color ?? scheme.primary,
+              color: widget.color ?? WaveformColors.active,
               gradient: widget.gradient,
-              inactiveColor: widget.inactiveColor ?? scheme.outlineVariant,
+              inactiveColor: widget.inactiveColor ?? WaveformColors.inactive,
               barWidth: widget.barWidth,
               spacing: widget.spacing,
               radius: widget.radius,
@@ -505,13 +519,13 @@ class StaticWaveform extends StatelessWidget {
   /// 已播放比例（0–1）；为空则全部使用主色。
   final double? progress;
 
-  /// Played color; defaults to `colorScheme.primary`. / 已播放颜色。
+  /// Played color; defaults to [WaveformColors.active]. / 已播放颜色。
   final Color? color;
 
   /// Gradient for the played part. / 已播放部分的渐变。
   final Gradient? gradient;
 
-  /// Unplayed color; defaults to `colorScheme.outlineVariant`. / 未播放颜色。
+  /// Unplayed color; defaults to [WaveformColors.inactive]. / 未播放颜色。
   final Color? inactiveColor;
 
   /// Widget height. / 组件高度。
@@ -534,7 +548,6 @@ class StaticWaveform extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final dir = textDirection ?? Directionality.of(context);
     final p = progress?.clamp(0.0, 1.0);
     return Semantics(
@@ -549,9 +562,9 @@ class StaticWaveform extends StatelessWidget {
             painter: _StaticPainter(
               levels: levels,
               progress: p,
-              color: color ?? scheme.primary,
+              color: color ?? WaveformColors.active,
               gradient: gradient,
-              inactiveColor: inactiveColor ?? scheme.outlineVariant,
+              inactiveColor: inactiveColor ?? WaveformColors.inactive,
               barWidth: barWidth,
               spacing: spacing,
               radius: radius,

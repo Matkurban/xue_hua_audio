@@ -17,77 +17,146 @@ Widget _host(Widget child, {TextDirection dir = TextDirection.ltr}) =>
       ),
     );
 
+Duration _ms(int n) => Duration(milliseconds: n);
+
 void main() {
   group('WaveformController', () {
-    test('normalizes dBFS into 0..1 and clamps', () {
+    WaveformController make({double rate = 30}) =>
+        WaveformController(maxBarsPerSecond: rate, attack: 1, release: 1)
+          ..active = true;
+    List<double> bars(WaveformController c) => [
+      for (var i = 0; i < c.length; i++) c.valueAt(i),
+    ];
+
+    test('normalize: gate at minDb, soft knee, clamp', () {
       final c = WaveformController();
-      expect(c.normalize(-60), 0);
+      expect(c.normalize(-160), 0);
+      expect(c.normalize(-50), 0);
+      expect(c.normalize(-55), 0);
       expect(c.normalize(0), 1);
-      expect(c.normalize(-30), closeTo(0.5, 1e-9));
-      expect(c.normalize(-200), 0);
       expect(c.normalize(10), 1);
       expect(c.normalize(double.nan), 0);
+      // Soft knee: -45 dBFS (typical noise) stays tiny, -25 is mid-low.
+      expect(c.normalize(-45), lessThan(0.05));
+      expect(c.normalize(-25), closeTo(0.3536, 1e-3));
+      expect(c.normalize(-10), greaterThan(0.7));
       c.dispose();
     });
 
-    test('samples at a fixed rate regardless of event rate', () {
-      final c = WaveformController(samplesPerSecond: 10, attack: 1, release: 1);
-      // 50 events in one interval collapse into a single peak sample.
-      for (var i = 0; i < 50; i++) {
-        c.addNormalized(i / 100);
+    test('silence yields exact zeros (flat dots), never decays or repeats', () {
+      final c = make();
+      for (var i = 0; i < 20; i++) {
+        c.addDb(-160);
+        c.advance(_ms(100));
       }
-      c.advance(const Duration(milliseconds: 100));
-      expect(c.length, 1);
-      expect(c.valueAt(0), closeTo(0.49, 1e-6));
-      // No events for 3 intervals → 3 silent samples.
-      c.advance(const Duration(milliseconds: 300));
-      expect(c.length, 4);
-      expect(c.valueAt(3), 0);
+      expect(c.length, 20);
+      expect(bars(c).every((v) => v == 0), isTrue);
       c.dispose();
     });
 
-    test('ring buffer keeps only the newest [capacity] samples', () {
+    test('constant noise floor is a constant bar, not a sawtooth', () {
+      // Regression: -45 dBFS every 170 ms used to render as a repeating
+      // 5-bar saw (0.19 0.15 0.11 0.08 0.06) because every event was held and
+      // decayed over several fixed-rate samples.
+      final c = WaveformController()..active = true; // default smoothing
+      for (var i = 0; i < 30; i++) {
+        c.addDb(-45);
+        c.advance(_ms(170));
+      }
+      expect(c.length, 30, reason: 'one bar per event, no duplicates');
+      final v = bars(c).skip(6).toList();
+      expect(
+        v.reduce((a, b) => a > b ? a : b) - v.reduce((a, b) => a < b ? a : b),
+        lessThan(1e-6),
+      );
+      expect(v.first, lessThan(0.05));
+      c.dispose();
+    });
+
+    test('one bar per event regardless of native interval', () {
+      for (final interval in [20, 50, 100, 170]) {
+        final c = make(rate: 60);
+        for (var i = 0; i < 10; i++) {
+          c.addDb(-20);
+          c.advance(_ms(interval));
+        }
+        expect(c.length, 10, reason: '$interval ms');
+        c.dispose();
+      }
+    });
+
+    test('measured interval drives the scroll phase', () {
+      final c = make();
+      for (var i = 0; i < 40; i++) {
+        c.addDb(-20);
+        c.advance(_ms(100));
+      }
+      expect(c.barInterval, closeTo(0.1, 0.005));
+      c.addDb(-20);
+      c.advance(_ms(50)); // halfway through the next 100 ms bar slot
+      expect(c.phase, closeTo(0.5, 0.02));
+      c.advance(_ms(500)); // events stopped: the scroll parks, never overruns
+      expect(c.phase, 1.0);
+      c.dispose();
+    });
+
+    test('bursty events are merged to the loudest value', () {
+      final c = make(rate: 10);
+      c.addNormalized(0.2); // first event commits immediately
+      c.advance(_ms(10));
+      for (var i = 0; i < 50; i++) {
+        c.addNormalized(i / 100); // burst inside one 100 ms slot
+      }
+      expect(c.length, 1);
+      c.advance(_ms(100));
+      expect(c.length, 2);
+      expect(c.valueAt(1), closeTo(0.49, 1e-6));
+      c.dispose();
+    });
+
+    test('ring buffer keeps only the newest [capacity] bars', () {
       final c = WaveformController(
         capacity: 4,
-        samplesPerSecond: 10,
+        maxBarsPerSecond: 10,
         attack: 1,
         release: 1,
-      );
+      )..active = true;
       for (var i = 1; i <= 6; i++) {
         c.addNormalized(i / 10);
-        c.advance(const Duration(milliseconds: 100));
+        c.advance(_ms(100));
       }
-      expect(c.length, 4);
-      expect(
-        [for (var i = 0; i < 4; i++) c.valueAt(i)],
-        [
-          closeTo(0.3, 1e-6),
-          closeTo(0.4, 1e-6),
-          closeTo(0.5, 1e-6),
-          closeTo(0.6, 1e-6),
-        ],
-      );
+      expect(bars(c), [
+        closeTo(0.3, 1e-6),
+        closeTo(0.4, 1e-6),
+        closeTo(0.5, 1e-6),
+        closeTo(0.6, 1e-6),
+      ]);
       c.dispose();
     });
 
-    test('attack/release smooth the level', () {
+    test('attack/release smooth consecutive bars', () {
       final c = WaveformController(
-        samplesPerSecond: 10,
+        maxBarsPerSecond: 10,
         attack: 0.5,
         release: 0.25,
-      );
+      )..active = true;
       c.addNormalized(1);
-      c.advance(const Duration(milliseconds: 100));
+      c.advance(_ms(100));
+      c.addNormalized(0);
+      c.advance(_ms(100));
       expect(c.valueAt(0), closeTo(0.5, 1e-6));
-      c.advance(const Duration(milliseconds: 100));
       expect(c.valueAt(1), closeTo(0.375, 1e-6));
       c.dispose();
     });
 
-    test('a long stall is capped and clear() resets', () {
-      final c = WaveformController(capacity: 8, samplesPerSecond: 10);
-      c.advance(const Duration(minutes: 10));
-      expect(c.length, 8);
+    test('inactive controller ignores events; clear() resets', () {
+      final c = WaveformController();
+      c.addDb(-10);
+      c.advance(_ms(100));
+      expect(c.length, 0);
+      c.active = true;
+      c.addDb(-10);
+      expect(c.length, 1);
       c.clear();
       expect(c.length, 0);
       c.dispose();
@@ -127,7 +196,7 @@ void main() {
       final platform = FakeAudioPlatform();
       XueHuaAudioPlatform.instance = platform;
       final recorder = AudioRecorder();
-      final controller = WaveformController(samplesPerSecond: 20);
+      final controller = WaveformController(maxBarsPerSecond: 20);
       await tester.pumpWidget(
         _host(AudioWaveform(recorder: recorder, controller: controller)),
       );
@@ -137,13 +206,12 @@ void main() {
         const RecorderStateEvent(RecorderState.recording),
       );
       await tester.pump();
-      platform.emitRecorder(
-        100,
-        const RecorderAmplitudeEvent(Amplitude(current: -3, max: -3)),
-      );
-      await tester.pump();
       for (var i = 0; i < 6; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
+        platform.emitRecorder(
+          100,
+          const RecorderAmplitudeEvent(Amplitude(current: -3, max: -3)),
+        );
+        await tester.pump(const Duration(milliseconds: 60));
       }
       expect(controller.active, isTrue);
       expect(controller.length, greaterThan(2));
@@ -178,7 +246,7 @@ void main() {
     });
 
     testWidgets('all styles and RTL paint without errors', (tester) async {
-      final controller = WaveformController(samplesPerSecond: 20)
+      final controller = WaveformController(maxBarsPerSecond: 20)
         ..active = true;
       for (final style in WaveformStyle.values) {
         for (final dir in TextDirection.values) {
@@ -215,6 +283,28 @@ void main() {
       expect(b.hasListener, isTrue);
       await tester.pumpWidget(const SizedBox());
       expect(b.hasListener, isFalse);
+    });
+  });
+
+  group('defaults', () {
+    test('are public documented constants', () {
+      expect(WaveformColors.active, const Color(0xFF22A45D));
+      expect(WaveformColors.inactive, const Color(0xFFB8BEC4));
+    });
+
+    testWidgets('render without any Material/Theme ancestor', (tester) async {
+      await tester.pumpWidget(
+        const Directionality(
+          textDirection: TextDirection.ltr,
+          child: Column(
+            children: [
+              AudioWaveform(active: false),
+              StaticWaveform(levels: [0.2, 0.8], progress: 0.5),
+            ],
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
     });
   });
 
