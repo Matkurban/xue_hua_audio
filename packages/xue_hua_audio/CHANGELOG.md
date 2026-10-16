@@ -1,3 +1,14 @@
+## 2.1.0
+
+- Add `AudioWaveform`: a live, scrolling recording waveform (bars / line / filled) driven by an `AudioRecorder`, a dBFS `Stream<double>`, or a `WaveformController`. Fixed-rate ring buffer, attack/release smoothing, dB range, gradient, edge fade, idle dots, RTL-aware scrolling, accessibility semantics.
+  新增 `AudioWaveform`：实时滚动的录音波形（柱状/折线/填充），可由 `AudioRecorder`、dBFS `Stream<double>` 或 `WaveformController` 驱动。定速环形缓冲、起音/释音平滑、dB 范围、渐变、边缘渐隐、空闲圆点、支持 RTL、无障碍语义。
+- Add `StaticWaveform` for a finished recording with playback progress.
+  新增 `StaticWaveform`，显示已完成录音及播放进度。
+- Add `WaveformController` (public ring buffer / normalization).
+  新增 `WaveformController`（公开的环形缓冲与归一化）。
+- Example: new waveform demo in the recorder card.
+  示例：录音卡片加入波形演示。
+
 ## 2.0.10
 
 - Require `xue_hua_audio_linux` `^2.0.6` and `xue_hua_audio_windows` `^2.0.5` (crash and recording fixes).

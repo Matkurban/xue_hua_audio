@@ -416,7 +416,10 @@ class _RecorderCardState extends State<RecorderCard> {
   final AudioPlayer _playback = AudioPlayer();
 
   RecorderState _state = RecorderState.idle;
-  final List<double> _waveform = [];
+  final WaveformController _wave = WaveformController();
+  final List<double> _saved = [];
+  WaveformStyle _style = WaveformStyle.bars;
+  double _playProgress = 0;
   String? _lastRecording;
   String? _error;
 
@@ -428,12 +431,14 @@ class _RecorderCardState extends State<RecorderCard> {
     });
     _recorder.onAmplitudeChanged.listen((amplitude) {
       if (!mounted) return;
-      setState(() {
-        _waveform.add(amplitude.normalized);
-        if (_waveform.length > 120) {
-          _waveform.removeAt(0);
-        }
-      });
+      _saved.add(_wave.normalize(amplitude.current));
+      if (_saved.length > 4000) _saved.removeAt(0);
+    });
+    _playback.onPositionChanged.listen((p) {
+      final d = _playback.duration;
+      if (mounted && d != null && d.inMilliseconds > 0) {
+        setState(() => _playProgress = p.inMilliseconds / d.inMilliseconds);
+      }
     });
     _recorder.onError.listen((error) {
       if (mounted) setState(() => _error = error.toString());
@@ -442,6 +447,7 @@ class _RecorderCardState extends State<RecorderCard> {
 
   @override
   void dispose() {
+    _wave.dispose();
     _recorder.dispose();
     _playback.dispose();
     super.dispose();
@@ -450,7 +456,8 @@ class _RecorderCardState extends State<RecorderCard> {
   Future<void> _start() async {
     setState(() {
       _error = null;
-      _waveform.clear();
+      _saved.clear();
+      _playProgress = 0;
       _lastRecording = null;
     });
     try {
@@ -460,7 +467,14 @@ class _RecorderCardState extends State<RecorderCard> {
       }
       var path = '';
       if (!kIsWeb) {
-        final Directory dir = await getApplicationDocumentsDirectory();
+        Directory dir;
+        try {
+          dir = await getApplicationDocumentsDirectory();
+        } on MissingPlatformDirectoryException {
+          // Minimal Linux setups (e.g. containers) have no documents dir.
+          // 精简的 Linux 环境（如容器）没有文档目录。
+          dir = Directory.systemTemp;
+        }
         path =
             '${dir.path}/xue_hua_${DateTime.now().millisecondsSinceEpoch}.wav';
       }
@@ -516,19 +530,43 @@ class _RecorderCardState extends State<RecorderCard> {
             ),
             const SizedBox(height: 12),
             Container(
-              height: 96,
-              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
                 color: scheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: CustomPaint(
-                painter: _WaveformPainter(
-                  values: _waveform,
-                  color: recording ? scheme.primary : scheme.outline,
+              child: AudioWaveform(
+                recorder: _recorder,
+                controller: _wave,
+                style: _style,
+                height: 72,
+                gradient: LinearGradient(
+                  colors: [scheme.primary, scheme.tertiary],
                 ),
               ),
             ),
+            const SizedBox(height: 8),
+            SegmentedButton<WaveformStyle>(
+              showSelectedIcon: false,
+              segments: const [
+                ButtonSegment(value: WaveformStyle.bars, label: Text('Bars')),
+                ButtonSegment(value: WaveformStyle.line, label: Text('Line')),
+                ButtonSegment(
+                  value: WaveformStyle.filled,
+                  label: Text('Filled'),
+                ),
+              ],
+              selected: {_style},
+              onSelectionChanged: (v) => setState(() => _style = v.first),
+            ),
+            if (_lastRecording != null && _saved.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              StaticWaveform(
+                levels: List.of(_saved),
+                progress: _playProgress,
+                height: 40,
+              ),
+            ],
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -593,38 +631,4 @@ class _RecorderCardState extends State<RecorderCard> {
       ),
     );
   }
-}
-
-/// Paints amplitude history as vertical waveform bars.
-/// 将振幅历史绘制为垂直波形柱。
-class _WaveformPainter extends CustomPainter {
-  _WaveformPainter({required this.values, required this.color});
-
-  final List<double> values;
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (values.isEmpty) return;
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-    const barSpacing = 5.0;
-    final barCount = (size.width / barSpacing).floor();
-    final start = values.length > barCount ? values.length - barCount : 0;
-    final centerY = size.height / 2;
-    for (var i = start; i < values.length; i++) {
-      final x = size.width - (values.length - i) * barSpacing;
-      final barHeight = (values[i] * size.height * 0.9).clamp(2.0, size.height);
-      canvas.drawLine(
-        Offset(x, centerY - barHeight / 2),
-        Offset(x, centerY + barHeight / 2),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _WaveformPainter oldDelegate) => true;
 }

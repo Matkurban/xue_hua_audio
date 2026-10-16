@@ -123,6 +123,34 @@ if (await recorder.hasPermission()) {
 await recorder.dispose();
 ```
 
+### Live waveform
+
+```dart
+// Zero-config: follows the recorder (starts empty on record, freezes on pause).
+AudioWaveform(recorder: recorder)
+
+// Any dBFS stream, custom look.
+AudioWaveform(
+  levels: recorder.onAmplitudeChanged.map((a) => a.current),
+  style: WaveformStyle.bars, // bars | line | filled
+  gradient: const LinearGradient(colors: [Colors.indigo, Colors.pink]),
+  height: 64,
+  minDb: -50,
+)
+
+// Your own controller (shared / driven manually).
+final wave = WaveformController(samplesPerSecond: 30, attack: .7, release: .25);
+AudioWaveform(controller: wave, active: true); // wave.addDb(-12) from anywhere
+
+// Finished recording + playback progress (levels normalized 0–1).
+StaticWaveform(levels: saved, progress: position / duration)
+```
+
+Samples are written at a fixed rate into a ring buffer, so scrolling speed is
+independent of the event rate; the ticker only runs while active. Colors
+default to the theme (`primary` / `outlineVariant`), scrolling follows
+`Directionality` (override with `textDirection`), and a semantics label is set.
+
 ## Audio devices
 
 Playback output device (per player):
