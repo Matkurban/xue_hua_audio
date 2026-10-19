@@ -1,8 +1,12 @@
 name: Deploy web demo
 
+# 只在手动触发，或 main 上某个包的版本号变化时运行，以节省 Actions 额度。
+# Runs only on manual dispatch, or when a package version changes on main.
 on:
   push:
     branches: [main]
+    paths:
+      - 'packages/*/pubspec.yaml'
   workflow_dispatch:
 
 permissions:
@@ -15,7 +19,34 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  version-check:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: check
+        name: Detect version change
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            BEFORE=$(git rev-parse HEAD~1)
+          fi
+          if git diff "$BEFORE" HEAD -- 'packages/*/pubspec.yaml' | grep -qE '^[+-]version:'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
+    needs: version-check
+    if: needs.version-check.outputs.changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
