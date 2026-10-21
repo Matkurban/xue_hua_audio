@@ -212,16 +212,16 @@ sudo apt install libgstreamer1.0-dev gstreamer1.0-plugins-good gstreamer1.0-plug
 
 ## Architecture
 
-This is a [federated plugin](https://docs.flutter.dev/packages-and-plugins/developing-packages#federated-plugins):
+One plugin package. Apps depend on `xue_hua_audio`; each platform's native
+code lives in this package:
 
 ```text
-xue_hua_audio                     ← the package apps depend on
-└── xue_hua_audio_platform_interface
-    ├── xue_hua_audio_android     Kotlin  · ExoPlayer + AudioRecord
-    ├── xue_hua_audio_darwin      Swift   · AVPlayer + AVAudioEngine (iOS+macOS)
-    ├── xue_hua_audio_web         Dart    · package:web
-    ├── xue_hua_audio_windows     C++     · Media Foundation + WASAPI
-    └── xue_hua_audio_linux       C       · GStreamer
+xue_hua_audio
+├── lib/          Dart API, platform interface, method channel, Web
+├── android/      Kotlin  · ExoPlayer + AudioRecord
+├── darwin/       Swift   · AVPlayer + AVAudioEngine (iOS+macOS)
+├── windows/      C++     · Media Foundation + WASAPI
+└── linux/        C       · GStreamer
 ```
 
 Commands travel over Pigeon-generated type-safe channels; events (state,
@@ -231,14 +231,13 @@ entirely.
 
 ## Example app
 
-The [example](packages/xue_hua_audio/example) demonstrates all three source
-kinds, seek / volume / speed / loop controls, and recording with a live
-waveform.
+The [example](example) demonstrates all three source kinds, seek / volume /
+speed / loop controls, and recording with a live waveform.
 
 Live demo: <https://matkurban.github.io/xue_hua_audio/>
 
 ```bash
-cd packages/xue_hua_audio/example
+cd example
 flutter run
 ```
 

@@ -220,16 +220,15 @@ sudo apt install libgstreamer1.0-dev gstreamer1.0-plugins-good gstreamer1.0-plug
 
 ## 架构
 
-本插件采用[联合插件](https://docs.flutter.dev/packages-and-plugins/developing-packages#federated-plugins)架构：
+单个插件包。应用只依赖 `xue_hua_audio`，各平台原生代码都在这个包里：
 
 ```text
-xue_hua_audio                     ← 应用直接依赖的包
-└── xue_hua_audio_platform_interface
-    ├── xue_hua_audio_android     Kotlin  · ExoPlayer + AudioRecord
-    ├── xue_hua_audio_darwin      Swift   · AVPlayer + AVAudioEngine（iOS+macOS 共享）
-    ├── xue_hua_audio_web         Dart    · package:web
-    ├── xue_hua_audio_windows     C++     · Media Foundation + WASAPI
-    └── xue_hua_audio_linux       C       · GStreamer
+xue_hua_audio
+├── lib/          Dart API、平台接口、method channel、Web
+├── android/      Kotlin  · ExoPlayer + AudioRecord
+├── darwin/       Swift   · AVPlayer + AVAudioEngine（iOS+macOS）
+├── windows/      C++     · Media Foundation + WASAPI
+└── linux/        C       · GStreamer
 ```
 
 指令经 Pigeon 生成的类型安全通道下发；事件（状态、进度、时长、振幅、错误）按
@@ -237,13 +236,13 @@ xue_hua_audio                     ← 应用直接依赖的包
 
 ## 示例应用
 
-[example](packages/xue_hua_audio/example) 演示了三种音源播放、跳转 / 音量 /
+[example](example) 演示了三种音源播放、跳转 / 音量 /
 变速 / 循环控制，以及带实时波形的录音。
 
 在线演示：<https://matkurban.github.io/xue_hua_audio/>
 
 ```bash
-cd packages/xue_hua_audio/example
+cd example
 flutter run
 ```
 

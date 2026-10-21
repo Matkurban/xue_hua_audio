@@ -2,10 +2,10 @@
 
 xue_hua_audio 2.0 is a complete rewrite. The Rust (`flutter_rust_bridge` +
 `rodio`) engine has been replaced by fully native implementations on every
-platform, packaged as a federated plugin.
+platform. As of 2.2 those implementations live in this single plugin package.
 
 xue_hua_audio 2.0 是一次彻底重写：Rust（`flutter_rust_bridge` + `rodio`）引擎被
-各平台的纯原生实现取代，并采用联合插件（Federated Plugin）架构发布。
+各平台的纯原生实现取代。从 2.2 起，这些实现都收在这一个插件包里。
 
 | Platform / 平台 | 1.x | 2.0 |
 | --- | --- | --- |

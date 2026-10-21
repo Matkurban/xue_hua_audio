@@ -6,7 +6,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'packages/*/pubspec.yaml'
+      - 'pubspec.yaml'
   workflow_dispatch:
 
 permissions:
@@ -38,7 +38,7 @@ jobs:
           if [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
             BEFORE=$(git rev-parse HEAD~1)
           fi
-          if git diff "$BEFORE" HEAD -- 'packages/*/pubspec.yaml' | grep -qE '^[+-]version:'; then
+          if git diff "$BEFORE" HEAD -- 'pubspec.yaml' | grep -qE '^[+-]version:'; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -57,14 +57,14 @@ jobs:
       - name: Resolve workspace
         run: flutter pub get
       - name: Analyze example
-        working-directory: packages/xue_hua_audio/example
+        working-directory: example
         run: flutter analyze
       - name: Build web
-        working-directory: packages/xue_hua_audio/example
+        working-directory: example
         run: flutter build web --release --base-href /xue_hua_audio/
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: packages/xue_hua_audio/example/build/web
+          path: example/build/web
 
   deploy:
     needs: build
