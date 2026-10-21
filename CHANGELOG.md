@@ -84,9 +84,8 @@
 Complete rewrite as a federated plugin with fully native implementations.
 彻底重写为联合插件，全平台纯原生实现。
 
-- **BREAKING**: the Rust (`flutter_rust_bridge` + `rodio`) engine is removed;
-  see [MIGRATION.md](https://github.com/Matkurban/xue_hua_audio/blob/main/MIGRATION.md).
-  移除 Rust 引擎，迁移指南见 MIGRATION.md。
+- **BREAKING**: the Rust (`flutter_rust_bridge` + `rodio`) engine is removed.
+  移除 Rust 引擎。
 - New `AudioPlayer` API: `setSource` (file / URL / asset), play / pause /
   stop / seek, volume, speed, looping, and streams for state / position /
   duration / errors. 全新播放 API。

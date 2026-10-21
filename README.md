@@ -34,8 +34,6 @@ Features:
   structured `AudioError` (code + message + details) everywhere.
 - **Bilingual docs** — every public API carries English + Chinese dartdoc.
 
-Migrating from 1.x (the Rust/FFI version)? See [MIGRATION.md](MIGRATION.md).
-
 ---
 
 ## Installation

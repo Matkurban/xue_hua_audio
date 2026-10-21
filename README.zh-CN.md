@@ -32,8 +32,6 @@
   `AudioError`（code + message + details）。
 - **双语文档**——所有公开 API 均带中英双语 dartdoc。
 
-从 1.x（Rust/FFI 版本）迁移？请阅读 [MIGRATION.md](MIGRATION.md)。
-
 ---
 
 ## 安装
