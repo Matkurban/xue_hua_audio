@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:xue_hua_audio/src/events.dart';
 import 'package:xue_hua_audio/xue_hua_audio.dart';
@@ -8,13 +8,9 @@ import 'package:xue_hua_audio/xue_hua_audio.dart';
 import 'fake_platform.dart';
 
 Widget _host(Widget child, {TextDirection dir = TextDirection.ltr}) =>
-    MaterialApp(
-      home: Directionality(
-        textDirection: dir,
-        child: Scaffold(
-          body: Center(child: SizedBox(width: 300, child: child)),
-        ),
-      ),
+    Directionality(
+      textDirection: dir,
+      child: Center(child: SizedBox(width: 300, child: child)),
     );
 
 Duration _ms(int n) => Duration(milliseconds: n);

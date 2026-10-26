@@ -171,6 +171,11 @@ void main() {
   };
   for (final encoder in AudioEncoder.values) {
     testWidgets('record ${encoder.name}', (_) async {
+      // Opus recording is intentionally unsupported on Windows (Media Foundation
+      // has no Opus encoder). / Windows 故意不支持 Opus 录音（Media Foundation 无 Opus 编码器）。
+      if (encoder == AudioEncoder.opus && Platform.isWindows) {
+        return;
+      }
       final recorder = AudioRecorder();
       final errors = <AudioError>[];
       final amplitudes = <Amplitude>[];

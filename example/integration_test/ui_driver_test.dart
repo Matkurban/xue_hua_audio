@@ -8,7 +8,7 @@
 // Note: AudioWaveform schedules a repeating ticker, so this test never uses
 // pumpAndSettle (it would hang). Prefer fixed pumps instead.
 // 注意：AudioWaveform 有重复 ticker，本测试不用 pumpAndSettle（会挂起），改用定时 pump。
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:xue_hua_audio_example/main.dart';
