@@ -252,7 +252,7 @@ void main() {
                 controller: controller,
                 style: style,
                 gradient: const LinearGradient(
-                  colors: [Colors.blue, Colors.purple],
+                  colors: [Color(0xFF2196F3), Color(0xFF9C27B0)],
                 ),
               ),
               dir: dir,
