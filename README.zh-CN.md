@@ -17,6 +17,12 @@
 | Linux       | GStreamer `playbin`               | GStreamer `level`（WAV / Opus / AAC）      |
 | Web         | HTMLAudioElement                  | MediaRecorder + AnalyserNode（Opus / MP4） |
 
+播放格式说明（取决于平台解码器）：
+
+- **iOS**——WAV / AAC / MP3 / FLAC / Opus（含 Ogg 容器中的 Opus）。**不支持 Ogg Vorbis**：`AVPlayer` 会以 `sourceLoadFailed` 失败。
+- **macOS**——常见格式与 iOS 相同；Ogg Vorbis 在较新的系统解码器上通常可用（已在近期 macOS 验证）。
+- **录音**——仅 Linux 与 Web 支持 Opus 录音；Android / iOS / macOS / Windows 返回 `unsupportedEncoder`。
+
 特性：
 
 - **播放**——本地文件、网络 URL（流式播放，支持自定义请求头）、Flutter Asset；

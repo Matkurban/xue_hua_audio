@@ -18,6 +18,12 @@ first-class native audio API and wired up through a type-safe
 | Linux       | GStreamer `playbin`               | GStreamer `level` (WAV / Opus / AAC)      |
 | Web         | HTMLAudioElement                  | MediaRecorder + AnalyserNode (Opus / MP4) |
 
+Playback format notes (what the platform decoder accepts):
+
+- **iOS** — WAV / AAC / MP3 / FLAC / Opus (including Opus-in-Ogg). **Ogg Vorbis is not supported** by `AVPlayer` and fails with `sourceLoadFailed`.
+- **macOS** — same as iOS for the common formats; Ogg Vorbis often works via the system decoder (verified on recent macOS).
+- **Recording** — Opus recording is supported on Linux and Web only; Android / iOS / macOS / Windows return `unsupportedEncoder`.
+
 Features:
 
 - **Playback** — local files, network URLs (streamed, with custom headers),

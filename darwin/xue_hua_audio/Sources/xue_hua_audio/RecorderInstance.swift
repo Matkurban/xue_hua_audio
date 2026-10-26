@@ -71,6 +71,19 @@ final class RecorderInstance {
       )
       return
     }
+
+    // Reject unsupported encoders before touching the microphone permission, so
+    // the stable unsupportedEncoder code does not depend on TCC state.
+    // 在检查麦克风权限之前拒绝不支持的编码器，保证 unsupportedEncoder 不依赖 TCC。
+    if config.encoder == .opus {
+      callback(
+        .failure(
+          PigeonError(
+            code: "unsupportedEncoder", message: "Opus is not supported on iOS/macOS",
+            details: nil)))
+      return
+    }
+
     guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else {
       callback(
         .failure(
@@ -99,6 +112,7 @@ final class RecorderInstance {
         AVEncoderBitRateKey: Int(config.bitRate),
       ]
     case .opus:
+      // Unreachable — rejected above. / 不可达：已在上方拒绝。
       callback(
         .failure(
           PigeonError(

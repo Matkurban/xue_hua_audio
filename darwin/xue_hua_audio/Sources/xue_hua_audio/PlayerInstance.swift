@@ -189,8 +189,13 @@ final class PlayerInstance: NSObject {
   /// 跳转到 `positionMs`，完成后通过 `callback` 通知。
   func seekTo(positionMs: Int64, callback: @escaping (Result<Void, Error>) -> Void) {
     let time = CMTime(value: positionMs, timescale: 1000)
+    // AVPlayer may invoke the completion handler on an arbitrary queue; hop
+    // back to main before resuming the Pigeon / async continuation.
+    // AVPlayer 可能在任意队列调用完成回调；回到主线程再恢复 Pigeon / async 延续。
     player.seek(to: time, toleranceBefore: .zero, toleranceAfter: .zero) { _ in
-      callback(.success(()))
+      DispatchQueue.main.async {
+        callback(.success(()))
+      }
     }
     if lastState == "completed" {
       lastState = nil

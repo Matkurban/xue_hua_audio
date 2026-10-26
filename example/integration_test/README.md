@@ -35,3 +35,10 @@ XHA_EXPECT_SIGNAL=1 xvfb-run -a flutter drive \
 
 On Windows / macOS run the same commands with `-d windows` or `-d macos`
 on a machine with an audio device.
+
+## Platform format notes / 平台格式说明
+
+- iOS cannot play Ogg Vorbis (`tone.ogg`); the suite asserts `sourceLoadFailed`. Opus-in-Ogg (`tone.opus`) works.
+  iOS 无法播放 Ogg Vorbis（`tone.ogg`），测试会断言 `sourceLoadFailed`；Ogg 容器中的 Opus（`tone.opus`）可以播放。
+- Opus recording is unsupported on Android / iOS / macOS / Windows (`unsupportedEncoder`).
+  Android / iOS / macOS / Windows 不支持 Opus 录音（`unsupportedEncoder`）。

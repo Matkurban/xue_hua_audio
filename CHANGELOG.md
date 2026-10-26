@@ -1,3 +1,14 @@
+## 2.2.3
+
+- Darwin: hop `AVPlayer.seek` completion back to the main queue before resuming the Pigeon / async continuation (Apple may call the handler on an arbitrary queue).
+  Darwin：在恢复 Pigeon / async 延续前，将 `AVPlayer.seek` 完成回调切回主队列（Apple 可能在任意队列调用该回调）。
+- Darwin: reject Opus recording with `unsupportedEncoder` before checking microphone permission, so the error code does not depend on TCC state.
+  Darwin：在检查麦克风权限之前就以 `unsupportedEncoder` 拒绝 Opus 录音，错误码不再依赖 TCC 状态。
+- Docs: spell out playback/recording format limits — iOS cannot decode Ogg Vorbis (`sourceLoadFailed`); Opus recording remains Linux/Web only (`unsupportedEncoder` elsewhere).
+  文档：明确播放/录音格式限制——iOS 无法解码 Ogg Vorbis（`sourceLoadFailed`）；Opus 录音仍仅 Linux/Web（其他平台为 `unsupportedEncoder`）。
+- Tests: assert Darwin/Android Opus `unsupportedEncoder`; assert iOS Ogg Vorbis `sourceLoadFailed`; add seek / volume / speed / loop / device coverage; macOS + iOS flutter_driver / integration_test runs.
+  测试：断言 Darwin/Android 的 Opus `unsupportedEncoder`；断言 iOS 的 Ogg Vorbis `sourceLoadFailed`；补充 seek / 音量 / 变速 / 循环 / 设备覆盖；补齐 macOS + iOS 的 flutter_driver / integration_test。
+
 ## 2.2.2
 
 - Windows: Opus recording now fails with the stable `unsupportedEncoder` error code (same as Android/Darwin) instead of `recordingFailed`. WAV and AAC-LC recording unchanged.
