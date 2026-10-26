@@ -134,25 +134,61 @@ void main() {
 
   for (final f in _formats) {
     group(f, () {
+      // AVPlayer on iOS does not decode Ogg Vorbis. Opus-in-Ogg still works.
+      // iOS 上的 AVPlayer 不能解码 Ogg Vorbis；Ogg 容器里的 Opus 仍可播放。
+      final oggVorbisUnsupportedOnIos = f == 'ogg' && Platform.isIOS;
       testWidgets('file', (_) async {
-        _expectPlayed(
-          await _play(AudioSource.file('${dir.path}/tone.$f')),
-          _expected,
-        );
+        final source = AudioSource.file('${dir.path}/tone.$f');
+        if (oggVorbisUnsupportedOnIos) {
+          await expectLater(
+            _play(source),
+            throwsA(
+              isA<AudioError>().having(
+                (e) => e.code,
+                'code',
+                AudioError.codeSourceLoadFailed,
+              ),
+            ),
+          );
+          return;
+        }
+        _expectPlayed(await _play(source), _expected);
       });
       testWidgets('url', (_) async {
-        _expectPlayed(
-          await _play(
-            AudioSource.url('http://127.0.0.1:${server.port}/tone.$f'),
-          ),
-          _expected,
+        final source = AudioSource.url(
+          'http://127.0.0.1:${server.port}/tone.$f',
         );
+        if (oggVorbisUnsupportedOnIos) {
+          await expectLater(
+            _play(source),
+            throwsA(
+              isA<AudioError>().having(
+                (e) => e.code,
+                'code',
+                AudioError.codeSourceLoadFailed,
+              ),
+            ),
+          );
+          return;
+        }
+        _expectPlayed(await _play(source), _expected);
       });
       testWidgets('asset', (_) async {
-        _expectPlayed(
-          await _play(AudioSource.asset('assets/test_audio/tone.$f')),
-          _expected,
-        );
+        final source = AudioSource.asset('assets/test_audio/tone.$f');
+        if (oggVorbisUnsupportedOnIos) {
+          await expectLater(
+            _play(source),
+            throwsA(
+              isA<AudioError>().having(
+                (e) => e.code,
+                'code',
+                AudioError.codeSourceLoadFailed,
+              ),
+            ),
+          );
+          return;
+        }
+        _expectPlayed(await _play(source), _expected);
       });
     });
   }
@@ -171,10 +207,16 @@ void main() {
   };
   for (final encoder in AudioEncoder.values) {
     testWidgets('record ${encoder.name}', (_) async {
-      // Opus recording is intentionally unsupported on Windows (Media Foundation
-      // has no Opus encoder). Assert the stable unsupportedEncoder code.
-      // Windows 故意不支持 Opus 录音；断言稳定的 unsupportedEncoder 错误码。
-      if (encoder == AudioEncoder.opus && Platform.isWindows) {
+      // Opus recording is intentionally unsupported on Android / iOS / macOS /
+      // Windows. Assert the stable unsupportedEncoder code on those platforms.
+      // Android / iOS / macOS / Windows 故意不支持 Opus 录音；断言稳定的
+      // unsupportedEncoder 错误码。
+      final opusUnsupported = encoder == AudioEncoder.opus &&
+          (Platform.isWindows ||
+              Platform.isIOS ||
+              Platform.isMacOS ||
+              Platform.isAndroid);
+      if (opusUnsupported) {
         final recorder = AudioRecorder();
         final path = '${dir.path}/rec_opus_should_fail.ogg';
         await expectLater(
@@ -199,6 +241,11 @@ void main() {
       ];
       final path = '${dir.path}/rec_${encoder.name}.${ext[encoder]}';
       try {
+        expect(
+          await recorder.hasPermission(),
+          isTrue,
+          reason: 'microphone permission required for recording tests',
+        );
         await recorder.start(RecordConfig(encoder: encoder), path: path);
         await Future<void>.delayed(const Duration(seconds: 2));
         expect(await recorder.stop(), path);
@@ -229,4 +276,105 @@ void main() {
       );
     });
   }
+
+  testWidgets('seek volume speed loop and devices', (_) async {
+    final player = AudioPlayer();
+    final errors = <AudioError>[];
+    final sub = player.onError.listen(errors.add);
+    try {
+      final outputs = await AudioPlayer.listOutputDevices();
+      expect(outputs, isNotEmpty, reason: 'no output devices');
+
+      final asset = File('${dir.path}/tone_seek.wav');
+      final data = await rootBundle.load('assets/test_audio/tone.wav');
+      await asset.writeAsBytes(data.buffer.asUint8List());
+
+      final duration = await player.setSource(AudioSource.file(asset.path));
+      expect(duration, isNotNull);
+      expect(duration!.inMilliseconds, greaterThan(1500));
+
+      await player.setVolume(0.35);
+      await player.setSpeed(1.25);
+      await player.setLooping(false);
+      await player.play();
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      expect(player.state, PlayerState.playing);
+
+      await player.seek(const Duration(milliseconds: 1000));
+      // Allow the platform clock to settle after seek. / seek 后等平台时钟稳定。
+      Duration? pos;
+      for (var i = 0; i < 20; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        pos = await player.getPosition();
+        if ((pos.inMilliseconds - 1000).abs() <= 250) break;
+      }
+      expect(
+        (pos!.inMilliseconds - 1000).abs() <= 250,
+        isTrue,
+        reason: 'seek landed at $pos, expected ≈1000ms',
+      );
+
+      await player.pause();
+      expect(player.state, PlayerState.paused);
+      await player.setSpeed(1.0);
+      await player.play();
+      await player.seek(Duration(milliseconds: duration.inMilliseconds - 200));
+      var reachedEnd = player.state == PlayerState.completed;
+      for (var i = 0; i < 40 && !reachedEnd; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        reachedEnd = player.state == PlayerState.completed;
+        if (!reachedEnd) {
+          final p = await player.getPosition();
+          if (p.inMilliseconds >= duration.inMilliseconds - 400) {
+            reachedEnd = true;
+          }
+        }
+      }
+      final endPos = await player.getPosition();
+      expect(
+        reachedEnd,
+        isTrue,
+        reason:
+            'did not approach end after seek-near-end (state=${player.state}, pos=$endPos)',
+      );
+      await player.stop();
+
+      // Output device routing: macOS supports it; iOS throws unsupported.
+      // 输出设备路由：macOS 支持；iOS 抛 unsupported。
+      if (Platform.isMacOS) {
+        await player.setOutputDevice(outputs.first.id);
+        final current = await player.getOutputDevice();
+        expect(current?.id, outputs.first.id);
+        await player.setOutputDevice(null);
+      } else if (Platform.isIOS) {
+        await expectLater(
+          player.setOutputDevice(outputs.first.id),
+          throwsA(
+            isA<AudioError>().having(
+              (e) => e.code,
+              'code',
+              AudioError.codeUnsupported,
+            ),
+          ),
+        );
+      }
+
+      final recorder = AudioRecorder();
+      try {
+        expect(
+          await recorder.hasPermission(),
+          isTrue,
+          reason: 'microphone permission required for device listing tests',
+        );
+        final inputs = await recorder.listInputDevices();
+        expect(inputs, isNotEmpty, reason: 'no input devices');
+      } finally {
+        await recorder.dispose();
+      }
+    } finally {
+      await sub.cancel();
+      await player.dispose();
+    }
+    expect(errors, isEmpty, reason: '$errors');
+  });
 }
