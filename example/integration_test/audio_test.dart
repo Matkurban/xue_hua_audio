@@ -171,6 +171,25 @@ void main() {
   };
   for (final encoder in AudioEncoder.values) {
     testWidgets('record ${encoder.name}', (_) async {
+      // Opus recording is intentionally unsupported on Windows (Media Foundation
+      // has no Opus encoder). Assert the stable unsupportedEncoder code.
+      // Windows 故意不支持 Opus 录音；断言稳定的 unsupportedEncoder 错误码。
+      if (encoder == AudioEncoder.opus && Platform.isWindows) {
+        final recorder = AudioRecorder();
+        final path = '${dir.path}/rec_opus_should_fail.ogg';
+        await expectLater(
+          recorder.start(RecordConfig(encoder: encoder), path: path),
+          throwsA(
+            isA<AudioError>().having(
+              (e) => e.code,
+              'code',
+              AudioError.codeUnsupportedEncoder,
+            ),
+          ),
+        );
+        await recorder.dispose();
+        return;
+      }
       final recorder = AudioRecorder();
       final errors = <AudioError>[];
       final amplitudes = <Amplitude>[];

@@ -1,3 +1,10 @@
+## 2.2.2
+
+- Windows: Opus recording now fails with the stable `unsupportedEncoder` error code (same as Android/Darwin) instead of `recordingFailed`. WAV and AAC-LC recording unchanged.
+  Windows：Opus 录音改为抛出稳定的 `unsupportedEncoder` 错误码（与 Android/Darwin 一致），不再误报 `recordingFailed`。WAV 与 AAC-LC 录音不变。
+- Tests: drop deprecated `package:flutter/material.dart` under Flutter 3.50 (use `widgets.dart`); assert Windows Opus contract; Windows flutter_driver / integration_test coverage for playback, recording, and waveform UI.
+  测试：在 Flutter 3.50 下去掉已弃用的 `package:flutter/material.dart`（改用 `widgets.dart`）；断言 Windows Opus 契约；补齐 Windows 上 flutter_driver / integration_test 对播放、录音与波形 UI 的覆盖。
+
 ## 2.2.1
 
 - Fix Linux build after the single-package merge: Pigeon enum constants in `linux/xue_hua_audio_linux_plugin.cc` still used the old `XUE_HUA_AUDIO_PLATFORM_INTERFACE_*` prefix and failed to compile against the regenerated `messages.g.h` (`XUE_HUA_AUDIO_*`).

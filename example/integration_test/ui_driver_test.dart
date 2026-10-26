@@ -1,14 +1,14 @@
 // UI driver test for the example app. Run with either:
-//   flutter test integration_test/ui_driver_test.dart -d linux
+//   flutter test integration_test/ui_driver_test.dart -d windows|linux|macos
 //   flutter drive --driver=test_driver/integration_test.dart \
-//       --target=integration_test/ui_driver_test.dart -d linux
+//       --target=integration_test/ui_driver_test.dart -d windows|linux|macos
 //
 // 示例应用的 UI 驱动测试。可用上面两种方式运行。
 //
 // Note: AudioWaveform schedules a repeating ticker, so this test never uses
 // pumpAndSettle (it would hang). Prefer fixed pumps instead.
 // 注意：AudioWaveform 有重复 ticker，本测试不用 pumpAndSettle（会挂起），改用定时 pump。
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:xue_hua_audio_example/main.dart';

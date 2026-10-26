@@ -435,6 +435,13 @@ void RecorderApi::Start(
                         "No recorder with id " + std::to_string(recorder_id)));
     return;
   }
+  // Match Android/Darwin: Opus has no Media Foundation encoder on Windows.
+  // 与 Android/Darwin 一致：Windows 的 Media Foundation 没有 Opus 编码器。
+  if (config.encoder() == EncoderMessage::kOpus) {
+    result(FlutterError("unsupportedEncoder",
+                        "Opus is not supported on Windows"));
+    return;
+  }
   const auto error = recorder->Start(config, path);
   if (error.has_value()) {
     result(FlutterError("recordingFailed", error.value()));
