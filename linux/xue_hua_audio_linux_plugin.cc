@@ -10,6 +10,7 @@
 
 #include <flutter_linux/flutter_linux.h>
 #include <gst/gst.h>
+#include <glib/gstdio.h>
 
 #include <cstdio>
 #include <map>
@@ -269,6 +270,9 @@ struct LinuxRecorder {
   std::unique_ptr<EventStream> events;
 
   XhaMessagesAudioRecorderHostApiResponseHandle* pending_stop = nullptr;
+  // Fires if EOS never reaches the sink after stop/cancel (e.g. a stuck muxer).
+  // stop/cancel 后若 EOS 迟迟不到 sink（例如封装器卡住）则触发。
+  guint stop_timeout_id = 0;
   std::string output_path;
   // Preferred input device id, empty = system default (autoaudiosrc).
   // 偏好的输入设备 id；空串表示系统默认（autoaudiosrc）。
@@ -280,6 +284,10 @@ struct LinuxRecorder {
   void EmitState(const char* state) { events->SendState(state); }
 
   void Teardown() {
+    if (stop_timeout_id != 0) {
+      g_source_remove(stop_timeout_id);
+      stop_timeout_id = 0;
+    }
     if (bus_watch_id != 0) {
       g_source_remove(bus_watch_id);
       bus_watch_id = 0;
@@ -443,25 +451,53 @@ static gboolean recorder_bus_cb(GstBus* bus, GstMessage* message,
         break;
       }
       double peak_db = -160.0;
-      // `level` posts "peak" as a GValueArray (older GStreamer) or a
-      // GstValueArray; it is never a GstValueList.
-      // `level` 的 "peak" 为 GValueArray（旧版）或 GstValueArray，而非 GstValueList。
-      G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-      GValueArray* legacy_peaks =
-          G_VALUE_HOLDS(peaks, G_TYPE_VALUE_ARRAY)
-              ? static_cast<GValueArray*>(g_value_get_boxed(peaks))
-              : nullptr;
-      const guint channels =
-          legacy_peaks != nullptr ? legacy_peaks->n_values
-          : GST_VALUE_HOLDS_ARRAY(peaks) ? gst_value_array_get_size(peaks)
-                                         : 0;
-      G_GNUC_END_IGNORE_DEPRECATIONS
-      for (guint i = 0; i < channels; ++i) {
+      // `level` posts "peak" as a GstValueArray (current GStreamer) or, on
+      // older builds, a boxed GValueArray. Prefer the GstValueArray path so
+      // we do not touch the deprecated G_TYPE_VALUE_ARRAY macro.
+      // `level` 的 "peak" 在现行 GStreamer 为 GstValueArray；旧版为 boxed
+      // GValueArray。优先走 GstValueArray，避免触碰已弃用的 G_TYPE_VALUE_ARRAY。
+      guint channels = 0;
+      const bool gst_array = GST_VALUE_HOLDS_ARRAY(peaks);
+      GValueArray* legacy_peaks = nullptr;
+      if (gst_array) {
+        channels = gst_value_array_get_size(peaks);
+      } else {
+        // Older GStreamer only. / 仅旧版 GStreamer。
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-W#pragma-messages"
+#endif
         G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-        const GValue* value =
-            legacy_peaks != nullptr ? g_value_array_get_nth(legacy_peaks, i)
-                                    : gst_value_array_get_value(peaks, i);
+        if (g_type_is_a(G_VALUE_TYPE(peaks), g_value_array_get_type())) {
+          legacy_peaks =
+              static_cast<GValueArray*>(g_value_get_boxed(peaks));
+          channels = legacy_peaks != nullptr ? legacy_peaks->n_values : 0;
+        }
         G_GNUC_END_IGNORE_DEPRECATIONS
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+      }
+      for (guint i = 0; i < channels; ++i) {
+        const GValue* value = nullptr;
+        if (gst_array) {
+          value = gst_value_array_get_value(peaks, i);
+        } else {
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+          G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+          value = g_value_array_get_nth(legacy_peaks, i);
+          G_GNUC_END_IGNORE_DEPRECATIONS
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+        }
+        if (value == nullptr) {
+          continue;
+        }
         const double channel_db = g_value_get_double(value);
         if (channel_db > peak_db) {
           peak_db = channel_db;
@@ -571,15 +607,15 @@ static void handle_set_source(
   const gchar* uri_value = xha_messages_audio_source_message_get_uri(source);
   std::string uri;
   switch (xha_messages_audio_source_message_get_type_(source)) {
-    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_SOURCE_TYPE_MESSAGE_URL:
+    case XUE_HUA_AUDIO_SOURCE_TYPE_MESSAGE_URL:
       uri = uri_value;
       break;
-    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_SOURCE_TYPE_MESSAGE_FILE: {
+    case XUE_HUA_AUDIO_SOURCE_TYPE_MESSAGE_FILE: {
       g_autofree gchar* file_uri = gst_filename_to_uri(uri_value, nullptr);
       uri = file_uri != nullptr ? file_uri : "";
       break;
     }
-    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_SOURCE_TYPE_MESSAGE_ASSET: {
+    case XUE_HUA_AUDIO_SOURCE_TYPE_MESSAGE_ASSET: {
       // Assets live next to the executable under data/flutter_assets/.
       // Asset 资源位于可执行文件旁的 data/flutter_assets/ 目录。
       g_autofree gchar* exe_path = g_file_read_link("/proc/self/exe", nullptr);
@@ -934,14 +970,14 @@ static void handle_start(
   // Encoder branch of the pipeline. / 管线的编码分支。
   std::string encoder_branch;
   switch (xha_messages_record_config_message_get_encoder(config)) {
-    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_ENCODER_MESSAGE_WAV:
+    case XUE_HUA_AUDIO_ENCODER_MESSAGE_WAV:
       encoder_branch = "wavenc";
       break;
-    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_ENCODER_MESSAGE_OPUS:
+    case XUE_HUA_AUDIO_ENCODER_MESSAGE_OPUS:
       encoder_branch =
           "audioresample ! audio/x-raw,rate=48000 ! opusenc ! oggmux";
       break;
-    case XUE_HUA_AUDIO_PLATFORM_INTERFACE_ENCODER_MESSAGE_AAC_LC:
+    case XUE_HUA_AUDIO_ENCODER_MESSAGE_AAC_LC:
       encoder_branch = "avenc_aac ! mp4mux";
       break;
   }
@@ -1062,6 +1098,39 @@ static XhaMessagesAudioRecorderHostApiResumeResponse* handle_recorder_resume(
   return xha_messages_audio_recorder_host_api_resume_response_new();
 }
 
+// Called when EOS does not arrive in time after stop/cancel.
+// stop/cancel 后若超时仍未收到 EOS 则走此回调。
+static gboolean recorder_stop_timeout_cb(gpointer user_data) {
+  auto* recorder = static_cast<LinuxRecorder*>(user_data);
+  recorder->stop_timeout_id = 0;
+  if (recorder->pending_stop == nullptr) {
+    return G_SOURCE_REMOVE;
+  }
+  g_autoptr(XhaMessagesAudioRecorderHostApiResponseHandle) handle =
+      recorder->pending_stop;
+  recorder->pending_stop = nullptr;
+  const bool cancel = recorder->cancel_requested;
+  const std::string path = recorder->output_path;
+  recorder->Teardown();
+  recorder->EmitState("stopped");
+  if (cancel) {
+    std::remove(path.c_str());
+    xha_messages_audio_recorder_host_api_respond_cancel(handle);
+  } else {
+    // Prefer returning the path if the file looks usable; otherwise error.
+    // 文件看起来可用则返回路径，否则报错。
+    GStatBuf st{};
+    if (g_stat(path.c_str(), &st) == 0 && st.st_size > 0) {
+      xha_messages_audio_recorder_host_api_respond_stop(handle, path.c_str());
+    } else {
+      xha_messages_audio_recorder_host_api_respond_error_stop(
+          handle, "recordingFailed",
+          "Recording stop timed out before EOS reached the sink", nullptr);
+    }
+  }
+  return G_SOURCE_REMOVE;
+}
+
 static void finish_recorder(LinuxRecorder* recorder,
                             XhaMessagesAudioRecorderHostApiResponseHandle*
                                 response_handle,
@@ -1078,10 +1147,16 @@ static void finish_recorder(LinuxRecorder* recorder,
   recorder->cancel_requested = cancel;
   recorder->pending_stop = XHA_MESSAGES_AUDIO_RECORDER_HOST_API_RESPONSE_HANDLE(g_object_ref(response_handle));
   // Send EOS so the muxer/encoder can finalize the file; the bus watch
-  // responds once EOS reaches the sink.
+  // responds once EOS reaches the sink. A timeout covers stuck muxers.
   // 发送 EOS 以便封装器/编码器完成文件收尾；EOS 到达 sink 后由总线回调回复。
+  // 超时覆盖卡住的封装器。
   gst_element_set_state(recorder->pipeline, GST_STATE_PLAYING);
   gst_element_send_event(recorder->pipeline, gst_event_new_eos());
+  if (recorder->stop_timeout_id != 0) {
+    g_source_remove(recorder->stop_timeout_id);
+  }
+  recorder->stop_timeout_id =
+      g_timeout_add_seconds(5, recorder_stop_timeout_cb, recorder);
 }
 
 static void handle_recorder_stop(
