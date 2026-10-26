@@ -1,3 +1,14 @@
+## 2.2.1
+
+- Fix Linux build after the single-package merge: Pigeon enum constants in `linux/xue_hua_audio_linux_plugin.cc` still used the old `XUE_HUA_AUDIO_PLATFORM_INTERFACE_*` prefix and failed to compile against the regenerated `messages.g.h` (`XUE_HUA_AUDIO_*`).
+  修复合并为单包后的 Linux 编译：`linux/xue_hua_audio_linux_plugin.cc` 里的 Pigeon 枚举仍使用旧前缀 `XUE_HUA_AUDIO_PLATFORM_INTERFACE_*`，与重新生成的 `messages.g.h`（`XUE_HUA_AUDIO_*`）不一致导致编译失败。
+- Linux recorder: add a 5s EOS timeout on stop/cancel so a stuck muxer cannot hang the Dart `stop()`/`cancel()` call forever; prefer returning the file when it already has bytes.
+  Linux 录音：stop/cancel 增加 5 秒 EOS 超时，避免封装器卡住时 Dart 的 `stop()`/`cancel()` 一直挂起；若文件已有数据则优先返回路径。
+- Silence the Clang `G_TYPE_VALUE_ARRAY` deprecation pragma when reading `level` peaks; prefer `GstValueArray`.
+  读取 `level` 峰值时消除 Clang 对 `G_TYPE_VALUE_ARRAY` 的弃用 pragma 警告，优先使用 `GstValueArray`。
+- Example: ValueKeys for flutter_driver / integration_test UI automation; add `ui_driver_test.dart` + `test_driver/integration_test.dart`; document `flutter drive` on headless Linux.
+  示例：为 flutter_driver / integration_test UI 自动化加 ValueKey；新增 `ui_driver_test.dart` 与 `test_driver/integration_test.dart`；补充无头 Linux 下 `flutter drive` 说明。
+
 ## 2.2.0
 
 - Ship as one Flutter plugin package. Platform implementations, the platform interface, and the Web plugin now live in `xue_hua_audio` instead of separate endorsed packages.

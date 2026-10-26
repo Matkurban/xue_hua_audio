@@ -39,7 +39,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('xue_hua_audio 2.0')),
+      appBar: AppBar(title: const Text('xue_hua_audio')),
       body: ListView(
         padding: const EdgeInsets.all(8),
         children: const [PlayerCard(), SizedBox(height: 16), RecorderCard()],
@@ -267,6 +267,7 @@ class _PlayerCardState extends State<PlayerCard> {
               children: [
                 for (final (key, label) in _assets)
                   FilledButton.tonalIcon(
+                    key: ValueKey('asset-$key'),
                     onPressed: () => _load(AudioSource.asset(key)),
                     icon: const Icon(Icons.library_music, size: 18),
                     label: Text(label),
@@ -288,6 +289,7 @@ class _PlayerCardState extends State<PlayerCard> {
                 ),
                 const SizedBox(width: 8),
                 FilledButton.icon(
+                  key: const ValueKey('play-url'),
                   onPressed: () =>
                       _load(AudioSource.url(_urlController.text.trim())),
                   icon: const Icon(Icons.cloud_download, size: 18),
@@ -326,6 +328,7 @@ class _PlayerCardState extends State<PlayerCard> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton.filledTonal(
+                  key: const ValueKey('player-play-pause'),
                   onPressed: () => _player.state == PlayerState.playing
                       ? _player.pause()
                       : _player.play(),
@@ -337,6 +340,7 @@ class _PlayerCardState extends State<PlayerCard> {
                 ),
                 const SizedBox(width: 8),
                 IconButton.filledTonal(
+                  key: const ValueKey('player-stop'),
                   onPressed: () => _player.stop(),
                   icon: const Icon(Icons.stop),
                 ),
@@ -536,6 +540,7 @@ class _RecorderCardState extends State<RecorderCard> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: AudioWaveform(
+                key: const ValueKey('live-waveform'),
                 recorder: _recorder,
                 controller: _wave,
                 style: _style,
@@ -574,11 +579,13 @@ class _RecorderCardState extends State<RecorderCard> {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 FilledButton.icon(
+                  key: const ValueKey('rec-start'),
                   onPressed: recording || paused ? null : _start,
                   icon: const Icon(Icons.fiber_manual_record, size: 18),
                   label: const Text('开始录音'),
                 ),
                 FilledButton.tonalIcon(
+                  key: const ValueKey('rec-pause-resume'),
                   onPressed: recording
                       ? _recorder.pause
                       : (paused ? _recorder.resume : null),
@@ -586,11 +593,13 @@ class _RecorderCardState extends State<RecorderCard> {
                   label: Text(paused ? '继续' : '暂停'),
                 ),
                 FilledButton.tonalIcon(
+                  key: const ValueKey('rec-stop'),
                   onPressed: recording || paused ? _stop : null,
                   icon: const Icon(Icons.stop, size: 18),
                   label: const Text('停止'),
                 ),
                 OutlinedButton.icon(
+                  key: const ValueKey('rec-cancel'),
                   onPressed: recording || paused
                       ? () => _recorder.cancel()
                       : null,
@@ -599,6 +608,7 @@ class _RecorderCardState extends State<RecorderCard> {
                 ),
                 if (_lastRecording != null)
                   FilledButton.icon(
+                    key: const ValueKey('rec-play'),
                     onPressed: _playRecording,
                     icon: const Icon(Icons.play_circle, size: 18),
                     label: const Text('播放录音'),
