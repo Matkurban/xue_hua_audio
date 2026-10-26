@@ -1,7 +1,7 @@
 // UI driver test for the example app. Run with either:
-//   flutter test integration_test/ui_driver_test.dart -d linux
+//   flutter test integration_test/ui_driver_test.dart -d windows|linux|macos
 //   flutter drive --driver=test_driver/integration_test.dart \
-//       --target=integration_test/ui_driver_test.dart -d linux
+//       --target=integration_test/ui_driver_test.dart -d windows|linux|macos
 //
 // 示例应用的 UI 驱动测试。可用上面两种方式运行。
 //
