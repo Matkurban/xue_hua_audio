@@ -158,8 +158,10 @@ class AudioRecorder {
   /// a blob URL instead.
   ///
   /// Completes once capture has actually started; the state transitions to
-  /// [RecorderState.recording]. Throws an [AudioError] (e.g.
-  /// `permissionDenied`) when recording cannot start.
+  /// [RecorderState.recording]. Throws an [AudioError] when recording cannot
+  /// start (e.g. `permissionDenied`, or [AudioError.codeUnsupportedEncoder]
+  /// when the encoder is unavailable on this platform — Opus on Android /
+  /// Darwin / Windows).
   ///
   /// 开始录音。
   ///
@@ -168,7 +170,9 @@ class AudioRecorder {
   /// `.ogg`）。Web 端忽略该参数，[stop] 会返回 blob URL。
   ///
   /// 采集真正开始后 Future 才完成，状态进入 [RecorderState.recording]。
-  /// 无法启动时抛出 [AudioError]（例如 `permissionDenied`）。
+  /// 无法启动时抛出 [AudioError]（例如 `permissionDenied`，或当前平台不支持
+  /// 该编码器时的 [AudioError.codeUnsupportedEncoder]——Android / Darwin /
+  /// Windows 上的 Opus）。
   Future<void> start(RecordConfig config, {required String path}) async {
     final id = await _ensureCreated();
     await _platform.startRecorder(id, config, path: path);
