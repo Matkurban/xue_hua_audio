@@ -31,8 +31,15 @@ import AVFoundation
     ///   keeps the default. / 期望输入设备的 UID；`nil` 使用默认设备。
     static func activateRecording(preferredInputUid: String?) throws {
       let session = AVAudioSession.sharedInstance()
+      // Drop a prior playback-only session so the engine can claim the input.
+      // 先卸掉仅播放会话，否则录音引擎可能拿不到输入。
+      if session.category == .playback {
+        try? session.setActive(false, options: .notifyOthersOnDeactivation)
+      }
       try session.setCategory(
-        .playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
+        .playAndRecord,
+        mode: .default,
+        options: [.defaultToSpeaker, .allowBluetoothHFP, .mixWithOthers])
       if let uid = preferredInputUid,
         let input = session.availableInputs?.first(where: { $0.uid == uid })
       {

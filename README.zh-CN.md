@@ -19,7 +19,7 @@
 
 播放格式说明（取决于平台解码器）：
 
-- **iOS**——WAV / AAC / MP3 / FLAC / Opus（含 Ogg 容器中的 Opus）。**不支持 Ogg Vorbis**：`AVPlayer` 会以 `sourceLoadFailed` 失败。
+- **iOS**——WAV / AAC / MP3 / FLAC。**不支持 Ogg Vorbis**（`sourceLoadFailed`）。**Ogg Opus** 在旧版 iOS（如 17）同样失败；在较新系统（已验证 26/27）可以播放。
 - **macOS**——常见格式与 iOS 相同；Ogg Vorbis 在较新的系统解码器上通常可用（已在近期 macOS 验证）。
 - **录音**——仅 Linux 与 Web 支持 Opus 录音；Android / iOS / macOS / Windows 返回 `unsupportedEncoder`。
 

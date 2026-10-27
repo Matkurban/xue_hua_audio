@@ -20,7 +20,7 @@ first-class native audio API and wired up through a type-safe
 
 Playback format notes (what the platform decoder accepts):
 
-- **iOS** — WAV / AAC / MP3 / FLAC / Opus (including Opus-in-Ogg). **Ogg Vorbis is not supported** by `AVPlayer` and fails with `sourceLoadFailed`.
+- **iOS** — WAV / AAC / MP3 / FLAC. **Ogg Vorbis** is not supported by `AVPlayer` (`sourceLoadFailed`). **Ogg Opus** fails on older iOS (e.g. 17) the same way; on newer iOS (verified 26/27) playback can succeed.
 - **macOS** — same as iOS for the common formats; Ogg Vorbis often works via the system decoder (verified on recent macOS).
 - **Recording** — Opus recording is supported on Linux and Web only; Android / iOS / macOS / Windows return `unsupportedEncoder`.
 

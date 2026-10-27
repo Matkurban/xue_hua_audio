@@ -6,11 +6,16 @@ HTTP URL and an asset, then records with every encoder and plays it back.
 `ui_driver_test.dart` drives the example UI (play / pause / stop, record,
 waveform styles, cancel) via `flutter_driver` / `integration_test`.
 
+`audio_test.dart` also covers recorder pause/resume/cancel and input-device
+routing at the API level.
+
 `audio_test.dart` 以文件、HTTP URL 与 Asset 方式播放 `assets/test_audio/` 中的
 每种格式，再用每种编码器录音并回放。
 
 `ui_driver_test.dart` 用 `flutter_driver` / `integration_test` 驱动示例界面
 （播放/暂停/停止、录音、波形样式、取消）。
+
+`audio_test.dart` 另在 API 层覆盖录音机 pause/resume/cancel 与输入设备路由。
 
 ## Headless Linux / 无头 Linux
 
@@ -38,7 +43,7 @@ on a machine with an audio device.
 
 ## Platform format notes / 平台格式说明
 
-- iOS cannot play Ogg Vorbis (`tone.ogg`); the suite asserts `sourceLoadFailed`. Opus-in-Ogg (`tone.opus`) works.
-  iOS 无法播放 Ogg Vorbis（`tone.ogg`），测试会断言 `sourceLoadFailed`；Ogg 容器中的 Opus（`tone.opus`）可以播放。
+- iOS cannot play Ogg Vorbis (`tone.ogg`) or Ogg Opus (`tone.opus`); the suite asserts `sourceLoadFailed`.
+  iOS 无法播放 Ogg Vorbis（`tone.ogg`）与 Ogg Opus（`tone.opus`），测试会断言 `sourceLoadFailed`。
 - Opus recording is unsupported on Android / iOS / macOS / Windows (`unsupportedEncoder`).
   Android / iOS / macOS / Windows 不支持 Opus 录音（`unsupportedEncoder`）。

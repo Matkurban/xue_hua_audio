@@ -465,7 +465,7 @@ class _RecorderCardState extends State<RecorderCard> {
       _lastRecording = null;
     });
     try {
-      if (!await _recorder.hasPermission()) {
+      if (!await _recorder.hasPermission().timeout(const Duration(seconds: 8))) {
         setState(() => _error = '未获得麦克风权限 / Microphone permission denied');
         return;
       }
@@ -482,7 +482,11 @@ class _RecorderCardState extends State<RecorderCard> {
         path =
             '${dir.path}/xue_hua_${DateTime.now().millisecondsSinceEpoch}.wav';
       }
-      await _recorder.start(const RecordConfig(), path: path);
+      await _recorder
+          .start(const RecordConfig(), path: path)
+          .timeout(const Duration(seconds: 12));
+    } on TimeoutException {
+      setState(() => _error = '录音启动超时 / recorder start timed out');
     } on AudioError catch (e) {
       setState(() => _error = e.toString());
     }
