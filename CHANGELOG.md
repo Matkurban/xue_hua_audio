@@ -1,3 +1,12 @@
+## 2.2.5
+
+- iOS: Ogg Opus playback expectations are version-gated — `sourceLoadFailed` on older iOS (verified 17/18); playback succeeds on newer runtimes (verified 26/27). Ogg Vorbis remains unsupported.
+  iOS：Ogg Opus 播放期望按系统版本分支——旧版 iOS（已验证 17/18）仍为 `sourceLoadFailed`；较新运行时（已验证 26/27）可播放。Ogg Vorbis 仍不支持。
+- Darwin: deactivate playback session before record; use `allowBluetoothHFP`; mix with others. Example UI primes microphone permission and times out `hasPermission`/`start` so TCC dialogs cannot hang driver runs.
+  Darwin：录音前先停用仅播放会话；改用 `allowBluetoothHFP` 并允许混音。示例 UI 预请求麦克风权限，并为 `hasPermission`/`start` 加超时，避免 TCC 弹窗卡住 driver。
+- Verified iOS flutter test / flutter drive on simulators ios17 / ios18 / ios26 / ios27.
+  已在 ios17 / ios18 / ios26 / ios27 模拟器上验证 flutter test / flutter drive。
+
 ## 2.2.4
 
 - Example Android: allow cleartext HTTP to `127.0.0.1` / `localhost` / `10.0.2.2` via network security config (and debug `usesCleartextTraffic`) so integration_test URL playback works on API 28+ (`ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED` otherwise).
