@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Allow cleartext HTTP to the in-process test server (127.0.0.1) used by
+     integration_test URL playback cases. API 28+ blocks cleartext by default.
+     集成测试 URL 播放用例会在进程内起 HTTP 服务；API 28+ 默认禁止明文，
+     仅放行本机回环（及模拟器访问宿主机常用的 10.0.2.2）。 -->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

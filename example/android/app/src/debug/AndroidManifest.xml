@@ -1,7 +1,14 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- The INTERNET permission is required for development. Specifically,
          the Flutter tool needs it to communicate with the running application
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Debug/integration tests serve audio over http://127.0.0.1; API 28+
+         blocks cleartext unless permitted.
+         调试/集成测试用明文 HTTP 提供音频；API 28+ 需显式允许。 -->
+    <application
+        android:usesCleartextTraffic="true"
+        tools:targetApi="28" />
 </manifest>

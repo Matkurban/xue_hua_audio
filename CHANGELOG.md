@@ -1,3 +1,10 @@
+## 2.2.4
+
+- Example Android: allow cleartext HTTP to `127.0.0.1` / `localhost` / `10.0.2.2` via network security config (and debug `usesCleartextTraffic`) so integration_test URL playback works on API 28+ (`ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED` otherwise).
+  示例 Android：通过 network security config（及 debug 的 `usesCleartextTraffic`）放行到 `127.0.0.1` / `localhost` / `10.0.2.2` 的明文 HTTP，使 integration_test 的 URL 播放在 API 28+ 可用（否则会报 `ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED`）。
+- Verified Android flutter test / flutter drive on API 24 / 28 / 31 / 36 emulators.
+  已在 API 24 / 28 / 31 / 36 模拟器上验证 Android flutter test / flutter drive。
+
 ## 2.2.3
 
 - Darwin: hop `AVPlayer.seek` completion back to the main queue before resuming the Pigeon / async continuation (Apple may call the handler on an arbitrary queue).
