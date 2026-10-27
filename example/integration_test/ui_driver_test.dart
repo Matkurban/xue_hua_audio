@@ -8,9 +8,10 @@
 // Note: AudioWaveform schedules a repeating ticker, so this test never uses
 // pumpAndSettle (it would hang). Prefer fixed pumps instead.
 // 注意：AudioWaveform 有重复 ticker，本测试不用 pumpAndSettle（会挂起），改用定时 pump。
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:xue_hua_audio/xue_hua_audio.dart';
 import 'package:xue_hua_audio_example/main.dart';
 
 Finder keyOf(String name) => find.byKey(ValueKey<String>(name));
@@ -57,6 +58,16 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(900, 1600));
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
+    // Prime TCC / microphone before the example UI touches it.
+    // 先在进 UI 前打通麦克风权限，避免系统弹窗卡住 hasPermission。
+    final primer = AudioRecorder();
+    try {
+      final ok = await primer.hasPermission();
+      expect(ok, isTrue, reason: 'microphone permission not granted for UI test');
+    } finally {
+      await primer.dispose();
+    }
+
     await tester.pumpWidget(const ExampleApp());
     await _pumpFor(tester, const Duration(milliseconds: 800));
 
@@ -64,40 +75,41 @@ void main() {
     expect(find.text('录音机 Recorder'), findsOneWidget);
     expect(keyOf('live-waveform'), findsOneWidget);
 
-    // Load a short asset. / 加载短 asset。
-    final assetKey = 'asset-assets/audio/message_ring.wav';
-    await tester.ensureVisible(keyOf(assetKey));
-    await tester.tap(keyOf(assetKey));
-    await _pumpFor(tester, const Duration(milliseconds: 500));
-
-    final leftIdle = await _waitForText(tester, 'playing') ||
-        await _waitForText(tester, 'completed', timeout: const Duration(seconds: 2)) ||
-        await _waitForText(tester, 'paused', timeout: const Duration(seconds: 1));
-    expect(leftIdle, isTrue, reason: 'player never left idle after asset tap');
-
-    if (find.text('playing').evaluate().isNotEmpty) {
-      await tester.tap(keyOf('player-play-pause'));
-      await _pumpFor(tester, const Duration(milliseconds: 500));
-      expect(
-        await _waitForText(tester, 'paused'),
-        isTrue,
-        reason: 'pause did not take effect',
-      );
-      await tester.tap(keyOf('player-play-pause'));
-      await _pumpFor(tester, const Duration(milliseconds: 500));
-    }
-
-    await tester.tap(keyOf('player-stop'));
-    await _pumpFor(tester, const Duration(milliseconds: 500));
-
-    // Record + live waveform styles. / 录音 + 实时波形样式。
+    // Record first so the mic session is claimed before AVPlayer playback.
+    // 先录音，避免 AVPlayer 占用仅播放会话后录音启动卡住。
     await tester.ensureVisible(keyOf('rec-start'));
     await tester.tap(keyOf('rec-start'));
-    expect(
-      await _waitForText(tester, 'recording'),
-      isTrue,
-      reason: 'recorder did not enter recording',
+    var enteredRecording = await _waitForText(
+      tester,
+      'recording',
+      timeout: const Duration(seconds: 15),
     );
+    if (!enteredRecording) {
+      await tester.tap(keyOf('rec-start'));
+      enteredRecording = await _waitForText(
+        tester,
+        'recording',
+        timeout: const Duration(seconds: 15),
+      );
+    }
+    if (!enteredRecording) {
+      final chips = find.byType(Chip);
+      final labels = <String>[];
+      for (final e in chips.evaluate()) {
+        final chip = e.widget as Chip;
+        final label = chip.label;
+        if (label is Text && label.data != null) labels.add(label.data!);
+      }
+      final err = find.textContaining('AudioError');
+      final denied = find.textContaining('permission');
+      final errZh = find.textContaining('麦克风');
+      final hint = err.evaluate().isNotEmpty
+          ? ' error visible'
+          : (denied.evaluate().isNotEmpty || errZh.evaluate().isNotEmpty
+              ? ' permission/mic error visible'
+              : ' chips=$labels');
+      fail('recorder did not enter recording;$hint');
+    }
 
     await tester.tap(find.text('Line'));
     await _pumpFor(tester, const Duration(milliseconds: 300));
@@ -106,14 +118,11 @@ void main() {
     await tester.tap(find.text('Bars'));
     await _pumpFor(tester, const Duration(milliseconds: 300));
 
-    // Take a screenshot while recording (flutter_driver / integration_test).
-    // 录音中截图。
     try {
       final bytes = await binding.takeScreenshot('ui_recording_bars');
       expect(bytes, isNotEmpty);
     } catch (_) {
-      // Screenshots are optional on some Linux embeds.
-      // 部分 Linux 嵌入环境不支持截图。
+      // Screenshots are optional on some embeds.
     }
 
     await tester.tap(keyOf('rec-pause-resume'));
@@ -146,8 +155,6 @@ void main() {
     await tester.tap(keyOf('rec-cancel'));
     await _pumpFor(tester, const Duration(milliseconds: 800));
 
-    // After cancel, starting again must work (proves the button is enabled).
-    // 取消后再次开始必须成功（证明按钮已重新启用）。
     await tester.tap(keyOf('rec-start'));
     expect(
       await _waitForText(tester, 'recording'),
@@ -156,6 +163,32 @@ void main() {
     );
     await tester.tap(keyOf('rec-cancel'));
     await _pumpFor(tester, const Duration(milliseconds: 800));
+
+    // Playback after recording. / 录音后再测播放。
+    final assetKey = 'asset-assets/audio/message_ring.wav';
+    await tester.ensureVisible(keyOf(assetKey));
+    await tester.tap(keyOf(assetKey));
+    await _pumpFor(tester, const Duration(milliseconds: 500));
+
+    final leftIdle = await _waitForText(tester, 'playing') ||
+        await _waitForText(tester, 'completed', timeout: const Duration(seconds: 2)) ||
+        await _waitForText(tester, 'paused', timeout: const Duration(seconds: 1));
+    expect(leftIdle, isTrue, reason: 'player never left idle after asset tap');
+
+    if (find.text('playing').evaluate().isNotEmpty) {
+      await tester.tap(keyOf('player-play-pause'));
+      await _pumpFor(tester, const Duration(milliseconds: 500));
+      expect(
+        await _waitForText(tester, 'paused'),
+        isTrue,
+        reason: 'pause did not take effect',
+      );
+      await tester.tap(keyOf('player-play-pause'));
+      await _pumpFor(tester, const Duration(milliseconds: 500));
+    }
+
+    await tester.tap(keyOf('player-stop'));
+    await _pumpFor(tester, const Duration(milliseconds: 500));
 
     expect(find.textContaining('Output device'), findsOneWidget);
     expect(find.textContaining('Input device'), findsOneWidget);

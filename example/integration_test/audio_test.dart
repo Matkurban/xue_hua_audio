@@ -134,12 +134,21 @@ void main() {
 
   for (final f in _formats) {
     group(f, () {
-      // AVPlayer on iOS does not decode Ogg Vorbis. Opus-in-Ogg still works.
-      // iOS 上的 AVPlayer 不能解码 Ogg Vorbis；Ogg 容器里的 Opus 仍可播放。
-      final oggVorbisUnsupportedOnIos = f == 'ogg' && Platform.isIOS;
+      // Ogg Vorbis: AVPlayer still Cannot Open / sourceLoadFailed on iOS.
+      // Ogg Opus: fails on older iOS (verified 17); plays on newer (verified 26/27).
+      // Ogg Vorbis：iOS 上 AVPlayer 仍 Cannot Open / sourceLoadFailed。
+      // Ogg Opus：旧版 iOS 失败（已在 17 验证）；较新系统可播（已在 26/27 验证）。
+      final iosMajor = () {
+        if (!Platform.isIOS) return 0;
+        final m = RegExp(r'Version (\d+)')
+            .firstMatch(Platform.operatingSystemVersion);
+        return int.tryParse(m?.group(1) ?? '') ?? 0;
+      }();
+      final expectIosSourceLoadFailed = Platform.isIOS &&
+          (f == 'ogg' || (f == 'opus' && iosMajor < 26));
       testWidgets('file', (_) async {
         final source = AudioSource.file('${dir.path}/tone.$f');
-        if (oggVorbisUnsupportedOnIos) {
+        if (expectIosSourceLoadFailed) {
           await expectLater(
             _play(source),
             throwsA(
@@ -158,7 +167,7 @@ void main() {
         final source = AudioSource.url(
           'http://127.0.0.1:${server.port}/tone.$f',
         );
-        if (oggVorbisUnsupportedOnIos) {
+        if (expectIosSourceLoadFailed) {
           await expectLater(
             _play(source),
             throwsA(
@@ -175,7 +184,7 @@ void main() {
       });
       testWidgets('asset', (_) async {
         final source = AudioSource.asset('assets/test_audio/tone.$f');
-        if (oggVorbisUnsupportedOnIos) {
+        if (expectIosSourceLoadFailed) {
           await expectLater(
             _play(source),
             throwsA(
@@ -376,5 +385,91 @@ void main() {
       await player.dispose();
     }
     expect(errors, isEmpty, reason: '$errors');
+  });
+
+  // API-level recorder pause / resume / cancel and input device routing.
+  // 录音机 pause/resume/cancel 与输入设备路由的 API 级覆盖。
+  testWidgets('recorder pause resume cancel and input devices', (_) async {
+    final recorder = AudioRecorder();
+    final errors = <AudioError>[];
+    final states = <RecorderState>[];
+    final subs = [
+      recorder.onError.listen(errors.add),
+      recorder.onStateChanged.listen(states.add),
+    ];
+    final path = '${dir.path}/rec_pause_resume.wav';
+    try {
+      expect(
+        await recorder.hasPermission(),
+        isTrue,
+        reason: 'microphone permission required',
+      );
+
+      final inputs = await recorder.listInputDevices();
+      expect(inputs, isNotEmpty, reason: 'no input devices');
+
+      // Input routing works on both iOS (AVAudioSession) and macOS (CoreAudio).
+      // 输入路由在 iOS（AVAudioSession）与 macOS（CoreAudio）均可。
+      if (Platform.isMacOS || Platform.isIOS) {
+        await recorder.setInputDevice(inputs.first.id);
+        final current = await recorder.getInputDevice();
+        expect(current?.id, inputs.first.id);
+        await recorder.setInputDevice(null);
+      }
+
+      await recorder.start(
+        const RecordConfig(encoder: AudioEncoder.wav),
+        path: path,
+      );
+      expect(recorder.state, RecorderState.recording);
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+
+      await recorder.pause();
+      expect(recorder.state, RecorderState.paused);
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+
+      await recorder.resume();
+      expect(recorder.state, RecorderState.recording);
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+
+      expect(await recorder.stop(), path);
+      expect(File(path).lengthSync(), greaterThan(100));
+
+      // Cancel must leave no usable file and allow a fresh start.
+      // cancel 不应留下可用文件，且允许再次 start。
+      final cancelPath = '${dir.path}/rec_cancel.wav';
+      await recorder.start(
+        const RecordConfig(encoder: AudioEncoder.wav),
+        path: cancelPath,
+      );
+      expect(recorder.state, RecorderState.recording);
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      await recorder.cancel();
+      expect(
+        recorder.state,
+        RecorderState.stopped,
+        reason: 'after cancel state=${recorder.state}',
+      );
+      expect(
+        !File(cancelPath).existsSync() || File(cancelPath).lengthSync() == 0,
+        isTrue,
+        reason: 'cancel left a non-empty file at $cancelPath',
+      );
+
+      final again = '${dir.path}/rec_after_cancel.wav';
+      await recorder.start(
+        const RecordConfig(encoder: AudioEncoder.wav),
+        path: again,
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      expect(await recorder.stop(), again);
+      expect(File(again).lengthSync(), greaterThan(100));
+    } finally {
+      for (final s in subs) {
+        await s.cancel();
+      }
+      await recorder.dispose();
+    }
+    expect(errors, isEmpty, reason: 'states=$states errors=$errors');
   });
 }
