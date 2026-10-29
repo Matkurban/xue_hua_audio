@@ -4,10 +4,16 @@
 ///   with state/position/duration/error streams.
 /// * [AudioRecorder] — records from the microphone with real-time
 ///   amplitude (dBFS) reporting for waveform and visualizer UIs.
-/// * Live recording visualizers — [AudioWaveform], [PulseRingVisualizer],
-///   [HarmonicWaveVisualizer], [RadialSpectrumVisualizer],
-///   [SegmentedVuVisualizer], [ParticleMatrixVisualizer],
-///   [LiquidOrbVisualizer], and the unified [RecordingVisualizer].
+/// * Live recording visualizers (17 presets) — [AudioWaveform],
+///   [PulseRingVisualizer], [HarmonicWaveVisualizer],
+///   [RadialSpectrumVisualizer], [SegmentedVuVisualizer],
+///   [ParticleMatrixVisualizer], [LiquidOrbVisualizer],
+///   [SpectrogramHeatmapVisualizer], [HelixDnaVisualizer],
+///   [AcousticPetalVisualizer], [PrecisionMeterVisualizer],
+///   [VoicePendulumVisualizer], [MorphingPolygonVisualizer],
+///   [KineticLouverVisualizer], [OrbitConstellationVisualizer],
+///   [SymmetricRibbonVisualizer], [OscilloscopeTraceVisualizer], and the
+///   unified [RecordingVisualizer].
 ///
 /// Supported platforms: Android, iOS, macOS, Windows, Linux and Web.
 ///
@@ -17,10 +23,15 @@
 ///   状态/进度/时长/错误事件流。
 /// * [AudioRecorder] —— 麦克风录音，实时上报振幅（dBFS），可直接驱动
 ///   波形与多种录音可视化 UI。
-/// * 实时录音可视化组件 —— [AudioWaveform]、[PulseRingVisualizer]、
+/// * 实时录音可视化组件（共 17 种） —— [AudioWaveform]、[PulseRingVisualizer]、
 ///   [HarmonicWaveVisualizer]、[RadialSpectrumVisualizer]、
 ///   [SegmentedVuVisualizer]、[ParticleMatrixVisualizer]、
-///   [LiquidOrbVisualizer] 以及统一容器 [RecordingVisualizer]。
+///   [LiquidOrbVisualizer]、[SpectrogramHeatmapVisualizer]、
+///   [HelixDnaVisualizer]、[AcousticPetalVisualizer]、
+///   [PrecisionMeterVisualizer]、[VoicePendulumVisualizer]、
+///   [MorphingPolygonVisualizer]、[KineticLouverVisualizer]、
+///   [OrbitConstellationVisualizer]、[SymmetricRibbonVisualizer]、
+///   [OscilloscopeTraceVisualizer] 以及统一容器 [RecordingVisualizer]。
 ///
 /// 支持平台：Android、iOS、macOS、Windows、Linux 与 Web。
 library;
@@ -36,6 +47,7 @@ export 'xue_hua_audio_platform_interface.dart';
 
 export 'src/audio_player.dart';
 export 'src/audio_recorder.dart';
+export 'src/waveform/advanced_visualizers.dart';
 export 'src/waveform/audio_waveform.dart';
 export 'src/waveform/recording_visualizers.dart';
 export 'src/waveform/waveform_controller.dart';

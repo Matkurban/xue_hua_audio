@@ -125,7 +125,7 @@ await recorder.dispose();
 
 ### 实时录音可视化组件
 
-除经典的 `AudioWaveform`（支持 `bars`、`line`、`filled` 三种样式）与 `StaticWaveform` 外，插件内置了 6 款简约精美的实时录音可视化组件及统一切换容器 `RecordingVisualizer`：
+除经典的 `AudioWaveform`（支持 `bars`、`line`、`filled` 三种样式）与 `StaticWaveform` 外，插件内置了 16 款简约精美的实时录音可视化组件及统一切换容器 `RecordingVisualizer`：
 
 ```dart
 AudioWaveform(recorder: recorder)            // 经典滚动波形（竖条 / 镜像折线 / 镜像面积）
@@ -135,8 +135,18 @@ RadialSpectrumVisualizer(recorder: recorder) // 极坐标对称环形声谱
 SegmentedVuVisualizer(recorder: recorder)    // 极简工业风分段 LED 电平矩阵（含峰值保持帽）
 ParticleMatrixVisualizer(recorder: recorder) // 声场律动点阵星云
 LiquidOrbVisualizer(recorder: recorder)      // 液态几何流体声球（闭合三次贝塞尔样条）
+SpectrogramHeatmapVisualizer(recorder: recorder) // 实时声谱热力瀑布图
+HelixDnaVisualizer(recorder: recorder)       // 双螺旋声波基因链（三维景深投影）
+AcousticPetalVisualizer(recorder: recorder)  // 几何声学花瓣曼陀罗
+PrecisionMeterVisualizer(recorder: recorder) // 极简录音室精密双轨电桥（RMS + 峰值保持 + 过载灯）
+VoicePendulumVisualizer(recorder: recorder)  // 声学耦合谐振钟摆波
+MorphingPolygonVisualizer(recorder: recorder)// 多维极简几何多边形声场
+KineticLouverVisualizer(recorder: recorder)  // 建筑感韵律百叶窗光栅
+OrbitConstellationVisualizer(recorder: recorder) // 星轨声场星座引力网
+SymmetricRibbonVisualizer(recorder: recorder)// 极简折纸镜像钻石丝带
+OscilloscopeTraceVisualizer(recorder: recorder)  // 极简荧光扫描示波器
 
-// 或通过统一容器在全部 7 种组件间动态切换：
+// 或通过统一容器在全部 17 种组件间动态切换：
 RecordingVisualizer(
   recorder: recorder,
   type: RecordingVisualizerType.harmonicWave,

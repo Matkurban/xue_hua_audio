@@ -63,7 +63,11 @@ void main() {
     final primer = AudioRecorder();
     try {
       final ok = await primer.hasPermission();
-      expect(ok, isTrue, reason: 'microphone permission not granted for UI test');
+      expect(
+        ok,
+        isTrue,
+        reason: 'microphone permission not granted for UI test',
+      );
     } finally {
       await primer.dispose();
     }
@@ -106,8 +110,8 @@ void main() {
       final hint = err.evaluate().isNotEmpty
           ? ' error visible'
           : (denied.evaluate().isNotEmpty || errZh.evaluate().isNotEmpty
-              ? ' permission/mic error visible'
-              : ' chips=$labels');
+                ? ' permission/mic error visible'
+                : ' chips=$labels');
       fail('recorder did not enter recording;$hint');
     }
 
@@ -118,21 +122,17 @@ void main() {
     await tester.tap(find.text('Bars'));
     await _pumpFor(tester, const Duration(milliseconds: 300));
 
-    // Cycle through the 6 new recording visualizer components & gallery view.
-    // 依次切换 6 个新增录音可视化组件及全景预览模式。
-    for (final visKey in [
-      'vis-pulseRing',
-      'vis-harmonicWave',
-      'vis-radialSpectrum',
-      'vis-segmentedVu',
-      'vis-particleMatrix',
-      'vis-liquidOrb',
-      'vis-waveform',
-    ]) {
+    // Cycle through all 17 recording visualizer presets & gallery view.
+    // 依次切换全部 17 种录音可视化组件预设及全景预览模式。
+    for (final type in RecordingVisualizerType.values) {
+      final visKey = 'vis-${type.name}';
       await tester.ensureVisible(keyOf(visKey));
       await tester.tap(keyOf(visKey));
-      await _pumpFor(tester, const Duration(milliseconds: 200));
+      await _pumpFor(tester, const Duration(milliseconds: 120));
     }
+    await tester.ensureVisible(keyOf('vis-waveform'));
+    await tester.tap(keyOf('vis-waveform'));
+    await _pumpFor(tester, const Duration(milliseconds: 150));
     await tester.ensureVisible(keyOf('toggle-visualizer-gallery'));
     await tester.tap(keyOf('toggle-visualizer-gallery'));
     await _pumpFor(tester, const Duration(milliseconds: 300));
@@ -192,9 +192,18 @@ void main() {
     await tester.tap(keyOf(assetKey));
     await _pumpFor(tester, const Duration(milliseconds: 500));
 
-    final leftIdle = await _waitForText(tester, 'playing') ||
-        await _waitForText(tester, 'completed', timeout: const Duration(seconds: 2)) ||
-        await _waitForText(tester, 'paused', timeout: const Duration(seconds: 1));
+    final leftIdle =
+        await _waitForText(tester, 'playing') ||
+        await _waitForText(
+          tester,
+          'completed',
+          timeout: const Duration(seconds: 2),
+        ) ||
+        await _waitForText(
+          tester,
+          'paused',
+          timeout: const Duration(seconds: 1),
+        );
     expect(leftIdle, isTrue, reason: 'player never left idle after asset tap');
 
     if (find.text('playing').evaluate().isNotEmpty) {

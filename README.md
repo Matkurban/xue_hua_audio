@@ -115,7 +115,7 @@ await recorder.dispose();
 
 ### Live recording visualizers
 
-In addition to `AudioWaveform` (`bars`, `line`, `filled`) and `StaticWaveform`, the package includes 6 minimalist live recording visualizer components and the unified `RecordingVisualizer` switcher:
+In addition to `AudioWaveform` (`bars`, `line`, `filled`) and `StaticWaveform`, the package includes 16 minimalist live recording visualizer components and the unified `RecordingVisualizer` switcher:
 
 ```dart
 AudioWaveform(recorder: recorder)            // Scrolling bars / line / filled
@@ -125,8 +125,18 @@ RadialSpectrumVisualizer(recorder: recorder) // Circular polar symmetric spectru
 SegmentedVuVisualizer(recorder: recorder)    // Segmented LED matrix with peak-hold caps
 ParticleMatrixVisualizer(recorder: recorder) // Kinetic dot-matrix acoustic particle field
 LiquidOrbVisualizer(recorder: recorder)      // Morphing closed-Bezier liquid acoustic orb
+SpectrogramHeatmapVisualizer(recorder: recorder) // Time-frequency thermal spectrogram
+HelixDnaVisualizer(recorder: recorder)       // 3D-projected double-helix acoustic DNA
+AcousticPetalVisualizer(recorder: recorder)  // Radial geometric lotus/mandala petals
+PrecisionMeterVisualizer(recorder: recorder) // Studio ballistic RMS + peak bridge
+VoicePendulumVisualizer(recorder: recorder)  // Coupled harmonic Mach's pendulum wave
+MorphingPolygonVisualizer(recorder: recorder)// Concentric morphing polygon tunnel
+KineticLouverVisualizer(recorder: recorder)  // Architectural tilting louver slats
+OrbitConstellationVisualizer(recorder: recorder) // Revolving orbital constellation nodes
+SymmetricRibbonVisualizer(recorder: recorder)// Mirrored origami diamond facet ribbon
+OscilloscopeTraceVisualizer(recorder: recorder)  // Phosphor graticule oscilloscope trace
 
-// Or switch dynamically across all 7 preset types:
+// Or switch dynamically across all 17 preset types:
 RecordingVisualizer(
   recorder: recorder,
   type: RecordingVisualizerType.harmonicWave,

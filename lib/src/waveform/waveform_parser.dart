@@ -87,15 +87,8 @@ class WaveformMetrics {
       other.sampleCount == sampleCount;
 
   @override
-  int get hashCode => Object.hash(
-    current,
-    average,
-    rms,
-    peak,
-    peakHold,
-    flux,
-    sampleCount,
-  );
+  int get hashCode =>
+      Object.hash(current, average, rms, peak, peakHold, flux, sampleCount);
 
   @override
   String toString() =>
@@ -172,6 +165,125 @@ class CubicSegment {
   final Offset p1;
 }
 
+/// A paired node along a 3D-projected double-helix acoustic wave.
+/// 双螺旋声波链上的单组配对节点数据。
+@immutable
+class HelixNode {
+  /// Creates a helix node. / 创建双螺旋节点。
+  const HelixNode({
+    required this.progress,
+    required this.yOffsetA,
+    required this.yOffsetB,
+    required this.depthA,
+    required this.depthB,
+    required this.amplitude,
+  });
+
+  /// Normalized horizontal position (`0.0–1.0`). / 水平归一化位置（`0.0–1.0`）。
+  final double progress;
+
+  /// Normalized vertical displacement of strand A (`-1.0..1.0`).
+  /// A 链垂直归一化偏移（`-1.0..1.0`）。
+  final double yOffsetA;
+
+  /// Normalized vertical displacement of strand B (`-1.0..1.0`).
+  /// B 链垂直归一化偏移（`-1.0..1.0`）。
+  final double yOffsetB;
+
+  /// Depth factor of strand A (`-1.0..1.0`, positive is front).
+  /// A 链景深系数（`-1.0..1.0`，正数在前）。
+  final double depthA;
+
+  /// Depth factor of strand B (`-1.0..1.0`, positive is front).
+  /// B 链景深系数（`-1.0..1.0`，正数在前）。
+  final double depthB;
+
+  /// Local normalized amplitude at this node (`0.0–1.0`).
+  /// 当前节点处的局部归一化振幅（`0.0–1.0`）。
+  final double amplitude;
+}
+
+/// State of a single kinetic louver slat in [KineticLouverVisualizer].
+/// 韵律百叶窗可视化组件中单个叶片的几何状态。
+@immutable
+class LouverSlat {
+  /// Creates a louver slat state. / 创建百叶窗叶片状态。
+  const LouverSlat({
+    required this.amplitude,
+    required this.tiltRadians,
+    required this.heightFactor,
+    required this.thicknessFactor,
+  });
+
+  /// Local normalized amplitude (`0.0–1.0`). / 局部归一化振幅（`0.0–1.0`）。
+  final double amplitude;
+
+  /// Tilt angle in radians (`-pi/4..pi/4`). / 倾斜弧度角（`-pi/4..pi/4`）。
+  final double tiltRadians;
+
+  /// Normalized height factor (`0.15..1.0`). / 高度缩放比例（`0.15..1.0`）。
+  final double heightFactor;
+
+  /// Normalized stroke thickness factor (`0.5..1.5`). / 线宽缩放比例（`0.5..1.5`）。
+  final double thicknessFactor;
+}
+
+/// 2D normalized orbital particle state in [OrbitConstellationVisualizer].
+/// 星轨星座可视化组件中的单个轨道节点状态。
+@immutable
+class OrbitalNode {
+  /// Creates an orbital node. / 创建星轨节点。
+  const OrbitalNode({
+    required this.position,
+    required this.radiusFactor,
+    required this.energy,
+    required this.orbitIndex,
+  });
+
+  /// Normalized offset relative to center (`-1.0..1.0` on each axis).
+  /// 相对于中心的归一化坐标（各轴 `-1.0..1.0`）。
+  final Offset position;
+
+  /// Radius multiplier (`0.5..2.0`). / 节点半径倍率（`0.5..2.0`）。
+  final double radiusFactor;
+
+  /// Local energy (`0.0–1.0`). / 节点局部能量（`0.0–1.0`）。
+  final double energy;
+
+  /// Zero-based orbit ring index. / 所属轨道环索引（从 0 开始）。
+  final int orbitIndex;
+}
+
+/// Ballistic studio meter reading parsed for [PrecisionMeterVisualizer].
+/// 为精密录音室电桥组件解析的阻尼电平与峰值读数。
+@immutable
+class PrecisionMeterReading {
+  /// Creates a precision meter reading. / 创建精密电平表读数。
+  const PrecisionMeterReading({
+    required this.instantaneous,
+    required this.ballisticRms,
+    required this.peakHold,
+    required this.estimatedDb,
+    required this.isClipping,
+  });
+
+  /// Fast instantaneous level (`0.0–1.0`). / 瞬时快速电平（`0.0–1.0`）。
+  final double instantaneous;
+
+  /// Smooth ballistic RMS level (`0.0–1.0`). / 阻尼均方根电平（`0.0–1.0`）。
+  final double ballisticRms;
+
+  /// Decaying peak-hold level (`0.0–1.0`). / 峰值保持电平（`0.0–1.0`）。
+  final double peakHold;
+
+  /// Estimated level in dBFS (`minDb..maxDb`). / 估算分贝值（`minDb..maxDb`）。
+  final double estimatedDb;
+
+  /// True when [peakHold] or [instantaneous] enters the clipping headroom zone.
+  /// 是否进入过载预警区（`>= 0.90`）。
+  final bool isClipping;
+}
+
 /// Pure, deterministic data parsing and geometric transformation helpers for
 /// audio recording visualizers.
 ///
@@ -203,12 +315,7 @@ abstract final class WaveformDataParser {
     double minDb = -50,
     double maxDb = 0,
     double curve = 1.5,
-  }) => parseDb(
-    amplitude.current,
-    minDb: minDb,
-    maxDb: maxDb,
-    curve: curve,
-  );
+  }) => parseDb(amplitude.current, minDb: minDb, maxDb: maxDb, curve: curve);
 
   /// Computes a [WaveformMetrics] snapshot over the latest [window] samples
   /// in [controller].
@@ -219,15 +326,7 @@ abstract final class WaveformDataParser {
   }) {
     final total = controller.length;
     if (total == 0 || window <= 0) {
-      return const WaveformMetrics(
-        current: 0,
-        average: 0,
-        rms: 0,
-        peak: 0,
-        peakHold: 0,
-        flux: 0,
-        sampleCount: 0,
-      );
+      return WaveformMetrics.zero;
     }
     final count = math.min(total, window);
     var sum = 0.0;
@@ -301,10 +400,7 @@ abstract final class WaveformDataParser {
     }
     return List<double>.generate(targetCount, (i) {
       final a = (i * levels.length / targetCount).floor();
-      final b = math.max(
-        a + 1,
-        ((i + 1) * levels.length / targetCount).ceil(),
-      );
+      final b = math.max(a + 1, ((i + 1) * levels.length / targetCount).ceil());
       var peak = 0.0;
       for (var j = a; j < math.min(b, levels.length); j++) {
         final v = clean(levels[j]);
@@ -368,20 +464,14 @@ abstract final class WaveformDataParser {
     final t = controller.elapsedSeconds;
     return List<double>.generate(bandCount, (i) {
       final normPos = bandCount == 1 ? 0.5 : i / (bandCount - 1);
-      // Sample history at progressive lookback offsets combined with envelope.
-      // 结合不同回溯深度的历史采样与包络特征。
-      final histIdx = (i * math.max(1, controller.length - 1)) /
-          math.max(1, bandCount);
+      final histIdx =
+          (i * math.max(1, controller.length - 1)) / math.max(1, bandCount);
       final histVal = controller.sampleInterpolated(histIdx * 0.65);
-      // Bell-shaped vocal presence curve peaking in the mid-band region.
-      // 以中频人声区为中心的钟形权重包络。
       final centerWeight = math.sin(normPos * math.pi);
       final lowWeight = 1.0 - normPos;
       final highWeight = normPos;
       final harmonicMod = controller.active
-          ? 0.08 *
-                metrics.rms *
-                math.sin(t * (4.0 + i * 0.7) + i * 0.9)
+          ? 0.08 * metrics.rms * math.sin(t * (4.0 + i * 0.7) + i * 0.9)
           : 0.0;
       final raw =
           histVal * (0.45 + 0.35 * centerWeight) +
@@ -471,6 +561,283 @@ abstract final class WaveformDataParser {
         pNext.dy - (pNext2.dy - pCurr.dy) * factor,
       );
       return CubicSegment(p0: pCurr, c1: c1, c2: c2, p1: pNext);
+    });
+  }
+
+  /// Computes a 2D time-frequency spectrogram grid of size
+  /// `[columns][bands]` with values in `[0.0, 1.0]`.
+  ///
+  /// Column `0` is the newest time slice; within each column, band `0` is the
+  /// lowest frequency band and `bands - 1` is the highest.
+  ///
+  /// 计算 `[columns][bands]` 维度的时频声谱热力图矩阵（数值范围 `0.0–1.0`）。
+  /// 第 `0` 列为最新时间切片，列内第 `0` 行为最低频段。
+  static List<List<double>> computeSpectrogramGrid(
+    WaveformController controller, {
+    int columns = 20,
+    int bands = 8,
+  }) {
+    if (columns <= 0 || bands <= 0) return const <List<double>>[];
+    if (controller.length == 0) {
+      return List<List<double>>.generate(
+        columns,
+        (_) => List<double>.filled(bands, 0.0),
+      );
+    }
+    return List<List<double>>.generate(columns, (col) {
+      final vCurr = controller.sampleInterpolated(col.toDouble());
+      final vPrev = controller.sampleInterpolated((col + 1).toDouble());
+      final vNext = controller.sampleInterpolated(
+        math.max(0.0, (col - 1).toDouble()),
+      );
+      final localMean = (vCurr + vPrev + vNext) / 3.0;
+      final localFlux = ((vCurr - vPrev).abs() + (vNext - vCurr).abs()) * 0.5;
+      if (vCurr < 0.004 && localMean < 0.004) {
+        return List<double>.filled(bands, 0.0);
+      }
+      return List<double>.generate(bands, (b) {
+        final normBand = bands == 1 ? 0.5 : b / (bands - 1);
+        final formant = math.sin(normBand * math.pi);
+        final lowComponent = localMean * (1.0 - normBand * 0.65);
+        final midComponent = vCurr * formant;
+        final highComponent = localFlux * (0.4 + 0.8 * normBand);
+        final combined =
+            lowComponent * 0.42 + midComponent * 0.48 + highComponent * 0.45;
+        return combined.clamp(0.0, 1.0).toDouble();
+      });
+    });
+  }
+
+  /// Computes [nodeCount] paired 3D-projected double-helix nodes from
+  /// [controller].
+  ///
+  /// 从 [controller] 计算 [nodeCount] 组双螺旋声波三维投影节点。
+  static List<HelixNode> computeHelixNodes(
+    WaveformController controller, {
+    int nodeCount = 24,
+    double turns = 1.75,
+  }) {
+    if (nodeCount <= 0) return const <HelixNode>[];
+    final metrics = computeMetrics(controller, window: 20);
+    final phaseTime = controller.active ? controller.elapsedSeconds * 3.0 : 0.0;
+    final shift = controller.active ? controller.phase : 0.0;
+    return List<HelixNode>.generate(nodeCount, (i) {
+      final progress = nodeCount == 1 ? 0.5 : i / (nodeCount - 1);
+      final bell = math.sin(progress * math.pi);
+      final sample = controller.sampleInterpolated(i * 0.8 + shift);
+      final amp = ((sample * 0.75 + metrics.rms * 0.25) * (0.25 + 0.75 * bell))
+          .clamp(0.0, 1.0)
+          .toDouble();
+      final theta = progress * math.pi * 2 * turns - phaseTime;
+      final sinT = math.sin(theta);
+      final cosT = math.cos(theta);
+      final envelope = controller.active || !metrics.isSilent
+          ? math.max(0.12, amp)
+          : 0.10 * bell;
+      return HelixNode(
+        progress: progress,
+        yOffsetA: (sinT * envelope).clamp(-1.0, 1.0),
+        yOffsetB: (-sinT * envelope).clamp(-1.0, 1.0),
+        depthA: cosT,
+        depthB: -cosT,
+        amplitude: amp,
+      );
+    });
+  }
+
+  /// Computes normalized petal expansion ratios (`0.0–1.0`) for
+  /// [petalCount] radial lotus/mandala petals.
+  ///
+  /// 计算 [petalCount] 个几何花瓣的归一化舒展比例（`0.0–1.0`）。
+  static List<double> computePetalRadii(
+    WaveformController controller, {
+    int petalCount = 8,
+  }) {
+    if (petalCount <= 0) return const <double>[];
+    final bands = extractFrequencyBands(controller, petalCount);
+    final metrics = computeMetrics(controller, window: 16);
+    if (metrics.isSilent) {
+      return List<double>.filled(petalCount, 0.0);
+    }
+    return List<double>.generate(petalCount, (i) {
+      final mirrorIdx = petalCount - 1 - i;
+      final symVal = (bands[i] + bands[mirrorIdx]) * 0.5;
+      return (symVal * 0.75 + metrics.rms * 0.25).clamp(0.0, 1.0).toDouble();
+    });
+  }
+
+  /// Parses a studio-grade [PrecisionMeterReading] from [controller].
+  /// 从 [controller] 解析录音室级别的精密电平读数 [PrecisionMeterReading]。
+  static PrecisionMeterReading parsePrecisionMeter(
+    WaveformController controller,
+  ) {
+    final m = computeMetrics(controller, window: 24);
+    final inst = m.current.clamp(0.0, 1.0);
+    final rms = m.rms.clamp(0.0, 1.0);
+    final peak = m.peakHold.clamp(0.0, 1.0);
+    final span = controller.maxDb - controller.minDb;
+    final linear = controller.curve == 1.0
+        ? inst
+        : math.pow(inst, 1.0 / controller.curve).toDouble();
+    final db = (controller.minDb + linear * span).clamp(
+      controller.minDb,
+      controller.maxDb,
+    );
+    return PrecisionMeterReading(
+      instantaneous: inst,
+      ballisticRms: rms,
+      peakHold: peak,
+      estimatedDb: db,
+      isClipping: peak >= 0.90 || inst >= 0.92,
+    );
+  }
+
+  /// Computes instantaneous swing angles (in radians) for [count] coupled
+  /// harmonic pendulums.
+  ///
+  /// 计算 [count] 个耦合谐振钟摆的瞬时摆角（弧度）。
+  static List<double> computePendulumAngles(
+    WaveformController controller, {
+    int count = 15,
+    double maxAngleRadians = 0.68,
+  }) {
+    if (count <= 0) return const <double>[];
+    final m = computeMetrics(controller, window: 20);
+    if (m.isSilent && !controller.active) {
+      return List<double>.filled(count, 0.0);
+    }
+    final t = controller.elapsedSeconds;
+    return List<double>.generate(count, (i) {
+      final hist = controller.sampleInterpolated(i * 0.7);
+      final energy = (hist * 0.65 + m.rms * 0.35).clamp(0.0, 1.0);
+      // Graduated frequencies create a travelling pendulum wave pattern.
+      // 递增谐振频率形成行波钟摆视觉效果。
+      final freq = 2.2 + i * 0.24;
+      final swing = controller.active
+          ? math.sin(t * freq + i * 0.38)
+          : math.sin(i * 0.55);
+      return (swing * energy * maxAngleRadians).clamp(
+        -maxAngleRadians,
+        maxAngleRadians,
+      );
+    });
+  }
+
+  /// Computes the 2D vertices of a regular [sides]-gon centered at [center]
+  /// with base [radius], rotated by [rotation] radians, and radially modulated
+  /// by [vertexScales].
+  ///
+  /// 计算以 [center] 为中心、基准半径为 [radius]、旋转角为 [rotation] 的
+  /// [sides] 边形顶点坐标，并按 [vertexScales] 调制各顶点径向伸展。
+  static List<Offset> computePolygonVertices(
+    Offset center,
+    double radius,
+    int sides, {
+    double rotation = 0.0,
+    List<double>? vertexScales,
+  }) {
+    if (sides < 3 || radius <= 0) return const <Offset>[];
+    return List<Offset>.generate(sides, (i) {
+      final scale = (vertexScales != null && vertexScales.isNotEmpty)
+          ? vertexScales[i % vertexScales.length].clamp(0.1, 3.0)
+          : 1.0;
+      final r = radius * scale;
+      final angle = rotation - math.pi / 2 + (i * 2 * math.pi / sides);
+      return Offset(
+        center.dx + r * math.cos(angle),
+        center.dy + r * math.sin(angle),
+      );
+    });
+  }
+
+  /// Computes [slatCount] kinetic louver slat states from [controller].
+  /// 从 [controller] 计算 [slatCount] 个韵律百叶窗叶片的倾斜与高度状态。
+  static List<LouverSlat> computeKineticLouvers(
+    WaveformController controller, {
+    int slatCount = 28,
+    double maxTiltRadians = 0.52,
+  }) {
+    if (slatCount <= 0) return const <LouverSlat>[];
+    final shift = controller.active ? controller.phase : 0.0;
+    final t = controller.elapsedSeconds;
+    return List<LouverSlat>.generate(slatCount, (i) {
+      final v = controller.sampleInterpolated(i + shift).clamp(0.0, 1.0);
+      final vNext = controller
+          .sampleInterpolated(i + 1 + shift)
+          .clamp(0.0, 1.0);
+      final gradient = v - vNext;
+      final wavePhase = controller.active ? math.sin(t * 4.0 - i * 0.35) : 0.0;
+      final tilt = ((gradient * 1.4 + wavePhase * 0.45 * v) * maxTiltRadians)
+          .clamp(-maxTiltRadians, maxTiltRadians);
+      final heightFactor = (0.18 + 0.82 * v).clamp(0.18, 1.0);
+      final thicknessFactor = (0.65 + 0.70 * v).clamp(0.65, 1.35);
+      return LouverSlat(
+        amplitude: v,
+        tiltRadians: tilt,
+        heightFactor: heightFactor,
+        thicknessFactor: thicknessFactor,
+      );
+    });
+  }
+
+  /// Computes [nodeCount] orbital constellation nodes distributed across
+  /// concentric elliptical tracks in `[-1.0, 1.0]` normalized coordinates.
+  ///
+  /// 计算分布在多层椭圆星轨上的 [nodeCount] 个星座节点（归一化坐标 `-1.0..1.0`）。
+  static List<OrbitalNode> computeOrbitalNodes(
+    WaveformController controller, {
+    int nodeCount = 16,
+    int orbitCount = 3,
+  }) {
+    if (nodeCount <= 0 || orbitCount <= 0) return const <OrbitalNode>[];
+    final bands = extractFrequencyBands(controller, nodeCount);
+    final m = computeMetrics(controller, window: 20);
+    final t = controller.elapsedSeconds;
+    return List<OrbitalNode>.generate(nodeCount, (i) {
+      final orbitIdx = i % orbitCount;
+      final baseOrbitR = 0.28 + (orbitIdx / math.max(1, orbitCount)) * 0.52;
+      final energy = bands[i];
+      final r = (baseOrbitR + energy * 0.16).clamp(0.15, 0.96);
+      final speed = (orbitIdx.isEven ? 1.0 : -1.0) * (0.55 + orbitIdx * 0.28);
+      final boost = controller.active ? t * speed * (1.0 + m.rms * 0.8) : 0.0;
+      final baseAngle = (i * 2 * math.pi / nodeCount) + boost;
+      final aspect = 0.78 + 0.08 * orbitIdx;
+      final nx = (r * math.cos(baseAngle)).clamp(-1.0, 1.0);
+      final ny = (r * math.sin(baseAngle) * aspect).clamp(-1.0, 1.0);
+      return OrbitalNode(
+        position: Offset(nx, ny),
+        radiusFactor: (0.75 + 1.15 * energy).clamp(0.75, 1.90),
+        energy: energy,
+        orbitIndex: orbitIdx,
+      );
+    });
+  }
+
+  /// Synthesizes [pointCount] normalized vertical displacements (`-1.0..1.0`)
+  /// for a phosphor oscilloscope trace driven by [controller].
+  ///
+  /// 合成 [pointCount] 个归一化示波器轨迹纵坐标（`-1.0..1.0`）。
+  static List<double> computeOscilloscopeTrace(
+    WaveformController controller, {
+    int pointCount = 96,
+  }) {
+    if (pointCount <= 0) return const <double>[];
+    final m = computeMetrics(controller, window: 24);
+    if (m.isSilent && !controller.active) {
+      return List<double>.filled(pointCount, 0.0);
+    }
+    final t = controller.elapsedSeconds;
+    return List<double>.generate(pointCount, (i) {
+      final normX = pointCount == 1 ? 0.5 : i / (pointCount - 1);
+      final bell = math.sin(normX * math.pi);
+      final histPos =
+          (1.0 - normX) * math.min(24, math.max(1, controller.length));
+      final env = controller.sampleInterpolated(histPos);
+      final energy = (env * 0.70 + m.current * 0.30).clamp(0.0, 1.0);
+      final carrier =
+          math.sin(normX * math.pi * 10.0 - t * 14.0) * 0.65 +
+          math.sin(normX * math.pi * 23.0 + t * 9.0) * 0.35;
+      return (carrier * energy * (0.20 + 0.80 * bell)).clamp(-1.0, 1.0);
     });
   }
 }

@@ -144,8 +144,8 @@ void main() {
             .firstMatch(Platform.operatingSystemVersion);
         return int.tryParse(m?.group(1) ?? '') ?? 0;
       }();
-      final expectIosSourceLoadFailed = Platform.isIOS &&
-          (f == 'ogg' || (f == 'opus' && iosMajor < 26));
+      final expectIosSourceLoadFailed =
+          Platform.isIOS && (f == 'ogg' || (f == 'opus' && iosMajor < 26));
       testWidgets('file', (_) async {
         final source = AudioSource.file('${dir.path}/tone.$f');
         if (expectIosSourceLoadFailed) {
@@ -220,7 +220,8 @@ void main() {
       // Windows. Assert the stable unsupportedEncoder code on those platforms.
       // Android / iOS / macOS / Windows 故意不支持 Opus 录音；断言稳定的
       // unsupportedEncoder 错误码。
-      final opusUnsupported = encoder == AudioEncoder.opus &&
+      final opusUnsupported =
+          encoder == AudioEncoder.opus &&
           (Platform.isWindows ||
               Platform.isIOS ||
               Platform.isMacOS ||

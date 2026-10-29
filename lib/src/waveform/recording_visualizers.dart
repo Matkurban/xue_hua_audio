@@ -6,7 +6,10 @@ import 'package:flutter/widgets.dart';
 
 import '../audio_recorder.dart';
 import '../types/player_state.dart';
+import 'advanced_visualizers.dart';
 import 'audio_waveform.dart';
+
+export 'advanced_visualizers.dart';
 import 'waveform_controller.dart';
 import 'waveform_parser.dart';
 
@@ -39,6 +42,46 @@ enum RecordingVisualizerType {
   /// Morphing closed-Bezier liquid acoustic orb ([LiquidOrbVisualizer]).
   /// 液态几何流体声球（[LiquidOrbVisualizer]）。
   liquidOrb,
+
+  /// Time-frequency thermal spectrogram heatmap ([SpectrogramHeatmapVisualizer]).
+  /// 实时声谱热力瀑布图（[SpectrogramHeatmapVisualizer]）。
+  spectrogramHeatmap,
+
+  /// 3D-projected double-helix acoustic DNA strand ([HelixDnaVisualizer]).
+  /// 双螺旋声波基因链（[HelixDnaVisualizer]）。
+  helixDna,
+
+  /// Radial geometric lotus/mandala petals ([AcousticPetalVisualizer]).
+  /// 几何声学花瓣曼陀罗（[AcousticPetalVisualizer]）。
+  acousticPetal,
+
+  /// Studio-grade dual ballistic RMS + peak bridge ([PrecisionMeterVisualizer]).
+  /// 极简录音室精密双轨电桥（[PrecisionMeterVisualizer]）。
+  precisionMeter,
+
+  /// Coupled harmonic Mach's pendulum wave ([VoicePendulumVisualizer]).
+  /// 声学耦合谐振钟摆波（[VoicePendulumVisualizer]）。
+  voicePendulum,
+
+  /// Concentric morphing geometric polygon tunnel ([MorphingPolygonVisualizer]).
+  /// 多维极简几何多边形声场（[MorphingPolygonVisualizer]）。
+  morphingPolygon,
+
+  /// Architectural tilting kinetic louver slats ([KineticLouverVisualizer]).
+  /// 建筑感韵律百叶窗光栅（[KineticLouverVisualizer]）。
+  kineticLouver,
+
+  /// Revolving orbital nodes with proximity links ([OrbitConstellationVisualizer]).
+  /// 星轨声场星座引力网（[OrbitConstellationVisualizer]）。
+  orbitConstellation,
+
+  /// Mirrored origami diamond facet ribbon ([SymmetricRibbonVisualizer]).
+  /// 极简折纸镜像钻石丝带（[SymmetricRibbonVisualizer]）。
+  symmetricRibbon,
+
+  /// Phosphor graticule oscilloscope trace ([OscilloscopeTraceVisualizer]).
+  /// 极简荧光扫描示波器（[OscilloscopeTraceVisualizer]）。
+  oscilloscopeTrace,
 }
 
 /// Base widget for live recording visualizers driven by an [AudioRecorder],
@@ -223,8 +266,7 @@ class _RecordingVisualizerBaseState extends State<RecordingVisualizerBase>
 
   @override
   Widget build(BuildContext context) {
-    final direction =
-        Directionality.maybeOf(context) ?? TextDirection.ltr;
+    final direction = Directionality.maybeOf(context) ?? TextDirection.ltr;
     final label =
         widget.semanticLabel ?? widget.defaultSemanticLabel(_controller.active);
     return Semantics(
@@ -521,10 +563,9 @@ class _HarmonicWavePainter extends CustomPainter {
       return;
     }
 
-    final energy = (metrics.current * 0.55 +
-            metrics.rms * 0.35 +
-            metrics.flux * 0.25)
-        .clamp(0.0, 1.0);
+    final energy =
+        (metrics.current * 0.55 + metrics.rms * 0.35 + metrics.flux * 0.25)
+            .clamp(0.0, 1.0);
     final effectiveAmp = math.max(
       strokeWidth,
       maxAmp * (controller.active ? math.max(0.04, energy) : energy),
@@ -546,9 +587,7 @@ class _HarmonicWavePainter extends CustomPainter {
         // Raised-cosine bell window: 0 at both ends, 1 in the center.
         // 升余弦钟形窗函数：两端平滑归零，中心达到峰值。
         final bell = math.pow(math.sin(normX * math.pi), 1.6).toDouble();
-        final histSample = controller.sampleInterpolated(
-          (1.0 - normX) * 12.0,
-        );
+        final histSample = controller.sampleInterpolated((1.0 - normX) * 12.0);
         final localBoost = 0.65 + 0.35 * histSample;
         final waveVal = math.sin(normX * math.pi * 2 * freq - phase);
         final dy = waveVal * effectiveAmp * layerRatio * bell * localBoost;
@@ -591,17 +630,18 @@ class _HarmonicWavePainter extends CustomPainter {
       final alpha = isPrimary
           ? 0.95
           : (0.65 * (1.0 - w / (waveCount + 0.5))).clamp(0.15, 0.75);
-      final ribbonPaint = _createActivePaint(
-        color.withValues(alpha: alpha),
-        isPrimary ? gradient : null,
-        rect,
-      )
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = isPrimary
-            ? strokeWidth
-            : math.max(1.0, strokeWidth * 0.65)
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round;
+      final ribbonPaint =
+          _createActivePaint(
+              color.withValues(alpha: alpha),
+              isPrimary ? gradient : null,
+              rect,
+            )
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = isPrimary
+                ? strokeWidth
+                : math.max(1.0, strokeWidth * 0.65)
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round;
       canvas.drawPath(path, ribbonPaint);
     }
   }
@@ -753,10 +793,7 @@ class _RadialSpectrumPainter extends CustomPainter {
     }
 
     if (showCenterDot) {
-      final dotR = math.max(
-        2.5,
-        innerR * (0.22 + 0.35 * metrics.rms),
-      );
+      final dotR = math.max(2.5, innerR * (0.22 + 0.35 * metrics.rms));
       canvas.drawCircle(
         center,
         dotR,
@@ -1105,7 +1142,8 @@ class _ParticleMatrixPainter extends CustomPainter {
             ? 0.06 * v * math.sin(t * 5.0 + c * 0.45 + r)
             : 0.0;
         final restSpread = 0.14 * maxSpread * rowNorm;
-        final activeSpread = maxSpread * rowNorm * (0.18 + 0.82 * v + waveJitter);
+        final activeSpread =
+            maxSpread * rowNorm * (0.18 + 0.82 * v + waveJitter);
         final y = midY + (v > 0.004 ? activeSpread : restSpread);
 
         final layerScale = 1.0 - 0.38 * distFromCenter;
@@ -1251,8 +1289,7 @@ class _LiquidOrbPainter extends CustomPainter {
       final radii = List<double>.generate(lobeCount, (i) {
         final bandVal = bands[(i + layer * 2) % lobeCount];
         final harmonic = controller.active
-            ? 0.05 *
-                  math.sin(t * (3.0 + layer) + i * (2 * math.pi / lobeCount))
+            ? 0.05 * math.sin(t * (3.0 + layer) + i * (2 * math.pi / lobeCount))
             : 0.0;
         final excursion =
             maxExcursion * (bandVal * 0.85 + metrics.rms * 0.15 + harmonic);
@@ -1302,9 +1339,7 @@ class _LiquidOrbPainter extends CustomPainter {
         ..isAntiAlias = true
         ..style = PaintingStyle.stroke
         ..strokeWidth = isFront ? 2.0 : 1.2
-        ..color = baseColor.withValues(
-          alpha: (alpha + 0.18).clamp(0.25, 1.0),
-        );
+        ..color = baseColor.withValues(alpha: (alpha + 0.18).clamp(0.25, 1.0));
       canvas.drawPath(path, strokePaint);
     }
   }
@@ -1480,6 +1515,146 @@ class RecordingVisualizer extends StatelessWidget {
         );
       case RecordingVisualizerType.liquidOrb:
         return LiquidOrbVisualizer(
+          recorder: recorder,
+          levels: levels,
+          controller: controller,
+          active: active,
+          color: color,
+          gradient: gradient,
+          inactiveColor: inactiveColor,
+          height: height,
+          minDb: minDb,
+          maxDb: maxDb,
+          semanticLabel: semanticLabel,
+        );
+      case RecordingVisualizerType.spectrogramHeatmap:
+        return SpectrogramHeatmapVisualizer(
+          recorder: recorder,
+          levels: levels,
+          controller: controller,
+          active: active,
+          color: color,
+          gradient: gradient,
+          inactiveColor: inactiveColor,
+          height: height,
+          minDb: minDb,
+          maxDb: maxDb,
+          semanticLabel: semanticLabel,
+        );
+      case RecordingVisualizerType.helixDna:
+        return HelixDnaVisualizer(
+          recorder: recorder,
+          levels: levels,
+          controller: controller,
+          active: active,
+          color: color,
+          gradient: gradient,
+          inactiveColor: inactiveColor,
+          height: height,
+          minDb: minDb,
+          maxDb: maxDb,
+          semanticLabel: semanticLabel,
+        );
+      case RecordingVisualizerType.acousticPetal:
+        return AcousticPetalVisualizer(
+          recorder: recorder,
+          levels: levels,
+          controller: controller,
+          active: active,
+          color: color,
+          gradient: gradient,
+          inactiveColor: inactiveColor,
+          height: height,
+          minDb: minDb,
+          maxDb: maxDb,
+          semanticLabel: semanticLabel,
+        );
+      case RecordingVisualizerType.precisionMeter:
+        return PrecisionMeterVisualizer(
+          recorder: recorder,
+          levels: levels,
+          controller: controller,
+          active: active,
+          color: color,
+          gradient: gradient,
+          inactiveColor: inactiveColor,
+          height: height,
+          minDb: minDb,
+          maxDb: maxDb,
+          semanticLabel: semanticLabel,
+        );
+      case RecordingVisualizerType.voicePendulum:
+        return VoicePendulumVisualizer(
+          recorder: recorder,
+          levels: levels,
+          controller: controller,
+          active: active,
+          color: color,
+          gradient: gradient,
+          inactiveColor: inactiveColor,
+          height: height,
+          minDb: minDb,
+          maxDb: maxDb,
+          semanticLabel: semanticLabel,
+        );
+      case RecordingVisualizerType.morphingPolygon:
+        return MorphingPolygonVisualizer(
+          recorder: recorder,
+          levels: levels,
+          controller: controller,
+          active: active,
+          color: color,
+          gradient: gradient,
+          inactiveColor: inactiveColor,
+          height: height,
+          minDb: minDb,
+          maxDb: maxDb,
+          semanticLabel: semanticLabel,
+        );
+      case RecordingVisualizerType.kineticLouver:
+        return KineticLouverVisualizer(
+          recorder: recorder,
+          levels: levels,
+          controller: controller,
+          active: active,
+          color: color,
+          gradient: gradient,
+          inactiveColor: inactiveColor,
+          height: height,
+          minDb: minDb,
+          maxDb: maxDb,
+          semanticLabel: semanticLabel,
+        );
+      case RecordingVisualizerType.orbitConstellation:
+        return OrbitConstellationVisualizer(
+          recorder: recorder,
+          levels: levels,
+          controller: controller,
+          active: active,
+          color: color,
+          gradient: gradient,
+          inactiveColor: inactiveColor,
+          height: height,
+          minDb: minDb,
+          maxDb: maxDb,
+          semanticLabel: semanticLabel,
+        );
+      case RecordingVisualizerType.symmetricRibbon:
+        return SymmetricRibbonVisualizer(
+          recorder: recorder,
+          levels: levels,
+          controller: controller,
+          active: active,
+          color: color,
+          gradient: gradient,
+          inactiveColor: inactiveColor,
+          height: height,
+          minDb: minDb,
+          maxDb: maxDb,
+          semanticLabel: semanticLabel,
+        );
+      case RecordingVisualizerType.oscilloscopeTrace:
+        return OscilloscopeTraceVisualizer(
           recorder: recorder,
           levels: levels,
           controller: controller,

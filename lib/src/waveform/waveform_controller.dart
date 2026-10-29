@@ -161,12 +161,8 @@ class WaveformController extends ChangeNotifier {
   /// Maps a dBFS level to 0–1: gate at [minDb], linear to [maxDb], then the
   /// [curve] soft knee. / 将 dBFS 映射到 0–1：[minDb] 处设门限，线性到
   /// [maxDb]，再施加 [curve] 软膝。
-  double normalize(double db) => WaveformDataParser.parseDb(
-    db,
-    minDb: minDb,
-    maxDb: maxDb,
-    curve: curve,
-  );
+  double normalize(double db) =>
+      WaveformDataParser.parseDb(db, minDb: minDb, maxDb: maxDb, curve: curve);
 
   /// Feeds a level in dBFS; one call per native event. / 输入 dBFS 电平；
   /// 每个原生事件调用一次。

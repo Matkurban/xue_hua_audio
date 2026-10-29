@@ -195,7 +195,7 @@ void main() {
     });
   });
 
-  group('WaveformDataParser (Data Parsing & Geometry)', () {
+  group('WaveformDataParser (Data Parsing & Geometry for 16 Visualizers)', () {
     test('parseDb & parseAmplitude handle edge cases and soft knee', () {
       expect(WaveformDataParser.parseDb(double.nan), 0.0);
       expect(WaveformDataParser.parseDb(double.negativeInfinity), 0.0);
@@ -220,11 +220,8 @@ void main() {
     });
 
     test('computeMetrics calculates current, average, rms, peak, and flux', () {
-      final c = WaveformController(
-        maxBarsPerSecond: 20,
-        attack: 1,
-        release: 1,
-      )..active = true;
+      final c = WaveformController(maxBarsPerSecond: 20, attack: 1, release: 1)
+        ..active = true;
 
       final empty = c.computeMetrics();
       expect(empty, WaveformMetrics.zero);
@@ -243,50 +240,54 @@ void main() {
       expect(m.peakHold, closeTo(0.8, 1e-6));
       expect(m.flux, closeTo(0.6, 1e-6));
       expect(m.isSilent, isFalse);
-      expect(m.toString(), contains('WaveformMetrics('));
+      expect(m.toString(), contains('WaveformMetrics'));
       c.dispose();
     });
 
-    test('resamplePeak handles empty, single, upsampling, and downsampling', () {
-      expect(WaveformDataParser.resamplePeak(const [], 0), isEmpty);
-      expect(WaveformDataParser.resamplePeak(const [], 4), [0, 0, 0, 0]);
-      expect(
-        WaveformDataParser.resamplePeak(const [0.6], 3),
-        [closeTo(0.6, 1e-6), closeTo(0.6, 1e-6), closeTo(0.6, 1e-6)],
-      );
-      expect(
-        WaveformDataParser.resamplePeak(const [0.1, 0.9, 0.3], 1),
-        [closeTo(0.9, 1e-6)],
-      );
+    test(
+      'resamplePeak handles empty, single, upsampling, and downsampling',
+      () {
+        expect(WaveformDataParser.resamplePeak(const [], 0), isEmpty);
+        expect(WaveformDataParser.resamplePeak(const [], 4), [0, 0, 0, 0]);
+        expect(WaveformDataParser.resamplePeak(const [0.6], 3), [
+          closeTo(0.6, 1e-6),
+          closeTo(0.6, 1e-6),
+          closeTo(0.6, 1e-6),
+        ]);
+        expect(WaveformDataParser.resamplePeak(const [0.1, 0.9, 0.3], 1), [
+          closeTo(0.9, 1e-6),
+        ]);
 
-      // Upsampling: 3 points -> 5 points via linear interpolation
-      final up = WaveformDataParser.resamplePeak(const [0.0, 1.0, 0.0], 5);
-      expect(up, [
-        closeTo(0.0, 1e-6),
-        closeTo(0.5, 1e-6),
-        closeTo(1.0, 1e-6),
-        closeTo(0.5, 1e-6),
-        closeTo(0.0, 1e-6),
-      ]);
+        final up = WaveformDataParser.resamplePeak(const [0.0, 1.0, 0.0], 5);
+        expect(up, [
+          closeTo(0.0, 1e-6),
+          closeTo(0.5, 1e-6),
+          closeTo(1.0, 1e-6),
+          closeTo(0.5, 1e-6),
+          closeTo(0.0, 1e-6),
+        ]);
 
-      // Downsampling: preserves transient spike and sanitizes NaN / out-of-range
-      final down = WaveformDataParser.resamplePeak(
-        const [0.1, double.nan, 0.2, 1.5, 0.1, -0.5, 0.4, 0.3],
-        4,
-      );
-      expect(down.length, 4);
-      expect(down[0], closeTo(0.1, 1e-6));
-      expect(down[1], closeTo(1.0, 1e-6)); // 1.5 clamped to 1.0
-      expect(down[2], closeTo(0.1, 1e-6)); // -0.5 clamped to 0.0
-      expect(down[3], closeTo(0.4, 1e-6));
-    });
+        final down = WaveformDataParser.resamplePeak(const [
+          0.1,
+          double.nan,
+          0.2,
+          1.5,
+          0.1,
+          -0.5,
+          0.4,
+          0.3,
+        ], 4);
+        expect(down.length, 4);
+        expect(down[0], closeTo(0.1, 1e-6));
+        expect(down[1], closeTo(1.0, 1e-6));
+        expect(down[2], closeTo(0.1, 1e-6));
+        expect(down[3], closeTo(0.4, 1e-6));
+      },
+    );
 
     test('extractMirroredRadial enforces bilateral symmetry', () {
-      final c = WaveformController(
-        maxBarsPerSecond: 20,
-        attack: 1,
-        release: 1,
-      )..active = true;
+      final c = WaveformController(maxBarsPerSecond: 20, attack: 1, release: 1)
+        ..active = true;
       expect(WaveformDataParser.extractMirroredRadial(c, 8), List.filled(8, 0));
 
       for (final v in [0.1, 0.3, 0.6, 0.9]) {
@@ -317,11 +318,8 @@ void main() {
     });
 
     test('extractFrequencyBands synthesizes bounded multi-band energy', () {
-      final c = WaveformController(
-        maxBarsPerSecond: 20,
-        attack: 1,
-        release: 1,
-      )..active = true;
+      final c = WaveformController(maxBarsPerSecond: 20, attack: 1, release: 1)
+        ..active = true;
       expect(
         WaveformDataParser.extractFrequencyBands(c, 12),
         List.filled(12, 0.0),
@@ -366,10 +364,10 @@ void main() {
 
     test('computeClosedSplineSegments generates C1 continuous closed loop', () {
       expect(
-        WaveformDataParser.computeClosedSplineSegments(
-          const [10, 10],
-          Offset.zero,
-        ),
+        WaveformDataParser.computeClosedSplineSegments(const [
+          10,
+          10,
+        ], Offset.zero),
         isEmpty,
       );
       final segments = WaveformDataParser.computeClosedSplineSegments(
@@ -387,6 +385,140 @@ void main() {
         );
       }
     });
+
+    test('computeSpectrogramGrid, computeHelixNodes, computePetalRadii', () {
+      final c = WaveformController(maxBarsPerSecond: 20, attack: 1, release: 1)
+        ..active = true;
+
+      expect(
+        WaveformDataParser.computeSpectrogramGrid(c, columns: 0, bands: 4),
+        isEmpty,
+      );
+      final emptyGrid = WaveformDataParser.computeSpectrogramGrid(
+        c,
+        columns: 6,
+        bands: 4,
+      );
+      expect(emptyGrid.length, 6);
+      expect(emptyGrid.first, [0, 0, 0, 0]);
+
+      for (final v in [0.2, 0.9, 0.4, 0.7]) {
+        c.addNormalized(v);
+        c.advance(_ms(80));
+      }
+
+      final grid = WaveformDataParser.computeSpectrogramGrid(
+        c,
+        columns: 6,
+        bands: 4,
+      );
+      expect(grid.length, 6);
+      expect(grid.first.length, 4);
+      expect(
+        grid.expand((col) => col).every((v) => v >= 0.0 && v <= 1.0),
+        isTrue,
+      );
+      expect(grid.first.any((v) => v > 0.1), isTrue);
+
+      final helix = WaveformDataParser.computeHelixNodes(c, nodeCount: 12);
+      expect(helix.length, 12);
+      for (final node in helix) {
+        expect(node.progress, inInclusiveRange(0.0, 1.0));
+        expect(node.yOffsetA, closeTo(-node.yOffsetB, 1e-6));
+        expect(node.depthA, closeTo(-node.depthB, 1e-6));
+        expect(node.amplitude, inInclusiveRange(0.0, 1.0));
+      }
+
+      final petals = WaveformDataParser.computePetalRadii(c, petalCount: 8);
+      expect(petals.length, 8);
+      expect(petals.first, closeTo(petals.last, 1e-6));
+      c.dispose();
+    });
+
+    test(
+      'parsePrecisionMeter, computePendulumAngles, computePolygonVertices, '
+      'computeKineticLouvers, computeOrbitalNodes, computeOscilloscopeTrace',
+      () {
+        final c = WaveformController(
+          maxBarsPerSecond: 20,
+          attack: 1,
+          release: 1,
+        )..active = true;
+
+        final silentMeter = WaveformDataParser.parsePrecisionMeter(c);
+        expect(silentMeter.instantaneous, 0.0);
+        expect(silentMeter.isClipping, isFalse);
+
+        c.addNormalized(0.95);
+        c.advance(_ms(80));
+        final hotMeter = WaveformDataParser.parsePrecisionMeter(c);
+        expect(hotMeter.instantaneous, closeTo(0.95, 1e-6));
+        expect(hotMeter.isClipping, isTrue);
+        expect(hotMeter.estimatedDb, greaterThan(-5.0));
+
+        final angles = WaveformDataParser.computePendulumAngles(
+          c,
+          count: 10,
+          maxAngleRadians: 0.6,
+        );
+        expect(angles.length, 10);
+        expect(angles.every((a) => a.abs() <= 0.6 + 1e-6), isTrue);
+
+        final poly = WaveformDataParser.computePolygonVertices(
+          const Offset(50, 50),
+          30,
+          6,
+          vertexScales: const [1, 1, 1, 1, 1, 1],
+        );
+        expect(poly.length, 6);
+        for (final pt in poly) {
+          expect((pt - const Offset(50, 50)).distance, closeTo(30.0, 1e-4));
+        }
+
+        final louvers = WaveformDataParser.computeKineticLouvers(
+          c,
+          slatCount: 16,
+        );
+        expect(louvers.length, 16);
+        expect(
+          louvers.every(
+            (s) =>
+                s.heightFactor >= 0.18 &&
+                s.heightFactor <= 1.0 &&
+                s.tiltRadians.abs() <= 0.52 + 1e-6,
+          ),
+          isTrue,
+        );
+
+        final nodes = WaveformDataParser.computeOrbitalNodes(
+          c,
+          nodeCount: 12,
+          orbitCount: 3,
+        );
+        expect(nodes.length, 12);
+        expect(
+          nodes.every(
+            (n) =>
+                n.position.dx.abs() <= 1.0 &&
+                n.position.dy.abs() <= 1.0 &&
+                n.orbitIndex >= 0 &&
+                n.orbitIndex < 3,
+          ),
+          isTrue,
+        );
+
+        final trace = WaveformDataParser.computeOscilloscopeTrace(
+          c,
+          pointCount: 64,
+        );
+        expect(trace.length, 64);
+        expect(trace.every((y) => y >= -1.0 && y <= 1.0), isTrue);
+        expect(trace.first, closeTo(0.0, 1e-6));
+        expect(trace.last, closeTo(0.0, 1e-6));
+
+        c.dispose();
+      },
+    );
   });
 
   group('AudioWaveform', () {
@@ -397,7 +529,6 @@ void main() {
       await tester.pump();
       expect(find.byType(AudioWaveform), findsOneWidget);
       expect(find.bySemanticsLabel('Waveform'), findsOneWidget);
-      // Nothing is scheduled while inactive. / 未激活时没有待执行帧。
       expect(tester.binding.hasScheduledFrame, isFalse);
     });
 
@@ -412,7 +543,6 @@ void main() {
         await tester.pump(const Duration(milliseconds: 50));
         levels.add(-10);
       }
-      // Painting must not throw and a frame was produced.
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
       await levels.close();
@@ -465,9 +595,6 @@ void main() {
       await tester.pump();
       await tester.pumpWidget(const SizedBox());
       controller.dispose();
-      // The fake platform's controller close() never completes once a
-      // subscription was cancelled mid-flight; don't await it here.
-      // 假平台的 controller.close() 在订阅中途取消后不会完成，这里不等待。
       unawaited(recorder.dispose());
     });
 
@@ -512,9 +639,9 @@ void main() {
     });
   });
 
-  group('New Recording Visualizers (6 Components + RecordingVisualizer)', () {
+  group('16 Custom Recording Visualizers + RecordingVisualizer', () {
     testWidgets(
-      'all 6 new visualizers render idle state without scheduling frames',
+      'all 16 custom visualizers render idle state without scheduling frames',
       (tester) async {
         final idleWidgets = <Widget>[
           const PulseRingVisualizer(active: false),
@@ -523,6 +650,16 @@ void main() {
           const SegmentedVuVisualizer(active: false),
           const ParticleMatrixVisualizer(active: false),
           const LiquidOrbVisualizer(active: false),
+          const SpectrogramHeatmapVisualizer(active: false),
+          const HelixDnaVisualizer(active: false),
+          const AcousticPetalVisualizer(active: false),
+          const PrecisionMeterVisualizer(active: false),
+          const VoicePendulumVisualizer(active: false),
+          const MorphingPolygonVisualizer(active: false),
+          const KineticLouverVisualizer(active: false),
+          const OrbitConstellationVisualizer(active: false),
+          const SymmetricRibbonVisualizer(active: false),
+          const OscilloscopeTraceVisualizer(active: false),
         ];
 
         for (final widget in idleWidgets) {
@@ -535,7 +672,7 @@ void main() {
     );
 
     testWidgets(
-      'all 6 new visualizers animate and paint live dBFS stream data cleanly',
+      'all 16 custom visualizers animate and paint live dBFS stream data cleanly',
       (tester) async {
         const gradient = LinearGradient(
           colors: [Color(0xFF10B981), Color(0xFF3B82F6)],
@@ -576,9 +713,51 @@ void main() {
             lobeCount: 10,
             layerCount: 3,
           ),
-          LiquidOrbVisualizer(
+          LiquidOrbVisualizer(controller: controller, strokeOnly: true),
+          SpectrogramHeatmapVisualizer(
             controller: controller,
-            strokeOnly: true,
+            columns: 20,
+            bands: 6,
+          ),
+          HelixDnaVisualizer(controller: controller, nodeCount: 20),
+          AcousticPetalVisualizer(
+            controller: controller,
+            gradient: gradient,
+            petalCount: 10,
+          ),
+          PrecisionMeterVisualizer(controller: controller, gradient: gradient),
+          VoicePendulumVisualizer(
+            controller: controller,
+            gradient: gradient,
+            pendulumCount: 12,
+          ),
+          MorphingPolygonVisualizer(
+            controller: controller,
+            gradient: gradient,
+            sides: 6,
+            layerCount: 4,
+          ),
+          KineticLouverVisualizer(
+            controller: controller,
+            gradient: gradient,
+            slatCount: 24,
+          ),
+          OrbitConstellationVisualizer(
+            controller: controller,
+            gradient: gradient,
+            nodeCount: 14,
+            orbitCount: 3,
+          ),
+          SymmetricRibbonVisualizer(
+            controller: controller,
+            gradient: gradient,
+            facetCount: 20,
+            echoLayers: 3,
+          ),
+          OscilloscopeTraceVisualizer(
+            controller: controller,
+            gradient: gradient,
+            pointCount: 64,
           ),
         ];
 
@@ -598,9 +777,10 @@ void main() {
       },
     );
 
-    testWidgets('RecordingVisualizer switches across all 7 preset types', (
+    testWidgets('RecordingVisualizer switches across all 17 preset types', (
       tester,
     ) async {
+      expect(RecordingVisualizerType.values.length, 17);
       final controller = WaveformController(maxBarsPerSecond: 20)
         ..active = true;
       controller.addDb(-8);
@@ -609,11 +789,7 @@ void main() {
       for (final type in RecordingVisualizerType.values) {
         await tester.pumpWidget(
           _host(
-            RecordingVisualizer(
-              type: type,
-              controller: controller,
-              height: 80,
-            ),
+            RecordingVisualizer(type: type, controller: controller, height: 80),
           ),
         );
         await tester.pump(const Duration(milliseconds: 60));
@@ -651,17 +827,29 @@ void main() {
       await tester.pumpWidget(
         const Directionality(
           textDirection: TextDirection.ltr,
-          child: Column(
-            children: [
-              AudioWaveform(active: false),
-              PulseRingVisualizer(active: false),
-              HarmonicWaveVisualizer(active: false),
-              RadialSpectrumVisualizer(active: false),
-              SegmentedVuVisualizer(active: false),
-              ParticleMatrixVisualizer(active: false),
-              LiquidOrbVisualizer(active: false),
-              StaticWaveform(levels: [0.2, 0.8], progress: 0.5),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                AudioWaveform(active: false),
+                PulseRingVisualizer(active: false),
+                HarmonicWaveVisualizer(active: false),
+                RadialSpectrumVisualizer(active: false),
+                SegmentedVuVisualizer(active: false),
+                ParticleMatrixVisualizer(active: false),
+                LiquidOrbVisualizer(active: false),
+                SpectrogramHeatmapVisualizer(active: false),
+                HelixDnaVisualizer(active: false),
+                AcousticPetalVisualizer(active: false),
+                PrecisionMeterVisualizer(active: false),
+                VoicePendulumVisualizer(active: false),
+                MorphingPolygonVisualizer(active: false),
+                KineticLouverVisualizer(active: false),
+                OrbitConstellationVisualizer(active: false),
+                SymmetricRibbonVisualizer(active: false),
+                OscilloscopeTraceVisualizer(active: false),
+                StaticWaveform(levels: [0.2, 0.8], progress: 0.5),
+              ],
+            ),
           ),
         ),
       );
