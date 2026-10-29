@@ -113,6 +113,26 @@ if (await recorder.hasPermission()) {
 await recorder.dispose();
 ```
 
+### Live recording visualizers
+
+In addition to `AudioWaveform` (`bars`, `line`, `filled`) and `StaticWaveform`, the package includes 6 minimalist live recording visualizer components and the unified `RecordingVisualizer` switcher:
+
+```dart
+AudioWaveform(recorder: recorder)            // Scrolling bars / line / filled
+PulseRingVisualizer(recorder: recorder)      // Concentric breathing pulse rings & peak arc
+HarmonicWaveVisualizer(recorder: recorder)   // Multi-layer fluid Gabor/sine ribbons
+RadialSpectrumVisualizer(recorder: recorder) // Circular polar symmetric spectrum halo
+SegmentedVuVisualizer(recorder: recorder)    // Segmented LED matrix with peak-hold caps
+ParticleMatrixVisualizer(recorder: recorder) // Kinetic dot-matrix acoustic particle field
+LiquidOrbVisualizer(recorder: recorder)      // Morphing closed-Bezier liquid acoustic orb
+
+// Or switch dynamically across all 7 preset types:
+RecordingVisualizer(
+  recorder: recorder,
+  type: RecordingVisualizerType.harmonicWave,
+)
+```
+
 ## Audio devices
 
 Playback output device (per player):

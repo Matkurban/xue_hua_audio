@@ -1,6 +1,6 @@
 // xue_hua_audio example: playback (file/URL/asset) and microphone
-// recording with a live waveform.
-// xue_hua_audio 示例：三种音频源播放 + 麦克风录音实时波形。
+// recording with 7 live recording visualizers.
+// xue_hua_audio 示例：三种音频源播放 + 麦克风录音与 7 种实时可视化组件。
 import 'dart:async';
 import 'dart:io' show Directory;
 
@@ -422,10 +422,23 @@ class _RecorderCardState extends State<RecorderCard> {
   RecorderState _state = RecorderState.idle;
   final WaveformController _wave = WaveformController();
   final List<double> _saved = [];
+  RecordingVisualizerType _visualizerType = RecordingVisualizerType.waveform;
   WaveformStyle _style = WaveformStyle.bars;
+  bool _showGallery = false;
   double _playProgress = 0;
   String? _lastRecording;
   String? _error;
+
+  static const List<(RecordingVisualizerType, String, IconData)> _visualizers =
+      [
+        (RecordingVisualizerType.waveform, '经典波形', Icons.graphic_eq),
+        (RecordingVisualizerType.pulseRing, '脉冲声环', Icons.radar),
+        (RecordingVisualizerType.harmonicWave, '流体谐波', Icons.waves),
+        (RecordingVisualizerType.radialSpectrum, '极坐标环', Icons.donut_large),
+        (RecordingVisualizerType.segmentedVu, '分段电平', Icons.equalizer),
+        (RecordingVisualizerType.particleMatrix, '律动点阵', Icons.blur_on),
+        (RecordingVisualizerType.liquidOrb, '液态声球', Icons.bubble_chart),
+      ];
 
   @override
   void initState() {
@@ -518,6 +531,9 @@ class _RecorderCardState extends State<RecorderCard> {
     final scheme = Theme.of(context).colorScheme;
     final recording = _state == RecorderState.recording;
     final paused = _state == RecorderState.paused;
+    final gradient = LinearGradient(
+      colors: [scheme.primary, scheme.tertiary],
+    );
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(4),
@@ -533,26 +549,86 @@ class _RecorderCardState extends State<RecorderCard> {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const Spacer(),
+                FilterChip(
+                  key: const ValueKey('toggle-visualizer-gallery'),
+                  label: const Text('全景预览 Gallery'),
+                  selected: _showGallery,
+                  onSelected: (v) => setState(() => _showGallery = v),
+                ),
+                const SizedBox(width: 8),
                 Chip(label: Text(_state.name)),
               ],
             ),
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
               decoration: BoxDecoration(
                 color: scheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: AudioWaveform(
+              child: RecordingVisualizer(
                 key: const ValueKey('live-waveform'),
+                type: _visualizerType,
+                waveformStyle: _style,
                 recorder: _recorder,
                 controller: _wave,
-                style: _style,
-                height: 72,
-                gradient: LinearGradient(
-                  colors: [scheme.primary, scheme.tertiary],
-                ),
+                height: 88,
+                gradient: gradient,
               ),
+            ),
+            if (_showGallery) ...[
+              const SizedBox(height: 12),
+              GridView.count(
+                key: const ValueKey('visualizer-gallery-grid'),
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                childAspectRatio: 2.1,
+                children: [
+                  for (final (type, title, _) in _visualizers.skip(1))
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: scheme.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
+                          Expanded(
+                            child: RecordingVisualizer(
+                              type: type,
+                              controller: _wave,
+                              height: 60,
+                              gradient: gradient,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final (type, label, icon) in _visualizers)
+                  ChoiceChip(
+                    key: ValueKey('vis-${type.name}'),
+                    avatar: Icon(icon, size: 16),
+                    label: Text(label),
+                    selected: _visualizerType == type,
+                    onSelected: (_) => setState(() => _visualizerType = type),
+                  ),
+              ],
             ),
             const SizedBox(height: 8),
             SegmentedButton<WaveformStyle>(
@@ -566,7 +642,10 @@ class _RecorderCardState extends State<RecorderCard> {
                 ),
               ],
               selected: {_style},
-              onSelectionChanged: (v) => setState(() => _style = v.first),
+              onSelectionChanged: (v) => setState(() {
+                _style = v.first;
+                _visualizerType = RecordingVisualizerType.waveform;
+              }),
             ),
             if (_lastRecording != null && _saved.isNotEmpty) ...[
               const SizedBox(height: 12),

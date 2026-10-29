@@ -118,6 +118,28 @@ void main() {
     await tester.tap(find.text('Bars'));
     await _pumpFor(tester, const Duration(milliseconds: 300));
 
+    // Cycle through the 6 new recording visualizer components & gallery view.
+    // 依次切换 6 个新增录音可视化组件及全景预览模式。
+    for (final visKey in [
+      'vis-pulseRing',
+      'vis-harmonicWave',
+      'vis-radialSpectrum',
+      'vis-segmentedVu',
+      'vis-particleMatrix',
+      'vis-liquidOrb',
+      'vis-waveform',
+    ]) {
+      await tester.ensureVisible(keyOf(visKey));
+      await tester.tap(keyOf(visKey));
+      await _pumpFor(tester, const Duration(milliseconds: 200));
+    }
+    await tester.ensureVisible(keyOf('toggle-visualizer-gallery'));
+    await tester.tap(keyOf('toggle-visualizer-gallery'));
+    await _pumpFor(tester, const Duration(milliseconds: 300));
+    expect(keyOf('visualizer-gallery-grid'), findsOneWidget);
+    await tester.tap(keyOf('toggle-visualizer-gallery'));
+    await _pumpFor(tester, const Duration(milliseconds: 200));
+
     try {
       final bytes = await binding.takeScreenshot('ui_recording_bars');
       expect(bytes, isNotEmpty);

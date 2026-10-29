@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -155,7 +156,236 @@ void main() {
       expect(c.length, 1);
       c.clear();
       expect(c.length, 0);
+      expect(c.peakHold, 0);
+      expect(c.latest, 0);
       c.dispose();
+    });
+
+    test('recentAt, sampleInterpolated, and peakHold decay accurately', () {
+      final c = make(rate: 10);
+      expect(c.recentAt(0), 0);
+      expect(c.recentAt(-1), 0);
+      expect(c.sampleInterpolated(0.5), 0);
+
+      c.addNormalized(0.2);
+      c.advance(_ms(100));
+      c.addNormalized(0.8);
+      c.advance(_ms(100));
+
+      expect(c.latest, closeTo(0.8, 1e-6));
+      expect(c.recentAt(0), closeTo(0.8, 1e-6));
+      expect(c.recentAt(1), closeTo(0.2, 1e-6));
+      expect(c.recentAt(2), 0.0);
+      expect(c.sampleInterpolated(0.5), closeTo(0.5, 1e-6));
+      expect(c.peakHold, closeTo(0.8, 1e-6));
+
+      // Feed silence; peakHold stays held during the 450 ms hold window,
+      // then decays smoothly towards 0.
+      c.addNormalized(0.0);
+      c.advance(_ms(200));
+      expect(c.peakHold, closeTo(0.8, 1e-6));
+
+      c.advance(_ms(400)); // past 450 ms hold window
+      expect(c.peakHold, lessThan(0.8));
+      expect(c.peakHold, greaterThan(0.3));
+
+      c.advance(_ms(2000));
+      expect(c.peakHold, 0.0);
+      c.dispose();
+    });
+  });
+
+  group('WaveformDataParser (Data Parsing & Geometry)', () {
+    test('parseDb & parseAmplitude handle edge cases and soft knee', () {
+      expect(WaveformDataParser.parseDb(double.nan), 0.0);
+      expect(WaveformDataParser.parseDb(double.negativeInfinity), 0.0);
+      expect(WaveformDataParser.parseDb(-50), 0.0);
+      expect(WaveformDataParser.parseDb(-80), 0.0);
+      expect(WaveformDataParser.parseDb(0), 1.0);
+      expect(WaveformDataParser.parseDb(12), 1.0);
+      expect(WaveformDataParser.parseDb(double.infinity), 1.0);
+      expect(
+        WaveformDataParser.parseDb(-25, minDb: -50, maxDb: 0, curve: 1.0),
+        closeTo(0.5, 1e-6),
+      );
+      expect(
+        WaveformDataParser.parseAmplitude(
+          const Amplitude(current: -25, max: -6),
+          minDb: -50,
+          maxDb: 0,
+          curve: 1.0,
+        ),
+        closeTo(0.5, 1e-6),
+      );
+    });
+
+    test('computeMetrics calculates current, average, rms, peak, and flux', () {
+      final c = WaveformController(
+        maxBarsPerSecond: 20,
+        attack: 1,
+        release: 1,
+      )..active = true;
+
+      final empty = c.computeMetrics();
+      expect(empty, WaveformMetrics.zero);
+      expect(empty.isSilent, isTrue);
+
+      for (final v in [0.2, 0.8, 0.2, 0.8]) {
+        c.addNormalized(v);
+        c.advance(_ms(100));
+      }
+      final m = c.computeMetrics(window: 4);
+      expect(m.sampleCount, 4);
+      expect(m.current, closeTo(0.8, 1e-6));
+      expect(m.average, closeTo(0.5, 1e-6));
+      expect(m.rms, closeTo(math.sqrt(0.34), 1e-4));
+      expect(m.peak, closeTo(0.8, 1e-6));
+      expect(m.peakHold, closeTo(0.8, 1e-6));
+      expect(m.flux, closeTo(0.6, 1e-6));
+      expect(m.isSilent, isFalse);
+      expect(m.toString(), contains('WaveformMetrics('));
+      c.dispose();
+    });
+
+    test('resamplePeak handles empty, single, upsampling, and downsampling', () {
+      expect(WaveformDataParser.resamplePeak(const [], 0), isEmpty);
+      expect(WaveformDataParser.resamplePeak(const [], 4), [0, 0, 0, 0]);
+      expect(
+        WaveformDataParser.resamplePeak(const [0.6], 3),
+        [closeTo(0.6, 1e-6), closeTo(0.6, 1e-6), closeTo(0.6, 1e-6)],
+      );
+      expect(
+        WaveformDataParser.resamplePeak(const [0.1, 0.9, 0.3], 1),
+        [closeTo(0.9, 1e-6)],
+      );
+
+      // Upsampling: 3 points -> 5 points via linear interpolation
+      final up = WaveformDataParser.resamplePeak(const [0.0, 1.0, 0.0], 5);
+      expect(up, [
+        closeTo(0.0, 1e-6),
+        closeTo(0.5, 1e-6),
+        closeTo(1.0, 1e-6),
+        closeTo(0.5, 1e-6),
+        closeTo(0.0, 1e-6),
+      ]);
+
+      // Downsampling: preserves transient spike and sanitizes NaN / out-of-range
+      final down = WaveformDataParser.resamplePeak(
+        const [0.1, double.nan, 0.2, 1.5, 0.1, -0.5, 0.4, 0.3],
+        4,
+      );
+      expect(down.length, 4);
+      expect(down[0], closeTo(0.1, 1e-6));
+      expect(down[1], closeTo(1.0, 1e-6)); // 1.5 clamped to 1.0
+      expect(down[2], closeTo(0.1, 1e-6)); // -0.5 clamped to 0.0
+      expect(down[3], closeTo(0.4, 1e-6));
+    });
+
+    test('extractMirroredRadial enforces bilateral symmetry', () {
+      final c = WaveformController(
+        maxBarsPerSecond: 20,
+        attack: 1,
+        release: 1,
+      )..active = true;
+      expect(WaveformDataParser.extractMirroredRadial(c, 8), List.filled(8, 0));
+
+      for (final v in [0.1, 0.3, 0.6, 0.9]) {
+        c.addNormalized(v);
+        c.advance(_ms(100));
+      }
+      final mirrored = WaveformDataParser.extractMirroredRadial(
+        c,
+        8,
+        mirror: true,
+      );
+      expect(mirrored.length, 8);
+      for (var i = 0; i < 4; i++) {
+        expect(mirrored[i], closeTo(mirrored[7 - i], 1e-6));
+      }
+      final unmirrored = WaveformDataParser.extractMirroredRadial(
+        c,
+        4,
+        mirror: false,
+      );
+      expect(unmirrored, [
+        closeTo(0.9, 1e-6),
+        closeTo(0.6, 1e-6),
+        closeTo(0.3, 1e-6),
+        closeTo(0.1, 1e-6),
+      ]);
+      c.dispose();
+    });
+
+    test('extractFrequencyBands synthesizes bounded multi-band energy', () {
+      final c = WaveformController(
+        maxBarsPerSecond: 20,
+        attack: 1,
+        release: 1,
+      )..active = true;
+      expect(
+        WaveformDataParser.extractFrequencyBands(c, 12),
+        List.filled(12, 0.0),
+      );
+
+      for (var i = 0; i < 12; i++) {
+        c.addNormalized(i.isEven ? 0.75 : 0.25);
+        c.advance(_ms(80));
+      }
+      final bands = WaveformDataParser.extractFrequencyBands(c, 12);
+      expect(bands.length, 12);
+      expect(bands.every((b) => b >= 0.0 && b <= 1.0), isTrue);
+      expect(bands.any((b) => b > 0.2), isTrue);
+      c.dispose();
+    });
+
+    test('parseVuSegments quantizes levels and zones accurately', () {
+      final idle = WaveformDataParser.parseVuSegments(
+        level: 0.0,
+        peakHold: 0.0,
+        segments: 10,
+      );
+      expect(idle.activeSegments, 0);
+      expect(idle.peakSegment, isNull);
+
+      final mid = WaveformDataParser.parseVuSegments(
+        level: 0.5,
+        peakHold: 0.9,
+        segments: 10,
+        warningRatio: 0.6,
+        dangerRatio: 0.8,
+      );
+      expect(mid.activeSegments, 5);
+      expect(mid.peakSegment, 8);
+      expect(mid.zoneOf(0), VuZone.normal);
+      expect(mid.zoneOf(5), VuZone.normal);
+      expect(mid.zoneOf(6), VuZone.warning);
+      expect(mid.zoneOf(7), VuZone.warning);
+      expect(mid.zoneOf(8), VuZone.danger);
+      expect(mid.zoneOf(9), VuZone.danger);
+    });
+
+    test('computeClosedSplineSegments generates C1 continuous closed loop', () {
+      expect(
+        WaveformDataParser.computeClosedSplineSegments(
+          const [10, 10],
+          Offset.zero,
+        ),
+        isEmpty,
+      );
+      final segments = WaveformDataParser.computeClosedSplineSegments(
+        List<double>.filled(8, 50.0),
+        const Offset(100, 100),
+      );
+      expect(segments.length, 8);
+      for (var i = 0; i < segments.length; i++) {
+        final curr = segments[i];
+        final next = segments[(i + 1) % segments.length];
+        expect((curr.p1 - next.p0).distance, lessThan(1e-6));
+        expect(
+          (curr.p0 - const Offset(100, 100)).distance,
+          closeTo(50.0, 1e-4),
+        );
+      }
     });
   });
 
@@ -282,6 +512,135 @@ void main() {
     });
   });
 
+  group('New Recording Visualizers (6 Components + RecordingVisualizer)', () {
+    testWidgets(
+      'all 6 new visualizers render idle state without scheduling frames',
+      (tester) async {
+        final idleWidgets = <Widget>[
+          const PulseRingVisualizer(active: false),
+          const HarmonicWaveVisualizer(active: false),
+          const RadialSpectrumVisualizer(active: false),
+          const SegmentedVuVisualizer(active: false),
+          const ParticleMatrixVisualizer(active: false),
+          const LiquidOrbVisualizer(active: false),
+        ];
+
+        for (final widget in idleWidgets) {
+          await tester.pumpWidget(_host(widget));
+          await tester.pump();
+          expect(tester.takeException(), isNull);
+          expect(tester.binding.hasScheduledFrame, isFalse);
+        }
+      },
+    );
+
+    testWidgets(
+      'all 6 new visualizers animate and paint live dBFS stream data cleanly',
+      (tester) async {
+        const gradient = LinearGradient(
+          colors: [Color(0xFF10B981), Color(0xFF3B82F6)],
+        );
+        final controller = WaveformController(maxBarsPerSecond: 25)
+          ..active = true;
+
+        final activeWidgets = <Widget>[
+          PulseRingVisualizer(
+            controller: controller,
+            gradient: gradient,
+            ringCount: 4,
+          ),
+          HarmonicWaveVisualizer(
+            controller: controller,
+            gradient: gradient,
+            waveCount: 5,
+          ),
+          RadialSpectrumVisualizer(
+            controller: controller,
+            gradient: gradient,
+            spokeCount: 40,
+          ),
+          SegmentedVuVisualizer(
+            controller: controller,
+            bandCount: 14,
+            segmentCount: 12,
+          ),
+          ParticleMatrixVisualizer(
+            controller: controller,
+            gradient: gradient,
+            columns: 24,
+            rows: 5,
+          ),
+          LiquidOrbVisualizer(
+            controller: controller,
+            gradient: gradient,
+            lobeCount: 10,
+            layerCount: 3,
+          ),
+          LiquidOrbVisualizer(
+            controller: controller,
+            strokeOnly: true,
+          ),
+        ];
+
+        for (final widget in activeWidgets) {
+          for (final dir in TextDirection.values) {
+            await tester.pumpWidget(_host(widget, dir: dir));
+            for (final db in [-45.0, -25.0, -6.0, -1.0, -35.0]) {
+              controller.addDb(db);
+              await tester.pump(const Duration(milliseconds: 50));
+            }
+            expect(tester.takeException(), isNull);
+          }
+        }
+
+        await tester.pumpWidget(const SizedBox());
+        controller.dispose();
+      },
+    );
+
+    testWidgets('RecordingVisualizer switches across all 7 preset types', (
+      tester,
+    ) async {
+      final controller = WaveformController(maxBarsPerSecond: 20)
+        ..active = true;
+      controller.addDb(-8);
+      controller.advance(_ms(80));
+
+      for (final type in RecordingVisualizerType.values) {
+        await tester.pumpWidget(
+          _host(
+            RecordingVisualizer(
+              type: type,
+              controller: controller,
+              height: 80,
+            ),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 60));
+        expect(tester.takeException(), isNull);
+      }
+
+      await tester.pumpWidget(const SizedBox());
+      controller.dispose();
+    });
+
+    testWidgets('new visualizers track recorder lifecycle and stream swap', (
+      tester,
+    ) async {
+      final a = StreamController<double>.broadcast();
+      final b = StreamController<double>.broadcast();
+      await tester.pumpWidget(_host(PulseRingVisualizer(levels: a.stream)));
+      expect(a.hasListener, isTrue);
+      await tester.pumpWidget(_host(PulseRingVisualizer(levels: b.stream)));
+      expect(a.hasListener, isFalse);
+      expect(b.hasListener, isTrue);
+      await tester.pumpWidget(const SizedBox());
+      expect(b.hasListener, isFalse);
+      await a.close();
+      await b.close();
+    });
+  });
+
   group('defaults', () {
     test('are public documented constants', () {
       expect(WaveformColors.active, const Color(0xFF22A45D));
@@ -295,6 +654,12 @@ void main() {
           child: Column(
             children: [
               AudioWaveform(active: false),
+              PulseRingVisualizer(active: false),
+              HarmonicWaveVisualizer(active: false),
+              RadialSpectrumVisualizer(active: false),
+              SegmentedVuVisualizer(active: false),
+              ParticleMatrixVisualizer(active: false),
+              LiquidOrbVisualizer(active: false),
               StaticWaveform(levels: [0.2, 0.8], progress: 0.5),
             ],
           ),

@@ -2,7 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
-/// Holds the rolling level history shown by [AudioWaveform].
+import 'waveform_parser.dart';
+
+/// Holds the rolling level history shown by [AudioWaveform] and other
+/// recording visualizers.
 ///
 /// The history is **event driven**: every level that arrives from the
 /// recorder becomes one bar, exactly like voice-message UIs. Bars are never
@@ -13,9 +16,9 @@ import 'package:flutter/foundation.dart';
 /// event interval, so the speed follows the native update rate.
 /// No memory is allocated after construction.
 ///
-/// 滚动电平历史，由 [AudioWaveform] 显示。历史按**事件驱动**：录音器每送来
-/// 一个电平就产生一根柱，与语音消息界面一致；柱不会被复制，也不会在两次事件
-/// 之间衰减，因此恒定的底噪显示为恒定的（很矮的）柱，静音显示为平直圆点。
+/// 滚动电平历史，由 [AudioWaveform] 及其他录音可视化组件显示。历史按**事件驱动**：
+/// 录音器每送来一个电平就产生一根柱，与语音消息界面一致；柱不会被复制，也不会在
+/// 两次事件之间衰减，因此恒定的底噪显示为恒定的（很矮的）柱，静音显示为平直圆点。
 /// 快于 [maxBarsPerSecond] 的事件会合并为其中最大值。滚动按实测事件间隔在
 /// 柱之间插值，速度跟随原生更新频率。构造后不再分配内存。
 class WaveformController extends ChangeNotifier {
@@ -77,6 +80,8 @@ class WaveformController extends ChangeNotifier {
   static const double _never = -1e9; // "no bar yet" / 尚无柱
   double _lastBarAt = _never;
   double _interval = 0.1; // measured seconds between bars / 实测柱间隔
+  double _peakHold = 0;
+  double _peakHoldUntil = _never;
   bool _active = false;
 
   /// Whether the history is currently advancing (e.g. while recording).
@@ -101,6 +106,21 @@ class WaveformController extends ChangeNotifier {
   /// Measured seconds between bars. / 实测的柱间隔（秒）。
   double get barInterval => _interval;
 
+  /// Elapsed controller clock in seconds, driven by [advance].
+  /// 控制器累计运行秒数，由 [advance] 推进。
+  double get elapsedSeconds => _clock;
+
+  /// Newest committed normalized bar (0–1), or 0 when empty.
+  /// 最新写入的归一化柱值（0–1），为空时返回 0。
+  double get latest => _count == 0 ? 0.0 : valueAt(_count - 1);
+
+  /// Current smoothed envelope value (0–1). / 当前平滑包络值（0–1）。
+  double get smoothedLevel => _smoothed < 0.004 ? 0.0 : _smoothed;
+
+  /// Decaying peak-hold level (0–1) for VU meters and peak rings.
+  /// 带保持与平滑衰减的峰值电平（0–1），用于电平表和峰值指示环。
+  double get peakHold => _peakHold;
+
   /// Progress (0–1) towards the next bar; used for smooth scrolling.
   /// 距下一根柱的进度（0–1），用于平滑滚动。
   double get phase =>
@@ -112,14 +132,41 @@ class WaveformController extends ChangeNotifier {
     return _buffer[(_head - _count + index + capacity * 2) % capacity];
   }
 
+  /// Returns the [k]-th newest bar (`0` is the newest), or `0.0` when [k] is
+  /// outside `[0, length)`.
+  /// 返回倒数第 [k] 根最新柱（`0` 为最新），超出范围时返回 `0.0`。
+  double recentAt(int k) {
+    if (k < 0 || k >= _count) return 0.0;
+    return valueAt(_count - 1 - k);
+  }
+
+  /// Linearly interpolates between recent bars at fractional offset [k] from
+  /// the newest sample (`0.0` is newest).
+  /// 按距最新采样的浮点偏移 [k]（`0.0` 为最新）在相邻柱之间线性插值。
+  double sampleInterpolated(double k) {
+    if (_count == 0 || k < 0) return 0.0;
+    final i0 = k.floor();
+    final frac = k - i0;
+    final v0 = recentAt(i0);
+    final v1 = recentAt(i0 + 1);
+    return v0 + (v1 - v0) * frac;
+  }
+
+  /// Computes aggregated statistical metrics over the most recent [window]
+  /// samples.
+  /// 计算最近 [window] 个采样的统计特征快照。
+  WaveformMetrics computeMetrics({int window = 32}) =>
+      WaveformDataParser.computeMetrics(this, window: window);
+
   /// Maps a dBFS level to 0–1: gate at [minDb], linear to [maxDb], then the
   /// [curve] soft knee. / 将 dBFS 映射到 0–1：[minDb] 处设门限，线性到
   /// [maxDb]，再施加 [curve] 软膝。
-  double normalize(double db) {
-    if (db.isNaN || db <= minDb) return 0;
-    final x = ((db - minDb) / (maxDb - minDb)).clamp(0.0, 1.0).toDouble();
-    return curve == 1 ? x : math.pow(x, curve).toDouble();
-  }
+  double normalize(double db) => WaveformDataParser.parseDb(
+    db,
+    minDb: minDb,
+    maxDb: maxDb,
+    curve: curve,
+  );
 
   /// Feeds a level in dBFS; one call per native event. / 输入 dBFS 电平；
   /// 每个原生事件调用一次。
@@ -127,7 +174,9 @@ class WaveformController extends ChangeNotifier {
 
   /// Feeds an already normalized (0–1) level. / 输入已归一化（0–1）的电平。
   void addNormalized(double value) {
-    if (value > _pending) _pending = value;
+    if (value.isNaN) return;
+    final clamped = value.clamp(0.0, 1.0).toDouble();
+    if (clamped > _pending) _pending = clamped;
     if (_active && _due) {
       _commit();
       notifyListeners();
@@ -138,9 +187,18 @@ class WaveformController extends ChangeNotifier {
   /// Driven by the widget's ticker.
   /// 推进 [dt] 时间；写出合并后的事件并通知监听者。由组件的 Ticker 驱动。
   void advance(Duration dt) {
-    _clock += dt.inMicroseconds / Duration.microsecondsPerSecond;
+    final dtSec = math.max(
+      0.0,
+      dt.inMicroseconds / Duration.microsecondsPerSecond,
+    );
+    _clock += dtSec;
     if (_active && _pending >= 0 && _due) {
       _commit();
+    }
+    if (_active && _peakHold > 0 && _clock > _peakHoldUntil) {
+      final floor = latest;
+      _peakHold = math.max(floor, _peakHold - dtSec * 0.65);
+      if (_peakHold < 0.004) _peakHold = 0;
     }
     notifyListeners();
   }
@@ -154,9 +212,14 @@ class WaveformController extends ChangeNotifier {
     _smoothed += (target - _smoothed) * k;
     // A bar below the visible minimum is an exact zero (flat dot).
     // 低于可见最小值的柱记为精确 0（平直圆点）。
-    _buffer[_head] = _smoothed < 0.004 ? 0 : _smoothed;
+    final committed = _smoothed < 0.004 ? 0.0 : _smoothed;
+    _buffer[_head] = committed;
     _head = (_head + 1) % capacity;
     if (_count < capacity) _count++;
+    if (committed >= _peakHold) {
+      _peakHold = committed;
+      _peakHoldUntil = _clock + 0.45;
+    }
     final gap = _clock - _lastBarAt;
     if (_count > 1 && gap > 0 && gap < 1) {
       _interval = (_interval * 0.7 + gap * 0.3)
@@ -172,6 +235,8 @@ class WaveformController extends ChangeNotifier {
     _count = 0;
     _pending = -1;
     _smoothed = 0;
+    _peakHold = 0;
+    _peakHoldUntil = _never;
     _lastBarAt = _never;
     notifyListeners();
   }

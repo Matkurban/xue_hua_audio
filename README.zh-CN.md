@@ -123,6 +123,26 @@ if (await recorder.hasPermission()) {
 await recorder.dispose();
 ```
 
+### 实时录音可视化组件
+
+除经典的 `AudioWaveform`（支持 `bars`、`line`、`filled` 三种样式）与 `StaticWaveform` 外，插件内置了 6 款简约精美的实时录音可视化组件及统一切换容器 `RecordingVisualizer`：
+
+```dart
+AudioWaveform(recorder: recorder)            // 经典滚动波形（竖条 / 镜像折线 / 镜像面积）
+PulseRingVisualizer(recorder: recorder)      // 同心呼吸脉冲声环 + 外圈峰值保持弧
+HarmonicWaveVisualizer(recorder: recorder)   // 多层丝绸流体谐波弦
+RadialSpectrumVisualizer(recorder: recorder) // 极坐标对称环形声谱
+SegmentedVuVisualizer(recorder: recorder)    // 极简工业风分段 LED 电平矩阵（含峰值保持帽）
+ParticleMatrixVisualizer(recorder: recorder) // 声场律动点阵星云
+LiquidOrbVisualizer(recorder: recorder)      // 液态几何流体声球（闭合三次贝塞尔样条）
+
+// 或通过统一容器在全部 7 种组件间动态切换：
+RecordingVisualizer(
+  recorder: recorder,
+  type: RecordingVisualizerType.harmonicWave,
+)
+```
+
 ## 音频设备
 
 播放输出设备（每个播放器独立）：
