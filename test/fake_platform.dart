@@ -1,16 +1,15 @@
 import 'dart:async';
 
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:xue_hua_audio/src/audio_backend.dart';
 import 'package:xue_hua_audio/src/events.dart';
 import 'package:xue_hua_audio/xue_hua_audio.dart';
 
-/// An in-memory [XueHuaAudioPlatform] test double that records every call
-/// and lets tests push events manually.
+/// An in-memory [AudioBackend] test double that records every call
+/// and lets tests push events manually or delay async operations.
 ///
-/// 内存版 [XueHuaAudioPlatform] 测试替身：记录所有调用，并允许测试手动
-/// 推送事件。
-class FakeAudioPlatform extends XueHuaAudioPlatform
-    with MockPlatformInterfaceMixin {
+/// 内存版 [AudioBackend] 测试替身：记录所有调用，并允许测试手动推送事件或
+/// 延迟异步完成以测试竞态场景。
+class FakeAudioBackend implements AudioBackend {
   final List<String> calls = [];
 
   int _nextPlayerId = 0;
@@ -18,6 +17,10 @@ class FakeAudioPlatform extends XueHuaAudioPlatform
 
   final Map<int, StreamController<PlayerEvent>> playerControllers = {};
   final Map<int, StreamController<RecorderEvent>> recorderControllers = {};
+
+  Completer<int>? createPlayerGate;
+  Completer<int>? createRecorderGate;
+  Completer<Duration?>? setSourceGate;
 
   Duration? sourceDuration = const Duration(seconds: 3);
   AudioError? setSourceError;
@@ -40,6 +43,13 @@ class FakeAudioPlatform extends XueHuaAudioPlatform
 
   @override
   Future<int> createPlayer() async {
+    final gate = createPlayerGate;
+    if (gate != null) {
+      final id = await gate.future;
+      playerControllers[id] = StreamController<PlayerEvent>.broadcast();
+      calls.add('createPlayer:$id');
+      return id;
+    }
     final id = _nextPlayerId++;
     playerControllers[id] = StreamController<PlayerEvent>.broadcast();
     calls.add('createPlayer:$id');
@@ -49,6 +59,10 @@ class FakeAudioPlatform extends XueHuaAudioPlatform
   @override
   Future<Duration?> setSource(int playerId, AudioSource source) async {
     calls.add('setSource:$playerId:$source');
+    final gate = setSourceGate;
+    if (gate != null) {
+      return gate.future;
+    }
     final error = setSourceError;
     if (error != null) {
       throw error;
@@ -120,6 +134,13 @@ class FakeAudioPlatform extends XueHuaAudioPlatform
 
   @override
   Future<int> createRecorder() async {
+    final gate = createRecorderGate;
+    if (gate != null) {
+      final id = await gate.future;
+      recorderControllers[id] = StreamController<RecorderEvent>.broadcast();
+      calls.add('createRecorder:$id');
+      return id;
+    }
     final id = _nextRecorderId++;
     recorderControllers[id] = StreamController<RecorderEvent>.broadcast();
     calls.add('createRecorder:$id');
@@ -142,7 +163,7 @@ class FakeAudioPlatform extends XueHuaAudioPlatform
     calls.add('getInputDevice:$recorderId');
     final id = recorderInputDevice[recorderId];
     if (id == null) return null;
-    return AudioDevice(id: id, label: 'Fake microphone');
+    return const AudioDevice(id: 'mic-0', label: 'Fake microphone');
   }
 
   @override

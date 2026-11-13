@@ -46,7 +46,7 @@ Features:
 
 ```yaml
 dependencies:
-  xue_hua_audio: ^2.0.0
+  xue_hua_audio: ^3.0.0
 ```
 
 No initialization call is needed.
@@ -196,7 +196,7 @@ try {
 ### Android
 
 Nothing to do — the plugin manifest already declares `RECORD_AUDIO` and
-`INTERNET`. Minimum SDK 21.
+`INTERNET`. Minimum SDK 24.
 
 ### iOS
 
@@ -251,7 +251,7 @@ code lives in this package:
 
 ```text
 xue_hua_audio
-├── lib/          Dart API, platform interface, method channel, Web
+├── lib/          Dart API, native backend, Web
 ├── android/      Kotlin  · ExoPlayer + AudioRecord
 ├── darwin/       Swift   · AVPlayer + AVAudioEngine (iOS+macOS)
 ├── windows/      C++     · Media Foundation + WASAPI

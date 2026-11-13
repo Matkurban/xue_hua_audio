@@ -1,44 +1,31 @@
 import 'package:flutter/services.dart';
 
-import 'src/events.dart';
-import 'src/messages.g.dart';
-import 'src/types/amplitude.dart';
-import 'src/types/audio_device.dart';
-import 'src/types/audio_error.dart';
-import 'src/types/audio_source.dart';
-import 'src/types/player_state.dart';
-import 'src/types/record_config.dart';
-import 'xue_hua_audio_platform_interface.dart';
+import 'audio_backend.dart';
+import 'events.dart';
+import 'messages.g.dart';
+import 'types/amplitude.dart';
+import 'types/audio_device.dart';
+import 'types/audio_error.dart';
+import 'types/audio_source.dart';
+import 'types/player_state.dart';
+import 'types/record_config.dart';
 
-/// The default [XueHuaAudioPlatform] implementation backed by Pigeon
-/// method channels and per-instance [EventChannel]s.
-///
-/// It is the default on Android, iOS, macOS, Windows and Linux. Native code
-/// in this package answers the same channels. Web replaces the platform
-/// instance with its own pure-Dart implementation instead.
+/// The default [AudioBackend] implementation backed by Pigeon channels and
+/// per-instance [EventChannel]s on Android, iOS, macOS, Windows, and Linux.
 ///
 /// Event channel names / 事件通道命名:
 ///
 /// * players / 播放器: `xue_hua_audio/player_events_<playerId>`
 /// * recorders / 录音机: `xue_hua_audio/recorder_events_<recorderId>`
 ///
-/// 基于 Pigeon 方法通道与按实例创建的 [EventChannel] 的默认
-/// [XueHuaAudioPlatform] 实现。
-///
-/// Android、iOS、macOS、Windows、Linux 默认使用该实现，由本包中的原生代码
-/// 应答同一组通道。Web 端则以纯 Dart 实现直接替换平台实例。
-class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
-  /// Creates the method-channel implementation, optionally injecting Pigeon
-  /// API clients for testing.
+/// Android、iOS、macOS、Windows、Linux 默认使用的 [AudioBackend] 实现，基于
+/// Pigeon 通道与按实例创建的 [EventChannel]。
+class NativeAudioBackend implements AudioBackend {
+  /// Creates the native backend, optionally injecting Pigeon API clients for
+  /// testing.
   ///
-  /// [playerApi] / [recorderApi]: test doubles for the generated Pigeon
-  /// clients; production code uses the defaults.
-  ///
-  /// 创建 MethodChannel 实现；可为测试注入 Pigeon 客户端。
-  ///
-  /// [playerApi] / [recorderApi]：用于测试的 Pigeon 客户端替身；
-  /// 生产环境使用默认实例。
-  MethodChannelXueHuaAudio({
+  /// 创建原生后端；可为测试注入 Pigeon 客户端替身，生产环境使用默认实例。
+  NativeAudioBackend({
     AudioPlayerHostApi? playerApi,
     AudioRecorderHostApi? recorderApi,
   }) : _players = playerApi ?? AudioPlayerHostApi(),
@@ -47,8 +34,6 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
   final AudioPlayerHostApi _players;
   final AudioRecorderHostApi _recorders;
 
-  /// Converts [source] to its Pigeon wire representation.
-  /// 将 [source] 转换为 Pigeon 传输结构。
   static AudioSourceMessage _encodeSource(AudioSource source) {
     return switch (source) {
       FileSource(:final path) => AudioSourceMessage(
@@ -67,8 +52,6 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
     };
   }
 
-  /// Converts [config] to its Pigeon wire representation.
-  /// 将 [config] 转换为 Pigeon 传输结构。
   static RecordConfigMessage _encodeConfig(RecordConfig config) {
     return RecordConfigMessage(
       encoder: switch (config.encoder) {
@@ -84,10 +67,6 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
     );
   }
 
-  /// Runs [action], translating [PlatformException]s thrown by Pigeon into
-  /// structured [AudioError]s.
-  /// 执行 [action]，并把 Pigeon 抛出的 [PlatformException] 翻译为结构化的
-  /// [AudioError]。
   static Future<T> _guard<T>(Future<T> Function() action) async {
     try {
       return await action();
@@ -100,8 +79,6 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
     }
   }
 
-  /// Decodes one raw event-channel payload into a [PlayerEvent].
-  /// 将一条原始事件通道数据解码为 [PlayerEvent]。
   static PlayerEvent _decodePlayerEvent(dynamic raw) {
     final map = (raw as Map).cast<Object?, Object?>();
     return switch (map['type']) {
@@ -125,8 +102,6 @@ class MethodChannelXueHuaAudio extends XueHuaAudioPlatform {
     };
   }
 
-  /// Decodes one raw event-channel payload into a [RecorderEvent].
-  /// 将一条原始事件通道数据解码为 [RecorderEvent]。
   static RecorderEvent _decodeRecorderEvent(dynamic raw) {
     final map = (raw as Map).cast<Object?, Object?>();
     return switch (map['type']) {

@@ -43,12 +43,7 @@ export 'src/types/audio_source.dart'
     show AssetSource, AudioSource, FileSource, UrlSource;
 export 'src/types/player_state.dart' show PlayerState, RecorderState;
 export 'src/types/record_config.dart' show AudioEncoder, RecordConfig;
-export 'xue_hua_audio_platform_interface.dart';
 
 export 'src/audio_player.dart';
 export 'src/audio_recorder.dart';
-export 'src/waveform/advanced_visualizers.dart';
-export 'src/waveform/audio_waveform.dart';
-export 'src/waveform/recording_visualizers.dart';
-export 'src/waveform/waveform_controller.dart';
-export 'src/waveform/waveform_parser.dart';
+export 'src/waveform/waveform.dart';

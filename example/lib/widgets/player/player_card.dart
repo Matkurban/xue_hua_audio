@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:xue_hua_audio/xue_hua_audio.dart';
 
@@ -19,6 +21,7 @@ class _PlayerCardState extends State<PlayerCard> {
   final TextEditingController _urlController = TextEditingController(
     text: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg',
   );
+  final List<StreamSubscription<Object?>> _subs = [];
 
   PlayerState _state = PlayerState.idle;
   Duration _position = Duration.zero;
@@ -38,22 +41,28 @@ class _PlayerCardState extends State<PlayerCard> {
   @override
   void initState() {
     super.initState();
-    _player.onStateChanged.listen((state) {
-      if (mounted) setState(() => _state = state);
-    });
-    _player.onPositionChanged.listen((position) {
-      if (mounted && !_seeking) setState(() => _position = position);
-    });
-    _player.onDurationChanged.listen((duration) {
-      if (mounted) setState(() => _duration = duration);
-    });
-    _player.onError.listen((error) {
-      if (mounted) setState(() => _error = error.toString());
-    });
+    _subs.addAll([
+      _player.onStateChanged.listen((state) {
+        if (mounted) setState(() => _state = state);
+      }),
+      _player.onPositionChanged.listen((position) {
+        if (mounted && !_seeking) setState(() => _position = position);
+      }),
+      _player.onDurationChanged.listen((duration) {
+        if (mounted) setState(() => _duration = duration);
+      }),
+      _player.onError.listen((error) {
+        if (mounted) setState(() => _error = error.toString());
+      }),
+    ]);
   }
 
   @override
   void dispose() {
+    for (final sub in _subs) {
+      sub.cancel();
+    }
+    _subs.clear();
     _player.dispose();
     _urlController.dispose();
     super.dispose();

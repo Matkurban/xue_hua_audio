@@ -1,9 +1,10 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:xue_hua_audio/src/audio_backend.dart';
 import 'package:xue_hua_audio/src/events.dart';
 import 'package:xue_hua_audio/src/messages.g.dart';
+import 'package:xue_hua_audio/src/native_audio_backend.dart';
 import 'package:xue_hua_audio/xue_hua_audio.dart';
-import 'package:xue_hua_audio/xue_hua_audio_method_channel.dart';
 
 /// Records calls made through the Pigeon player client.
 /// 记录经由 Pigeon 播放器客户端发起的调用。
@@ -103,12 +104,17 @@ class _ThrowingRecorderApi extends AudioRecorderHostApi {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('MethodChannelXueHuaAudio', () {
+  group('NativeAudioBackend', () {
+    test('AudioBackend.instance defaults to NativeAudioBackend', () {
+      AudioBackend.resetInstance();
+      expect(AudioBackend.instance, isA<NativeAudioBackend>());
+    });
+
     test('asset sources are resolved to full asset keys', () async {
       final api = _FakePlayerApi();
-      final channel = MethodChannelXueHuaAudio(playerApi: api);
+      final backend = NativeAudioBackend(playerApi: api);
 
-      final duration = await channel.setSource(
+      final duration = await backend.setSource(
         7,
         const AudioSource.asset('assets/a.wav', package: 'my_pkg'),
       );
@@ -120,9 +126,9 @@ void main() {
 
     test('url sources keep their headers', () async {
       final api = _FakePlayerApi();
-      final channel = MethodChannelXueHuaAudio(playerApi: api);
+      final backend = NativeAudioBackend(playerApi: api);
 
-      await channel.setSource(
+      await backend.setSource(
         7,
         const AudioSource.url(
           'https://x/a.mp3',
@@ -136,20 +142,18 @@ void main() {
 
     test('volume is clamped to 0.0–1.0', () async {
       final api = _FakePlayerApi();
-      final channel = MethodChannelXueHuaAudio(playerApi: api);
+      final backend = NativeAudioBackend(playerApi: api);
 
-      await channel.setVolume(7, 3.5);
+      await backend.setVolume(7, 3.5);
 
       expect(api.calls, contains('setVolume:7:1.0'));
     });
 
     test('PlatformException is translated into AudioError', () async {
-      final channel = MethodChannelXueHuaAudio(
-        recorderApi: _ThrowingRecorderApi(),
-      );
+      final backend = NativeAudioBackend(recorderApi: _ThrowingRecorderApi());
 
       await expectLater(
-        channel.startRecorder(1, const RecordConfig(), path: '/tmp/a.wav'),
+        backend.startRecorder(1, const RecordConfig(), path: '/tmp/a.wav'),
         throwsA(
           isA<AudioError>()
               .having((e) => e.code, 'code', AudioError.codePermissionDenied)
@@ -178,8 +182,8 @@ void main() {
             ),
           );
 
-      final channel = MethodChannelXueHuaAudio(playerApi: _FakePlayerApi());
-      final events = await channel.playerEvents(7).toList();
+      final backend = NativeAudioBackend(playerApi: _FakePlayerApi());
+      final events = await backend.playerEvents(7).toList();
 
       expect(events, hasLength(4));
       expect((events[0] as PlayerStateEvent).state, PlayerState.playing);
@@ -212,8 +216,8 @@ void main() {
             ),
           );
 
-      final channel = MethodChannelXueHuaAudio(playerApi: _FakePlayerApi());
-      final events = await channel.recorderEvents(3).toList();
+      final backend = NativeAudioBackend(playerApi: _FakePlayerApi());
+      final events = await backend.recorderEvents(3).toList();
 
       expect((events[0] as RecorderStateEvent).state, RecorderState.recording);
       final amplitude = (events[1] as RecorderAmplitudeEvent).amplitude;

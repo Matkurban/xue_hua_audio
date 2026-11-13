@@ -44,7 +44,7 @@
 
 ```yaml
 dependencies:
-  xue_hua_audio: ^2.0.0
+  xue_hua_audio: ^3.0.0
 ```
 
 无需任何初始化调用。
@@ -205,7 +205,7 @@ try {
 
 ### Android
 
-无需配置——插件清单已声明 `RECORD_AUDIO` 与 `INTERNET`。最低 SDK 21。
+无需配置——插件清单已声明 `RECORD_AUDIO` 与 `INTERNET`。最低 SDK 24。
 
 ### iOS
 
@@ -258,7 +258,7 @@ sudo apt install libgstreamer1.0-dev gstreamer1.0-plugins-good gstreamer1.0-plug
 
 ```text
 xue_hua_audio
-├── lib/          Dart API、平台接口、method channel、Web
+├── lib/          Dart API、原生通道后端、Web
 ├── android/      Kotlin  · ExoPlayer + AudioRecord
 ├── darwin/       Swift   · AVPlayer + AVAudioEngine（iOS+macOS）
 ├── windows/      C++     · Media Foundation + WASAPI

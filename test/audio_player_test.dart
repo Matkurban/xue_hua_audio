@@ -1,15 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:xue_hua_audio/src/audio_backend.dart';
 import 'package:xue_hua_audio/src/events.dart';
 import 'package:xue_hua_audio/xue_hua_audio.dart';
 
 import 'fake_platform.dart';
 
 void main() {
-  late FakeAudioPlatform platform;
+  late FakeAudioBackend backend;
 
   setUp(() {
-    platform = FakeAudioPlatform();
-    XueHuaAudioPlatform.instance = platform;
+    backend = FakeAudioBackend();
+    AudioBackend.instance = backend;
+    addTearDown(AudioBackend.resetInstance);
   });
 
   group('AudioPlayer', () {
@@ -27,14 +31,14 @@ void main() {
       await pumpEventQueue();
       expect(durations, [const Duration(seconds: 3)]);
       expect(
-        platform.calls,
+        backend.calls,
         contains('setSource:0:AudioSource.file(/tmp/a.wav)'),
       );
       await player.dispose();
     });
 
     test('failed setSource throws AudioError and enters error state', () async {
-      platform.setSourceError = const AudioError(
+      backend.setSourceError = const AudioError(
         code: AudioError.codeSourceLoadFailed,
         message: 'boom',
       );
@@ -67,7 +71,7 @@ void main() {
       await player.dispose();
     });
 
-    test('commands are forwarded to the platform with the player id', () async {
+    test('commands are forwarded to the backend with the player id', () async {
       final player = AudioPlayer();
       await player.setSource(const AudioSource.asset('assets/a.wav'));
       await player.play();
@@ -79,7 +83,7 @@ void main() {
       await player.stop();
 
       expect(
-        platform.calls,
+        backend.calls,
         containsAllInOrder([
           'play:0',
           'pause:0',
@@ -93,7 +97,7 @@ void main() {
       await player.dispose();
     });
 
-    test('platform state events drive onStateChanged and completion', () async {
+    test('backend state events drive onStateChanged and completion', () async {
       final player = AudioPlayer();
       await player.setSource(const AudioSource.file('/tmp/a.wav'));
       final states = <PlayerState>[];
@@ -101,9 +105,9 @@ void main() {
       var completions = 0;
       player.onPlayerComplete.listen((_) => completions++);
 
-      platform.emitPlayer(0, const PlayerStateEvent(PlayerState.playing));
-      platform.emitPlayer(0, const PlayerStateEvent(PlayerState.playing));
-      platform.emitPlayer(0, const PlayerCompletedEvent());
+      backend.emitPlayer(0, const PlayerStateEvent(PlayerState.playing));
+      backend.emitPlayer(0, const PlayerStateEvent(PlayerState.playing));
+      backend.emitPlayer(0, const PlayerCompletedEvent());
       await pumpEventQueue();
 
       expect(states, [PlayerState.playing, PlayerState.completed]);
@@ -120,23 +124,23 @@ void main() {
       final positions = <Duration>[];
       player.onPositionChanged.listen(positions.add);
 
-      platform.position = const Duration(milliseconds: 42);
-      platform.emitPlayer(0, const PlayerStateEvent(PlayerState.playing));
+      backend.position = const Duration(milliseconds: 42);
+      backend.emitPlayer(0, const PlayerStateEvent(PlayerState.playing));
       await Future<void>.delayed(const Duration(milliseconds: 60));
-      platform.emitPlayer(0, const PlayerStateEvent(PlayerState.paused));
+      backend.emitPlayer(0, const PlayerStateEvent(PlayerState.paused));
       await pumpEventQueue();
 
       expect(positions, contains(const Duration(milliseconds: 42)));
       await player.dispose();
     });
 
-    test('async platform errors surface on onError', () async {
+    test('async backend errors surface on onError', () async {
       final player = AudioPlayer();
       await player.setSource(const AudioSource.file('/tmp/a.wav'));
       final errors = <AudioError>[];
       player.onError.listen(errors.add);
 
-      platform.emitPlayer(
+      backend.emitPlayer(
         0,
         const PlayerErrorEvent(
           AudioError(code: AudioError.codePlaybackFailed, message: 'dropped'),
@@ -156,9 +160,51 @@ void main() {
       await player.dispose();
       await player.dispose();
 
-      expect(platform.calls.where((c) => c == 'disposePlayer:0').length, 1);
+      expect(backend.calls.where((c) => c == 'disposePlayer:0').length, 1);
       expect(player.isDisposed, isTrue);
       expect(() => player.play(), throwsStateError);
     });
+
+    test(
+      'dispose before createPlayer resolves skips event subscription and rejects queued calls',
+      () async {
+        final isolated = FakeAudioBackend();
+        final gate = Completer<int>();
+        isolated.createPlayerGate = gate;
+
+        final player = AudioPlayer(backend: isolated);
+        final queuedPlay = expectLater(player.play(), throwsStateError);
+        final disposeFuture = player.dispose();
+
+        gate.complete(42);
+        await disposeFuture;
+        await queuedPlay;
+
+        expect(isolated.calls, ['createPlayer:42', 'disposePlayer:42']);
+        expect(isolated.calls.where((c) => c.startsWith('play:')), isEmpty);
+        expect(isolated.playerControllers, isEmpty);
+      },
+    );
+
+    test(
+      'dispose while setSource is pending does not write to closed streams',
+      () async {
+        final isolated = FakeAudioBackend();
+        final sourceGate = Completer<Duration?>();
+        isolated.setSourceGate = sourceGate;
+
+        final player = AudioPlayer(backend: isolated);
+        final setSourceFuture = player.setSource(
+          const AudioSource.file('/tmp/a.wav'),
+        );
+        await pumpEventQueue();
+
+        final disposeFuture = player.dispose();
+        sourceGate.complete(const Duration(seconds: 2));
+        await disposeFuture;
+
+        expect(await setSourceFuture, const Duration(seconds: 2));
+      },
+    );
   });
 }

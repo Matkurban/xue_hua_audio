@@ -1,6 +1,8 @@
 import 'dart:async';
 
-import '../xue_hua_audio_platform_interface.dart';
+import 'package:flutter/foundation.dart';
+
+import 'audio_backend.dart';
 import 'events.dart';
 import 'types/audio_device.dart';
 import 'types/audio_error.dart';
@@ -50,7 +52,8 @@ class AudioPlayer {
   /// 构造后即可直接使用。
   AudioPlayer({
     this.positionUpdateInterval = const Duration(milliseconds: 100),
-  }) {
+    @visibleForTesting AudioBackend? backend,
+  }) : _backendOverride = backend {
     _idFuture = _create();
   }
 
@@ -58,7 +61,9 @@ class AudioPlayer {
   /// 播放期间 [onPositionChanged] 事件的推送间隔。
   final Duration positionUpdateInterval;
 
-  static XueHuaAudioPlatform get _platform => XueHuaAudioPlatform.instance;
+  final AudioBackend? _backendOverride;
+
+  AudioBackend get _backend => _backendOverride ?? AudioBackend.instance;
 
   late final Future<int> _idFuture;
   StreamSubscription<PlayerEvent>? _eventSub;
@@ -143,7 +148,10 @@ class AudioPlayer {
   Future<Duration?> setSource(AudioSource source) async {
     final id = await _ensureCreated();
     try {
-      final duration = await _platform.setSource(id, source);
+      final duration = await _backend.setSource(id, source);
+      if (_disposed) {
+        return duration;
+      }
       _duration = duration;
       _durationController.add(duration);
       return duration;
@@ -162,13 +170,13 @@ class AudioPlayer {
   /// 调用前必须先通过 [setSource] 加载音频源。
   Future<void> play() async {
     final id = await _ensureCreated();
-    await _platform.play(id);
+    await _backend.play(id);
   }
 
   /// Pauses playback, keeping the current position. / 暂停播放并保留当前进度。
   Future<void> pause() async {
     final id = await _ensureCreated();
-    await _platform.pause(id);
+    await _backend.pause(id);
     await _emitPosition();
   }
 
@@ -177,7 +185,10 @@ class AudioPlayer {
   /// 停止播放并回到起点；已加载的音频源保留，再次 [play] 会从头播放。
   Future<void> stop() async {
     final id = await _ensureCreated();
-    await _platform.stopPlayer(id);
+    await _backend.stopPlayer(id);
+    if (_disposed) {
+      return;
+    }
     _lastPosition = Duration.zero;
     _positionController.add(Duration.zero);
   }
@@ -186,7 +197,7 @@ class AudioPlayer {
   /// 跳转到 [position]；seek 生效后 Future 才完成。
   Future<void> seek(Duration position) async {
     final id = await _ensureCreated();
-    await _platform.seekTo(id, position);
+    await _backend.seekTo(id, position);
     await _emitPosition();
   }
 
@@ -200,7 +211,7 @@ class AudioPlayer {
   /// [volume]：`0.0`（静音）～ `1.0`（最大音量）；超出范围的值会被截断。
   Future<void> setVolume(double volume) async {
     final id = await _ensureCreated();
-    await _platform.setVolume(id, volume);
+    await _backend.setVolume(id, volume);
   }
 
   /// Sets the playback speed.
@@ -214,7 +225,7 @@ class AudioPlayer {
   Future<void> setSpeed(double speed) async {
     assert(speed > 0, 'speed must be > 0');
     final id = await _ensureCreated();
-    await _platform.setSpeed(id, speed);
+    await _backend.setSpeed(id, speed);
   }
 
   /// Enables or disables looping.
@@ -227,14 +238,14 @@ class AudioPlayer {
   /// [looping]：为 `true` 时播放到末尾自动从头继续，而不会进入完成状态。
   Future<void> setLooping(bool looping) async {
     final id = await _ensureCreated();
-    await _platform.setLooping(id, looping);
+    await _backend.setLooping(id, looping);
   }
 
   /// Reads the current playback position from the platform.
   /// 从平台读取当前播放位置。
   Future<Duration> getPosition() async {
     final id = await _ensureCreated();
-    return _platform.getPosition(id);
+    return _backend.getPosition(id);
   }
 
   /// Lists the available audio output devices (speakers, headphones, …).
@@ -250,15 +261,16 @@ class AudioPlayer {
   /// 返回 [AudioDevice] 列表；把某个设备的 id 传给 [setOutputDevice] 即可将
   /// 本播放器路由到该设备。iOS 端只能返回当前音频路由中的设备（系统不允许
   /// App 枚举全部输出设备）；Web 端在用户授予媒体权限前 label 可能为空。
-  static Future<List<AudioDevice>> listOutputDevices() =>
-      _platform.listOutputDevices();
+  static Future<List<AudioDevice>> listOutputDevices({
+    @visibleForTesting AudioBackend? backend,
+  }) => (backend ?? AudioBackend.instance).listOutputDevices();
 
   /// Returns the output device this player is routed to, or `null` when it
   /// follows the system default.
   /// 返回本播放器当前路由到的输出设备；跟随系统默认设备时返回 `null`。
   Future<AudioDevice?> getOutputDevice() async {
     final id = await _ensureCreated();
-    return _platform.getOutputDevice(id);
+    return _backend.getOutputDevice(id);
   }
 
   /// Routes this player to the output device [deviceId].
@@ -282,7 +294,7 @@ class AudioPlayer {
   /// 亦可切换）。
   Future<void> setOutputDevice(String? deviceId) async {
     final id = await _ensureCreated();
-    await _platform.setOutputDevice(id, deviceId);
+    await _backend.setOutputDevice(id, deviceId);
   }
 
   /// Releases the native player and closes every stream. Safe to call more
@@ -299,7 +311,7 @@ class AudioPlayer {
     _eventSub = null;
     try {
       final id = await _idFuture;
-      await _platform.disposePlayer(id);
+      await _backend.disposePlayer(id);
     } catch (_) {
       // Creation may have failed; there is nothing to release then.
       // 创建可能已失败，此时无资源可释放。
@@ -315,22 +327,34 @@ class AudioPlayer {
   // -----------------------------------------------------------------------
 
   Future<int> _create() async {
-    final id = await _platform.createPlayer();
-    _eventSub = _platform.playerEvents(id).listen(_onEvent);
+    final id = await _backend.createPlayer();
+    if (!_disposed) {
+      _eventSub = _backend.playerEvents(id).listen(_onEvent);
+    }
     return id;
   }
 
-  Future<int> _ensureCreated() {
+  Future<int> _ensureCreated() async {
     if (_disposed) {
       throw StateError(
         'AudioPlayer has been disposed and can no longer be used. '
         'AudioPlayer 已被释放，无法继续使用。',
       );
     }
-    return _idFuture;
+    final id = await _idFuture;
+    if (_disposed) {
+      throw StateError(
+        'AudioPlayer has been disposed and can no longer be used. '
+        'AudioPlayer 已被释放，无法继续使用。',
+      );
+    }
+    return id;
   }
 
   void _onEvent(PlayerEvent event) {
+    if (_disposed) {
+      return;
+    }
     switch (event) {
       case PlayerStateEvent(:final state):
         _setState(state);
@@ -375,7 +399,7 @@ class AudioPlayer {
     }
     try {
       final id = await _idFuture;
-      final position = await _platform.getPosition(id);
+      final position = await _backend.getPosition(id);
       if (!_disposed && position != _lastPosition) {
         _lastPosition = position;
         _positionController.add(position);

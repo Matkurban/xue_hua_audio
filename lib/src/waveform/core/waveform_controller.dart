@@ -2,9 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 
-import 'waveform_parser.dart';
+import '../models/waveform_metrics.dart';
+import '../parser/waveform_parser.dart';
 
-/// Holds the rolling level history shown by [AudioWaveform] and other
+/// Holds the rolling level history shown by `AudioWaveform` and other
 /// recording visualizers.
 ///
 /// The history is **event driven**: every level that arrives from the
@@ -16,7 +17,7 @@ import 'waveform_parser.dart';
 /// event interval, so the speed follows the native update rate.
 /// No memory is allocated after construction.
 ///
-/// 滚动电平历史，由 [AudioWaveform] 及其他录音可视化组件显示。历史按**事件驱动**：
+/// 滚动电平历史，由 `AudioWaveform` 及其他录音可视化组件显示。历史按**事件驱动**：
 /// 录音器每送来一个电平就产生一根柱，与语音消息界面一致；柱不会被复制，也不会在
 /// 两次事件之间衰减，因此恒定的底噪显示为恒定的（很矮的）柱，静音显示为平直圆点。
 /// 快于 [maxBarsPerSecond] 的事件会合并为其中最大值。滚动按实测事件间隔在

@@ -1,3 +1,16 @@
+## 3.0.0
+
+- **BREAKING**: Remove `plugin_platform_interface` dependency, `XueHuaAudioPlatform`, and `package:xue_hua_audio/xue_hua_audio_method_channel.dart` from the public API. Single-package wiring now uses the internal `AudioBackend` contract (`NativeAudioBackend` on mobile/desktop and `XueHuaAudioWebPlugin` on Web); all app-facing classes (`AudioPlayer`, `AudioRecorder`, `AudioWaveform`, `RecordingVisualizer`, etc.) remain unchanged.
+  **破坏性变更**：移除不再使用的 `plugin_platform_interface` 依赖以及公开导出中的 `XueHuaAudioPlatform` 与 `xue_hua_audio_method_channel.dart`。单包内部改用纯 Dart 抽象 `AudioBackend`（移动端/桌面端为 `NativeAudioBackend`，Web 端为 `XueHuaAudioWebPlugin`）；应用层公开 API（`AudioPlayer`、`AudioRecorder`、`AudioWaveform`、`RecordingVisualizer` 等）保持不变。
+- Regenerate Pigeon Platform Channel bindings across Dart, Kotlin, Swift, C++, and GObject with `pigeon: ^30.0.2`.
+  使用 `pigeon: ^30.0.2` 重新生成 Dart、Kotlin、Swift、C++ 与 GObject 平台通道绑定代码。
+- Fix concurrent `dispose()` races in `AudioPlayer` and `AudioRecorder` during native instance creation and `setSource` completion, fix `WaveformDataParser.computeOscilloscopeTrace` endpoint taper, and unify the shared ticker/subscription lifecycle between `AudioWaveform` and `RecordingVisualizerBase`.
+  修复 `AudioPlayer` 与 `AudioRecorder` 在原生实例创建及 `setSource` 期间并发 `dispose()` 的竞态问题，修复 `WaveformDataParser.computeOscilloscopeTrace` 端点衰减偏移，并统一 `AudioWaveform` 与 `RecordingVisualizerBase` 的 Ticker/订阅生命周期代码。
+- Harden native teardown: publish the iOS plugin instance and implement `detachFromEngine(for:)` on Darwin, complete pending `setSource` continuations on dispose, and clean up pending Android permission callbacks on activity/engine detach.
+  加固原生端生命周期清理：在 Darwin iOS 侧发布插件实例并实现 `detachFromEngine(for:)`、释放播放器时结束挂起的 `setSource` 回调，以及在 Android Activity/Engine 卸载时清理挂起的麦克风权限回调。
+- Example: remove unused `cupertino_icons` and `example/lib/app_theme.dart`, cancel stream subscriptions on card disposal, and migrate `integration_test/ui_driver_test.dart` to `package:material_ui/material_ui.dart`.
+  示例应用：移除未使用的 `cupertino_icons` 与 `example/lib/app_theme.dart`，在卡片销毁时取消事件流订阅，并将 `integration_test/ui_driver_test.dart` 迁移为 `package:material_ui/material_ui.dart`。
+
 ## 2.3.0
 
 - Add 16 minimalist live recording visualizer widgets (pure `package:flutter/widgets.dart`, zero Material dependency) driven by `AudioRecorder`, a dBFS `Stream<double>`, or `WaveformController`: `PulseRingVisualizer`, `HarmonicWaveVisualizer`, `RadialSpectrumVisualizer`, `SegmentedVuVisualizer`, `ParticleMatrixVisualizer`, `LiquidOrbVisualizer`, `SpectrogramHeatmapVisualizer`, `HelixDnaVisualizer`, `AcousticPetalVisualizer`, `PrecisionMeterVisualizer`, `VoicePendulumVisualizer`, `MorphingPolygonVisualizer`, `KineticLouverVisualizer`, `OrbitConstellationVisualizer`, `SymmetricRibbonVisualizer`, and `OscilloscopeTraceVisualizer`.

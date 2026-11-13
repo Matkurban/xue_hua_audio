@@ -69,9 +69,23 @@ public class XueHuaAudioDarwinPlugin: NSObject, FlutterPlugin, AudioPlayerHostAp
       let messenger = registrar.messenger()
     #endif
     let plugin = XueHuaAudioDarwinPlugin(messenger: messenger, registrar: registrar)
+    #if os(iOS)
+      registrar.publish(plugin)
+    #endif
     AudioPlayerHostApiSetup.setUp(binaryMessenger: messenger, api: plugin)
     AudioRecorderHostApiSetup.setUp(binaryMessenger: messenger, api: plugin)
   }
+
+  #if os(iOS)
+    public func detachFromEngine(for registrar: FlutterPluginRegistrar) {
+      AudioPlayerHostApiSetup.setUp(binaryMessenger: messenger, api: nil)
+      AudioRecorderHostApiSetup.setUp(binaryMessenger: messenger, api: nil)
+      players.values.forEach { $0.dispose() }
+      players.removeAll()
+      recorders.values.forEach { $0.dispose() }
+      recorders.removeAll()
+    }
+  #endif
 
   private let messenger: FlutterBinaryMessenger
   private let registrar: FlutterPluginRegistrar

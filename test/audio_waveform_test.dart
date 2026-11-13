@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:xue_hua_audio/src/audio_backend.dart';
 import 'package:xue_hua_audio/src/events.dart';
 import 'package:xue_hua_audio/xue_hua_audio.dart';
 
@@ -549,21 +550,22 @@ void main() {
     });
 
     testWidgets('follows a recorder: records, pauses, stops', (tester) async {
-      final platform = FakeAudioPlatform();
-      XueHuaAudioPlatform.instance = platform;
+      final backend = FakeAudioBackend();
+      AudioBackend.instance = backend;
+      addTearDown(AudioBackend.resetInstance);
       final recorder = AudioRecorder();
       final controller = WaveformController(maxBarsPerSecond: 20);
       await tester.pumpWidget(
         _host(AudioWaveform(recorder: recorder, controller: controller)),
       );
       await recorder.start(const RecordConfig(), path: '/tmp/w.wav');
-      platform.emitRecorder(
+      backend.emitRecorder(
         100,
         const RecorderStateEvent(RecorderState.recording),
       );
       await tester.pump();
       for (var i = 0; i < 6; i++) {
-        platform.emitRecorder(
+        backend.emitRecorder(
           100,
           const RecorderAmplitudeEvent(Amplitude(current: -3, max: -3)),
         );
@@ -577,10 +579,7 @@ void main() {
       expect(peak, greaterThan(0.3));
 
       await recorder.pause();
-      platform.emitRecorder(
-        100,
-        const RecorderStateEvent(RecorderState.paused),
-      );
+      backend.emitRecorder(100, const RecorderStateEvent(RecorderState.paused));
       await tester.pump();
       final frozen = controller.length;
       expect(controller.active, isFalse);
@@ -588,7 +587,7 @@ void main() {
       expect(controller.length, frozen);
 
       await recorder.stop();
-      platform.emitRecorder(
+      backend.emitRecorder(
         100,
         const RecorderStateEvent(RecorderState.stopped),
       );

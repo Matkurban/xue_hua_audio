@@ -264,6 +264,10 @@ class PlayerInstance(
 
     /** Releases the ExoPlayer and the event channel. / 释放 ExoPlayer 与事件通道。 */
     fun dispose() {
+        pendingLoad?.let { load ->
+            pendingLoad = null
+            load(Result.failure(FlutterError("instanceNotFound", "Player disposed", null)))
+        }
         player.release()
         events.dispose()
     }

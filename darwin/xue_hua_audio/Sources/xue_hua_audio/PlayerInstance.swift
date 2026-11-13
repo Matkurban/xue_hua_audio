@@ -258,6 +258,12 @@ final class PlayerInstance: NSObject {
 
   /// Releases the AVPlayer and the event channel. / 释放 AVPlayer 与事件通道。
   func dispose() {
+    if let load = pendingLoad {
+      pendingLoad = nil
+      load(
+        .failure(
+          PigeonError(code: "instanceNotFound", message: "Player disposed", details: nil)))
+    }
     statusObservation?.invalidate()
     timeControlObservation?.invalidate()
     if let endObserver {

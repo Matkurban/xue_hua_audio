@@ -1,6 +1,8 @@
 import 'dart:async';
 
-import '../xue_hua_audio_platform_interface.dart';
+import 'package:flutter/foundation.dart';
+
+import 'audio_backend.dart';
 import 'events.dart';
 import 'types/amplitude.dart';
 import 'types/audio_device.dart';
@@ -35,11 +37,14 @@ class AudioRecorder {
   ///
   /// 原生实例采用异步惰性创建；所有方法都会自动等待创建完成，因此
   /// 构造后即可直接使用。
-  AudioRecorder() {
+  AudioRecorder({@visibleForTesting AudioBackend? backend})
+    : _backendOverride = backend {
     _idFuture = _create();
   }
 
-  static XueHuaAudioPlatform get _platform => XueHuaAudioPlatform.instance;
+  final AudioBackend? _backendOverride;
+
+  AudioBackend get _backend => _backendOverride ?? AudioBackend.instance;
 
   late final Future<int> _idFuture;
   StreamSubscription<RecorderEvent>? _eventSub;
@@ -101,7 +106,7 @@ class AudioRecorder {
   ///
   /// 允许录音时返回 `true`。在 Android 与 iOS 上，如果用户尚未做出选择，
   /// 会弹出系统权限对话框。
-  Future<bool> hasPermission() => _platform.hasRecordPermission();
+  Future<bool> hasPermission() => _backend.hasRecordPermission();
 
   /// Lists the available audio input devices (microphones).
   ///
@@ -114,14 +119,14 @@ class AudioRecorder {
   /// 返回 [AudioDevice] 列表；把某个设备的 id 传给 [setInputDevice] 或
   /// `RecordConfig.deviceId` 即可用该设备录音。Web 端在麦克风权限授予前
   /// label 可能为空。
-  Future<List<AudioDevice>> listInputDevices() => _platform.listInputDevices();
+  Future<List<AudioDevice>> listInputDevices() => _backend.listInputDevices();
 
   /// Returns the input device this recorder captures from, or `null` when it
   /// follows the system default.
   /// 返回本录音机当前采集使用的输入设备；跟随系统默认设备时返回 `null`。
   Future<AudioDevice?> getInputDevice() async {
     final id = await _ensureCreated();
-    return _platform.getInputDevice(id);
+    return _backend.getInputDevice(id);
   }
 
   /// Selects the input device [deviceId] for this recorder.
@@ -146,7 +151,7 @@ class AudioRecorder {
   /// 覆盖此偏好。
   Future<void> setInputDevice(String? deviceId) async {
     final id = await _ensureCreated();
-    await _platform.setInputDevice(id, deviceId);
+    await _backend.setInputDevice(id, deviceId);
   }
 
   /// Starts recording.
@@ -175,20 +180,20 @@ class AudioRecorder {
   /// Windows 上的 Opus）。
   Future<void> start(RecordConfig config, {required String path}) async {
     final id = await _ensureCreated();
-    await _platform.startRecorder(id, config, path: path);
+    await _backend.startRecorder(id, config, path: path);
   }
 
   /// Pauses recording; captured audio so far is kept.
   /// 暂停录音；已采集的音频保留。
   Future<void> pause() async {
     final id = await _ensureCreated();
-    await _platform.pauseRecorder(id);
+    await _backend.pauseRecorder(id);
   }
 
   /// Resumes a paused recording. / 恢复已暂停的录音。
   Future<void> resume() async {
     final id = await _ensureCreated();
-    await _platform.resumeRecorder(id);
+    await _backend.resumeRecorder(id);
   }
 
   /// Stops recording and finalizes the file.
@@ -201,7 +206,7 @@ class AudioRecorder {
   /// 返回录音文件路径（Web 端为 blob URL）；未产生录音时返回 `null`。
   Future<String?> stop() async {
     final id = await _ensureCreated();
-    return _platform.stopRecorder(id);
+    return _backend.stopRecorder(id);
   }
 
   /// Stops recording and deletes the partial file — use this to discard a
@@ -209,7 +214,7 @@ class AudioRecorder {
   /// 停止录音并删除未完成的文件——用于放弃本次录音。
   Future<void> cancel() async {
     final id = await _ensureCreated();
-    await _platform.cancelRecorder(id);
+    await _backend.cancelRecorder(id);
   }
 
   /// Releases the native recorder and closes every stream. A running
@@ -226,7 +231,7 @@ class AudioRecorder {
     _eventSub = null;
     try {
       final id = await _idFuture;
-      await _platform.disposeRecorder(id);
+      await _backend.disposeRecorder(id);
     } catch (_) {
       // Creation may have failed; there is nothing to release then.
       // 创建可能已失败，此时无资源可释放。
@@ -241,19 +246,28 @@ class AudioRecorder {
   // -----------------------------------------------------------------------
 
   Future<int> _create() async {
-    final id = await _platform.createRecorder();
-    _eventSub = _platform.recorderEvents(id).listen(_onEvent);
+    final id = await _backend.createRecorder();
+    if (!_disposed) {
+      _eventSub = _backend.recorderEvents(id).listen(_onEvent);
+    }
     return id;
   }
 
-  Future<int> _ensureCreated() {
+  Future<int> _ensureCreated() async {
     if (_disposed) {
       throw StateError(
         'AudioRecorder has been disposed and can no longer be used. '
         'AudioRecorder 已被释放，无法继续使用。',
       );
     }
-    return _idFuture;
+    final id = await _idFuture;
+    if (_disposed) {
+      throw StateError(
+        'AudioRecorder has been disposed and can no longer be used. '
+        'AudioRecorder 已被释放，无法继续使用。',
+      );
+    }
+    return id;
   }
 
   void _onEvent(RecorderEvent event) {

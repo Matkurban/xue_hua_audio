@@ -1,0 +1,32 @@
+# Mirrors .gitignore so pub publish honors git ignores alongside local-only files.
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+*.iml
+*.ipr
+*.iws
+.idea/
+/pubspec.lock
+**/doc/api/
+.dart_tool/
+.flutter-plugins-dependencies
+/build/
+/coverage/
+CONTEXT.md
+
+# Local Pigeon reference docs and workspace metadata (not for pub.dev)
+pigeon/
+.codegraph/
+example/.dart_tool/
+example/.flutter-plugins-dependencies
+example/build/
+example/pubspec.lock

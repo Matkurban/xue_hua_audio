@@ -72,8 +72,8 @@ kotlin {
 }
 
 dependencies {
-    // Pigeon 29 generates suspend host APIs, which need coroutines.
-    // Pigeon 29 生成 suspend Host API，需要协程库。
+    // Pigeon generates suspend host APIs, which need coroutines.
+    // Pigeon 生成 suspend Host API，需要协程库。
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
     // Media3 ExoPlayer drives all audio playback (file/URL/asset).
     // Media3 ExoPlayer 负责全部音频播放（本地文件/网络/Asset）。

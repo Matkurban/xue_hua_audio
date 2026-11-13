@@ -63,6 +63,7 @@ class XueHuaAudioAndroidPlugin :
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         AudioPlayerHostApi.setUp(binding.binaryMessenger, null)
         AudioRecorderHostApi.setUp(binding.binaryMessenger, null)
+        cancelPendingPermissions()
         players.values.forEach(PlayerInstance::dispose)
         players.clear()
         recorders.values.forEach(RecorderInstance::dispose)
@@ -76,14 +77,29 @@ class XueHuaAudioAndroidPlugin :
         binding.addRequestPermissionsResultListener(this)
     }
 
-    override fun onDetachedFromActivityForConfigChanges() = onDetachedFromActivity()
+    private fun detachActivityBinding() {
+        activityBinding?.removeRequestPermissionsResultListener(this)
+        activityBinding = null
+    }
+
+    private fun cancelPendingPermissions() {
+        if (pendingPermissionCallbacks.isEmpty()) return
+        val pending = pendingPermissionCallbacks.toList()
+        pendingPermissionCallbacks.clear()
+        val granted =
+            context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) ==
+                PackageManager.PERMISSION_GRANTED
+        pending.forEach { it(Result.success(granted)) }
+    }
+
+    override fun onDetachedFromActivityForConfigChanges() = detachActivityBinding()
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) =
         onAttachedToActivity(binding)
 
     override fun onDetachedFromActivity() {
-        activityBinding?.removeRequestPermissionsResultListener(this)
-        activityBinding = null
+        detachActivityBinding()
+        cancelPendingPermissions()
     }
 
     override fun onRequestPermissionsResult(
@@ -138,10 +154,10 @@ class XueHuaAudioAndroidPlugin :
         listDevices(flow).firstOrNull { it.id == deviceId }
 
     /**
-     * Bridges a callback-style native call to the suspend Host API Pigeon 29
-     * generates. The callback may complete synchronously.
+     * Bridges a callback-style native call to the suspend Host API generated
+     * by Pigeon. The callback may complete synchronously.
      *
-     * 把仍使用 callback 的原生调用接到 Pigeon 29 生成的 suspend Host API。
+     * 把仍使用 callback 的原生调用接到 Pigeon 生成的 suspend Host API。
      * callback 可以同步完成。
      */
     private suspend fun <T> awaitResult(block: ((Result<T>) -> Unit) -> Unit): T =

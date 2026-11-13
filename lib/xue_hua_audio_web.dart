@@ -16,6 +16,7 @@ import 'dart:js_interop';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:web/web.dart' as web;
 
+import 'src/audio_backend.dart';
 import 'src/events.dart';
 import 'src/types/audio_device.dart';
 import 'src/types/audio_error.dart';
@@ -23,21 +24,20 @@ import 'src/types/audio_source.dart';
 import 'src/types/record_config.dart';
 import 'src/web/web_player.dart';
 import 'src/web/web_recorder.dart';
-import 'xue_hua_audio_platform_interface.dart';
 
-/// The Web [XueHuaAudioPlatform] implementation, registered automatically
-/// by the Flutter Web plugin registrant.
+/// The Web [AudioBackend] implementation, registered automatically by the
+/// Flutter Web plugin registrant.
 ///
-/// 由 Flutter Web 插件注册器自动注册的 Web 端 [XueHuaAudioPlatform] 实现。
-class XueHuaAudioWebPlugin extends XueHuaAudioPlatform {
-  /// Registers this implementation as the active platform instance.
+/// 由 Flutter Web 插件注册器自动注册的 Web 端 [AudioBackend] 实现。
+class XueHuaAudioWebPlugin implements AudioBackend {
+  /// Registers this implementation as the active backend instance.
   /// Called by the generated plugin registrant — not by user code.
   ///
-  /// 将本实现注册为当前平台实例。由生成的插件注册器调用，无需用户手动调用。
+  /// 将本实现注册为当前后端实例。由生成的插件注册器调用，无需用户手动调用。
   ///
   /// [registrar]: the Flutter Web plugin registrar. / Flutter Web 插件注册器。
   static void registerWith(Registrar registrar) {
-    XueHuaAudioPlatform.instance = XueHuaAudioWebPlugin();
+    AudioBackend.instance = XueHuaAudioWebPlugin();
   }
 
   final Map<int, WebPlayer> _players = {};

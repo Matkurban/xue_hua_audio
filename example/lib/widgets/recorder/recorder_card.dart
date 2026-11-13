@@ -25,6 +25,7 @@ class RecorderCard extends StatefulWidget {
 class _RecorderCardState extends State<RecorderCard> {
   final AudioRecorder _recorder = AudioRecorder();
   final AudioPlayer _playback = AudioPlayer();
+  final List<StreamSubscription<Object?>> _subs = [];
 
   RecorderState _state = RecorderState.idle;
   final WaveformController _wave = WaveformController();
@@ -39,27 +40,33 @@ class _RecorderCardState extends State<RecorderCard> {
   @override
   void initState() {
     super.initState();
-    _recorder.onStateChanged.listen((state) {
-      if (mounted) setState(() => _state = state);
-    });
-    _recorder.onAmplitudeChanged.listen((amplitude) {
-      if (!mounted) return;
-      _saved.add(_wave.normalize(amplitude.current));
-      if (_saved.length > 4000) _saved.removeAt(0);
-    });
-    _playback.onPositionChanged.listen((p) {
-      final d = _playback.duration;
-      if (mounted && d != null && d.inMilliseconds > 0) {
-        setState(() => _playProgress = p.inMilliseconds / d.inMilliseconds);
-      }
-    });
-    _recorder.onError.listen((error) {
-      if (mounted) setState(() => _error = error.toString());
-    });
+    _subs.addAll([
+      _recorder.onStateChanged.listen((state) {
+        if (mounted) setState(() => _state = state);
+      }),
+      _recorder.onAmplitudeChanged.listen((amplitude) {
+        if (!mounted) return;
+        _saved.add(_wave.normalize(amplitude.current));
+        if (_saved.length > 4000) _saved.removeAt(0);
+      }),
+      _playback.onPositionChanged.listen((p) {
+        final d = _playback.duration;
+        if (mounted && d != null && d.inMilliseconds > 0) {
+          setState(() => _playProgress = p.inMilliseconds / d.inMilliseconds);
+        }
+      }),
+      _recorder.onError.listen((error) {
+        if (mounted) setState(() => _error = error.toString());
+      }),
+    ]);
   }
 
   @override
   void dispose() {
+    for (final sub in _subs) {
+      sub.cancel();
+    }
+    _subs.clear();
     _wave.dispose();
     _recorder.dispose();
     _playback.dispose();
