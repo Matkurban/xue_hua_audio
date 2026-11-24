@@ -14,8 +14,8 @@ dependencies:
   xue_hua_audio:
     path: ../
   flex_color_scheme: ^9.0.0
-  material_ui: ^1.11.0
-  cupertino_ui: ^1.1.6
+  material_ui: ^1.11.1
+  cupertino_ui: ^1.1.7
 
 dev_dependencies:
   integration_test:
